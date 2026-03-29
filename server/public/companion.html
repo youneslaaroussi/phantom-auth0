@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phantom Auth0 Companion</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #152033;
+      --muted: #5f6b7c;
+      --line: #d7ddea;
+      --accent: #1459ff;
+      --accent-soft: #e8f0ff;
+      --danger: #c62828;
+      --ok: #1f8f4e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #edf2ff, var(--bg) 52%);
+      color: var(--text);
+    }
+    .wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 12px 40px rgba(17, 31, 71, 0.07);
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 34px; line-height: 1.05; margin-bottom: 12px; }
+    h2 { font-size: 18px; margin-bottom: 12px; }
+    p.lead { color: var(--muted); font-size: 16px; line-height: 1.6; margin-bottom: 18px; }
+    .stack { display: grid; gap: 16px; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      padding: 8px 12px;
+      font-weight: 600;
+    }
+    .btn {
+      appearance: none;
+      border: 0;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 11px 16px;
+      background: var(--accent);
+      color: white;
+    }
+    .btn.secondary {
+      background: white;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+    .btn.danger {
+      background: #fff3f3;
+      color: var(--danger);
+      border: 1px solid #f3c9c9;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .list { display: grid; gap: 12px; }
+    .item {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      background: #fbfcff;
+    }
+    .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .muted { color: var(--muted); }
+    .success { color: var(--ok); }
+    .error { color: var(--danger); }
+    code {
+      background: #f0f4fc;
+      border: 1px solid var(--line);
+      padding: 1px 6px;
+      border-radius: 8px;
+    }
+    @media (max-width: 860px) {
+      .hero, .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <section class="card">
+        <div class="pill">Phantom Auth0 Companion</div>
+        <h1>Secure delegated actions for a local browser agent.</h1>
+        <p class="lead">
+          Pair the extension, connect Google and GitHub through Auth0, review exact scopes, and approve high-risk actions before anything gets sent, created, posted, or opened as an issue.
+        </p>
+        <div class="row">
+          <div id="auth-status" class="muted">Checking session…</div>
+          <div class="row">
+            <button id="login-btn" class="btn">Sign in with Auth0</button>
+            <button id="logout-btn" class="btn secondary">Log out</button>
+          </div>
+        </div>
+      </section>
+      <section class="card stack">
+        <div>
+          <div class="label">Pairing</div>
+          <h2>Extension pairing</h2>
+        </div>
+        <div id="pair-box" class="item">
+          <div class="muted">Open this page from the extension pairing link to approve a pending pairing request.</div>
+        </div>
+      </section>
+    </div>
+
+    <div class="grid">
+      <section class="card stack">
+        <div class="row">
+          <div>
+            <div class="label">Connected accounts</div>
+            <h2>Google, GitHub, and Slack</h2>
+          </div>
+          <button id="refresh-accounts" class="btn secondary">Refresh</button>
+        </div>
+        <div class="row">
+          <button data-provider="google" class="btn connect-btn">Connect Google</button>
+          <button data-provider="github" class="btn secondary connect-btn">Connect GitHub</button>
+          <button data-provider="slack" class="btn secondary connect-btn">Connect Slack</button>
+        </div>
+        <div id="accounts-list" class="list"></div>
+      </section>
+
+      <section class="card stack">
+        <div class="row">
+          <div>
+            <div class="label">Action history</div>
+            <h2>Approvals and outcomes</h2>
+          </div>
+          <button id="refresh-actions" class="btn secondary">Refresh</button>
+        </div>
+        <div id="actions-list" class="list"></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const pairCode = params.get("pair_code");
+    const errorParam = params.get("error");
+
+    async function getJson(url, init) {
+      const response = await fetch(url, { credentials: "include", ...init });
+      const json = await response.json();
+      if (!response.ok) throw new Error(json.error || "Request failed");
+      return json;
+    }
+
+    function renderAccounts(connections) {
+      const list = document.getElementById("accounts-list");
+      if (!connections.length) {
+        list.innerHTML = '<div class="item muted">No connected accounts yet.</div>';
+        return;
+      }
+      list.innerHTML = connections.map((connection) => `
+        <div class="item">
+          <div class="row">
+            <strong>${connection.name}</strong>
+            <span class="success">Connected</span>
+          </div>
+          <div class="muted" style="margin-top:8px">${(connection.scopes || []).join(", ") || "No scopes returned"}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderActions(actions) {
+      const list = document.getElementById("actions-list");
+      if (!actions.length) {
+        list.innerHTML = '<div class="item muted">No actions yet. Trigger one from the extension to see approval state here.</div>';
+        return;
+      }
+      list.innerHTML = actions.map((action) => `
+        <div class="item">
+          <div class="row">
+            <strong>${action.summary}</strong>
+            <span class="${action.status === "completed" ? "success" : action.status === "rejected" || action.status === "failed" ? "error" : "muted"}">${action.status}</span>
+          </div>
+          <div class="muted" style="margin-top:8px">${new Date(action.createdAt).toLocaleString()}</div>
+          ${action.error ? `<div class="error" style="margin-top:8px">${action.error}</div>` : ""}
+        </div>
+      `).join("");
+    }
+
+    async function refreshSession() {
+      const status = document.getElementById("auth-status");
+      try {
+        const me = await getJson("/api/me");
+        if (me.authenticated) {
+          status.innerHTML = `Signed in as <strong>${me.profile?.email || me.profile?.sub || "unknown user"}</strong>`;
+        } else {
+          status.textContent = "Not signed in. Sign in to connect accounts or approve actions.";
+        }
+      } catch (error) {
+        status.innerHTML = `<span class="error">${error.message}</span>`;
+      }
+      if (errorParam) {
+        status.innerHTML += ` <span class="error">(${errorParam})</span>`;
+      }
+    }
+
+    async function refreshAccounts() {
+      try {
+        const data = await getJson("/api/accounts/status");
+        renderAccounts(data.connections || []);
+      } catch (error) {
+        renderAccounts([]);
+        document.getElementById("accounts-list").innerHTML = `<div class="item error">${error.message}</div>`;
+      }
+    }
+
+    async function refreshActions() {
+      try {
+        const data = await getJson("/api/actions/history");
+        renderActions(data.actions || []);
+      } catch (error) {
+        document.getElementById("actions-list").innerHTML = `<div class="item error">${error.message}</div>`;
+      }
+    }
+
+    async function refreshPairing() {
+      const box = document.getElementById("pair-box");
+      if (!pairCode) {
+        box.innerHTML = '<div class="muted">No pair code was provided. Start pairing from the extension settings or tool flow.</div>';
+        return;
+      }
+
+      try {
+        const status = await getJson(`/api/pair/status/${encodeURIComponent(pairCode)}`);
+        if (status.status === "paired") {
+          box.innerHTML = `<div class="success">Extension pair request <code>${pairCode}</code> is already approved.</div>`;
+          return;
+        }
+      } catch (error) {
+        box.innerHTML = `<div class="error">${error.message}</div>`;
+        return;
+      }
+
+      box.innerHTML = `
+        <div class="stack">
+          <div><span class="label">Pending code</span><div class="mono" style="font-size:28px;margin-top:8px">${pairCode}</div></div>
+          <div class="muted">Approve this request to bind your logged-in Auth0 session to the local Phantom extension.</div>
+          <button id="approve-pair" class="btn">Approve pairing</button>
+        </div>
+      `;
+
+      document.getElementById("approve-pair").addEventListener("click", async () => {
+        try {
+          await getJson("/api/pair/approve", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ code: pairCode }),
+          });
+          await refreshPairing();
+        } catch (error) {
+          box.innerHTML = `<div class="error">${error.message}</div>`;
+        }
+      });
+    }
+
+    document.getElementById("login-btn").addEventListener("click", () => {
+      window.location.href = `/auth/login?redirect_to=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+    });
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      window.location.href = "/auth/logout";
+    });
+    document.getElementById("refresh-accounts").addEventListener("click", refreshAccounts);
+    document.getElementById("refresh-actions").addEventListener("click", refreshActions);
+    document.querySelectorAll(".connect-btn").forEach((button) => {
+      button.addEventListener("click", async () => {
+        try {
+          const provider = button.getAttribute("data-provider");
+          const result = await getJson(`/api/accounts/${provider}/connect`, { method: "POST" });
+          sessionStorage.setItem("phantom-auth0-connected-flow-id", result.flowId || "");
+          sessionStorage.setItem("phantom-auth0-connected-provider", provider || "");
+          window.location.href = result.connectUri;
+        } catch (error) {
+          alert(error.message);
+        }
+      });
+    });
+
+    refreshSession();
+    refreshPairing();
+    refreshAccounts();
+    refreshActions();
+  </script>
+</body>
+</html>

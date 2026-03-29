@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Connected Account Callback</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f7fb;
+      color: #17253d;
+    }
+    .card {
+      width: min(92vw, 520px);
+      padding: 24px;
+      background: white;
+      border: 1px solid #d7ddea;
+      border-radius: 20px;
+      box-shadow: 0 12px 32px rgba(17, 31, 71, 0.08);
+    }
+    .muted { color: #5f6b7c; }
+    .error { color: #c62828; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1 style="margin-top:0">Finalizing connection…</h1>
+    <p id="status" class="muted">Please wait while Phantom Auth0 completes the connected-account flow.</p>
+  </div>
+  <script>
+    async function complete() {
+      const query = new URLSearchParams(window.location.search);
+      const flowId =
+        query.get("flowId") ||
+        window.sessionStorage.getItem("phantom-auth0-connected-flow-id");
+      const connectCode = query.get("connect_code");
+      const status = document.getElementById("status");
+
+      if (!flowId || !connectCode) {
+        status.className = "error";
+        status.textContent = "Missing flow ID or connect code. Return to the companion app and start the flow again.";
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/accounts/complete", {
+          method: "POST",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            flowId,
+            connectCode,
+            redirectUri: `${window.location.origin}/connected-accounts/callback`,
+          }),
+        });
+        const json = await response.json();
+        if (!response.ok) {
+          throw new Error(json.error || "Failed to complete account connection");
+        }
+        status.className = "muted";
+        status.textContent = `Connected ${json.provider}. Redirecting back to the companion app…`;
+        window.sessionStorage.removeItem("phantom-auth0-connected-flow-id");
+        window.sessionStorage.removeItem("phantom-auth0-connected-provider");
+        window.setTimeout(() => {
+          window.location.href = "/companion";
+        }, 1200);
+      } catch (error) {
+        status.className = "error";
+        status.textContent = error.message;
+      }
+    }
+
+    complete();
+  </script>
+</body>
+</html>
