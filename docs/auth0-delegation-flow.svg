@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 760" width="1400" height="760" role="img" aria-labelledby="title desc">
+  <title id="title">Delegated action flow through Auth0 Token Vault</title>
+  <desc id="desc">Flow diagram showing how Phantom pairs locally, connects accounts through Auth0, exchanges tokens through Token Vault, and executes provider actions.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#0a0a0d"/>
+      <stop offset="100%" stop-color="#14151b"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#17181d"/>
+      <stop offset="100%" stop-color="#101116"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="14" markerHeight="14" refX="10" refY="7" orient="auto">
+      <path d="M1 1 L11 7 L1 13" fill="none" stroke="#eb5424" stroke-width="2"/>
+    </marker>
+  </defs>
+
+  <rect width="1400" height="760" fill="url(#bg)"/>
+
+  <text x="64" y="86" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="700">Delegated action lifecycle</text>
+  <text x="64" y="122" fill="#9fa6b4" font-family="Arial, Helvetica, sans-serif" font-size="22">A user-approved authority chain from local request to provider API call, without exposing raw third-party credentials to the extension.</text>
+
+  <g>
+    <rect x="64" y="190" rx="22" ry="22" width="236" height="152" fill="url(#card)" stroke="#2b2d36"/>
+    <circle cx="110" cy="236" r="24" fill="#eb5424"/>
+    <text x="101" y="243" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700">1</text>
+    <text x="148" y="232" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">Pair the extension</text>
+    <text x="148" y="262" fill="#a7adba" font-family="Arial, Helvetica, sans-serif" font-size="17">The local agent receives a pair token</text>
+    <text x="148" y="286" fill="#a7adba" font-family="Arial, Helvetica, sans-serif" font-size="17">and points the user to the companion app.</text>
+  </g>
+
+  <g>
+    <rect x="332" y="190" rx="22" ry="22" width="236" height="152" fill="url(#card)" stroke="#2b2d36"/>
+    <circle cx="378" cy="236" r="24" fill="#eb5424"/>
+    <text x="369" y="243" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700">2</text>
+    <text x="416" y="232" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">Sign in with Auth0</text>
+    <text x="416" y="262" fill="#a7adba" font-family="Arial, Helvetica, sans-serif" font-size="17">Universal Login creates a user session</text>
+    <text x="416" y="286" fill="#a7adba" font-family="Arial, Helvetica, sans-serif" font-size="17">with offline access and refresh rotation.</text>
+  </g>
+
+  <g>
+    <rect x="600" y="190" rx="22" ry="22" width="236" height="152" fill="url(#card)" stroke="#2b2d36"/>
+    <circle cx="646" cy="236" r="24" fill="#eb5424"/>
+    <text x="637" y="243" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700">3</text>
+    <text x="684" y="232" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">Connect accounts</text>
+    <text x="684" y="262" fill="#a7adba" font-family="Arial, Helvetica, sans-serif" font-size="17">Connected Accounts binds Google,</text>
+    <text x="684" y="286" fill="#a7adba" font-family="Arial, Helvetica, sans-serif" font-size="17">GitHub, or Slack to the Auth0 user.</text>
+  </g>
+
+  <g>
+    <rect x="868" y="190" rx="22" ry="22" width="236" height="152" fill="url(#card)" stroke="#2b2d36"/>
+    <circle cx="914" cy="236" r="24" fill="#eb5424"/>
+    <text x="905" y="243" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700">4</text>
+    <text x="952" y="232" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">Plan an action</text>
+    <text x="952" y="262" fill="#a7adba" font-family="Arial, Helvetica, sans-serif" font-size="17">The agent calls a gateway tool such as</text>
+    <text x="952" y="286" fill="#a7adba" font-family="Arial, Helvetica, sans-serif" font-size="17">calendar read or Gmail draft.</text>
+  </g>
+
+  <g>
+    <rect x="1136" y="190" rx="22" ry="22" width="200" height="152" fill="url(#card)" stroke="#2b2d36"/>
+    <circle cx="1182" cy="236" r="24" fill="#eb5424"/>
+    <text x="1173" y="243" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700">5</text>
+    <text x="1220" y="232" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">Exchange token</text>
+    <text x="1220" y="262" fill="#a7adba" font-family="Arial, Helvetica, sans-serif" font-size="17">Token Vault mints provider access</text>
+    <text x="1220" y="286" fill="#a7adba" font-family="Arial, Helvetica, sans-serif" font-size="17">from the Auth0 refresh token.</text>
+  </g>
+
+  <path d="M301 266 H331" fill="none" stroke="#eb5424" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M569 266 H599" fill="none" stroke="#eb5424" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M837 266 H867" fill="none" stroke="#eb5424" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M1105 266 H1135" fill="none" stroke="#eb5424" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <rect x="128" y="422" rx="28" ry="28" width="1140" height="240" fill="#111218" stroke="#2b2d36"/>
+  <text x="164" y="474" fill="#eb5424" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700">EXECUTION SURFACE</text>
+  <text x="164" y="518" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700">Provider action executes and becomes visible everywhere it should</text>
+
+  <rect x="164" y="552" rx="18" ry="18" width="248" height="74" fill="#15181e" stroke="#334258"/>
+  <text x="192" y="583" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700">Provider API call</text>
+  <text x="192" y="609" fill="#a7adba" font-family="Arial, Helvetica, sans-serif" font-size="17">Google free/busy, Gmail drafts, GitHub repos</text>
+
+  <rect x="460" y="552" rx="18" ry="18" width="248" height="74" fill="#15181e" stroke="#334258"/>
+  <text x="488" y="583" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700">Companion history</text>
+  <text x="488" y="609" fill="#a7adba" font-family="Arial, Helvetica, sans-serif" font-size="17">Outcome, status, and delegated action log</text>
+
+  <rect x="756" y="552" rx="18" ry="18" width="248" height="74" fill="#15181e" stroke="#334258"/>
+  <text x="784" y="583" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700">Extension status</text>
+  <text x="784" y="609" fill="#a7adba" font-family="Arial, Helvetica, sans-serif" font-size="17">Pair state, connected accounts, auth strip</text>
+
+  <rect x="1052" y="552" rx="18" ry="18" width="180" height="74" fill="#1d1512" stroke="#5b3323"/>
+  <text x="1080" y="583" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700">No raw secrets</text>
+  <text x="1080" y="609" fill="#ffc3a5" font-family="Arial, Helvetica, sans-serif" font-size="17">Provider tokens stay delegated</text>
+
+  <path d="M1236 343 C 1236 390, 1236 418, 1140 456" fill="none" stroke="#eb5424" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M1140 456 C 950 486, 560 486, 286 534" fill="none" stroke="#eb5424" stroke-width="4" marker-end="url(#arrow)"/>
+</svg>

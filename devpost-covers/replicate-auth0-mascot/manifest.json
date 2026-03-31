@@ -1,0 +1,33 @@
+{
+  "model": "google/imagen-4",
+  "generatedAt": "2026-03-31T21:36:51.552Z",
+  "results": [
+    {
+      "index": 1,
+      "title": "Docs Header Mascot",
+      "slug": "docs-header-mascot",
+      "prompt": "Hero illustration for Phantom Auth0, based on a refined floating ghost assistant mascot. Strong Auth0 docs visual theme: deep black header-like interface chrome, crisp white navigation bars, restrained warm orange highlights, subtle gray separators, minimal enterprise UI cards, premium documentation-site aesthetic. The mascot is elegant, trustworthy, slightly translucent, softly lit from below with warm orange light, hovering between a browser panel and a secure consent dashboard. No readable text, no watermark, no logos, no clutter, cinematic but restrained, high-end product illustration, 16:9.",
+      "predictionId": "n5ydvb77vdrmw0cx8q988121aw",
+      "outputUrl": "https://replicate.delivery/xezq/jEmOMj6pJH7FC19Wey8YyhOHlNWAyN4ffjyMfCxJgwvpD8ZZB/tmpsy_rxh2s.jpg",
+      "file": "/Users/mac/dev/phantom-auth0/devpost-covers/replicate-auth0-mascot/01_docs-header-mascot.png"
+    },
+    {
+      "index": 2,
+      "title": "Consent Panel Mascot",
+      "slug": "consent-panel-mascot",
+      "prompt": "A premium dark-mode product hero for Phantom Auth0 featuring a friendly ghost-like digital assistant mascot in the foreground. Behind it, a clean Auth0-inspired consent and connected-accounts interface with black panels, white typography blocks without readable text, warm orange call-to-action glow, and sparse navigation structure inspired by developer docs. Emphasis on identity, approval, and connected apps. Sophisticated, elegant, minimal, no readable text, no watermark, no logos, 16:9.",
+      "predictionId": "bv6as9j39drmt0cx8q9v3krppc",
+      "outputUrl": "https://replicate.delivery/xezq/wIGBeX5Kui3SJSflr0jE0hUUIko0mvXfZNRPRdhXAfidF8ZZB/tmptiij3gl7.jpg",
+      "file": "/Users/mac/dev/phantom-auth0/devpost-covers/replicate-auth0-mascot/02_consent-panel-mascot.png"
+    },
+    {
+      "index": 3,
+      "title": "Enterprise Mascot",
+      "slug": "auth0-enterprise-mascot",
+      "prompt": "Editorial launch illustration for an AI agent authorization product. A polished phantom mascot floats in front of a dark enterprise interface inspired by Auth0 documentation: black top navigation bar, subtle rounded panels, clean white lines, warm orange accents, a few cyan secondary signals, lots of negative space. The scene should feel premium, technical, and identity-focused rather than playful. No readable text, no watermark, no logos, no fake brand names, 16:9.",
+      "predictionId": "cm45b0nk09rmy0cx8q9sqcvp4w",
+      "outputUrl": "https://replicate.delivery/xezq/YhviGnX01xYZBZfXXdeezPisFf27Nrcqacl50lqOQJWLH8ZZB/tmp3z2xa4k4.jpg",
+      "file": "/Users/mac/dev/phantom-auth0/devpost-covers/replicate-auth0-mascot/03_auth0-enterprise-mascot.png"
+    }
+  ]
+}

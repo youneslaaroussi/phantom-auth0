@@ -1,0 +1,51 @@
+{
+  "model": "google/imagen-4",
+  "generatedAt": "2026-03-31T21:21:18.202Z",
+  "results": [
+    {
+      "index": 1,
+      "title": "Clean Hero",
+      "slug": "clean-hero",
+      "prompt": "Premium editorial product illustration for a hackathon project called Phantom Auth0. A restricted local browser agent is shown as a sleek glowing sidepanel on a laptop, while a dark cloud identity layer sits behind it like a secure control plane. Visual language inspired by modern Auth0 docs: matte black background, warm orange highlights, white interface chrome, restrained gradients, clean geometry, cinematic depth, premium SaaS hero image, no readable text, no logos, no watermark, highly polished, sharp, elegant, 16:9.",
+      "predictionId": "b24qcb94b1rmy0cx8q2ajznwvr",
+      "outputUrl": "https://replicate.delivery/xezq/wtgoSL5ezyVpFqvHJ8YJqHqGp7JMJZNyPS2ME9s4oLfuxessA/tmpndcokb4s.jpg",
+      "file": "/Users/mac/dev/phantom-auth0/devpost-covers/replicate/01_clean-hero.png"
+    },
+    {
+      "index": 2,
+      "title": "Delegation Bridge",
+      "slug": "delegation-bridge",
+      "prompt": "Stylized concept illustration of delegated authority for AI agents. On the left, a local browser assistant runs on a laptop in restricted mode. In the center, a glowing secure identity vault and consent gateway bridge the request. On the right, abstract cards represent calendar, email, and code hosting apps. Dark Auth0-like design palette with charcoal, graphite, warm orange, subtle blue accents, premium lighting, clean composition, no readable text, no brand logos, no watermark, 16:9.",
+      "predictionId": "v54jtmkcznrmr0cx8q2a9q39jg",
+      "outputUrl": "https://replicate.delivery/xezq/1KG8bk4h6p7hNRR9UbSOQNEKzS58vSN6EatunPfTdPfEyessA/tmpxusnuzk1.jpg",
+      "file": "/Users/mac/dev/phantom-auth0/devpost-covers/replicate/02_delegation-bridge.png"
+    },
+    {
+      "index": 3,
+      "title": "Approval Gate",
+      "slug": "approval-gate",
+      "prompt": "Cinematic UI illustration showing an AI agent preparing a high-risk action that pauses at an approval gate. A user approval pulse travels through a shield-like identity checkpoint before the action continues to connected apps. The composition should feel like an enterprise security product launch visual: black background, warm orange focus light, elegant cards, subtle glow, tasteful depth of field, no readable text, no logos, no watermark, polished 16:9 hero art.",
+      "predictionId": "y32rgsy335rmr0cx8q2a23rt5w",
+      "outputUrl": "https://replicate.delivery/xezq/V11CNFAV2LZmHJIsp1Jdl50182sYnWL9twpQ6RNXN7EnsnlF/tmpen3ynztf.jpg",
+      "file": "/Users/mac/dev/phantom-auth0/devpost-covers/replicate/03_approval-gate.png"
+    },
+    {
+      "index": 4,
+      "title": "Phantom Mascot",
+      "slug": "phantom-mascot",
+      "prompt": "A refined, friendly phantom-like digital assistant mascot hovering beside a browser window and secure identity dashboard. The mascot feels intelligent and trustworthy rather than cartoonish. Surround it with soft token trails, consent cards, and connected app glyphs in a premium dark interface aesthetic inspired by Auth0 docs. Matte black, warm orange, ivory white, subtle cyan, no readable text, no logos, no watermark, cinematic illustration, 16:9.",
+      "predictionId": "9prs1z9055rmy0cx8q2tt2790w",
+      "outputUrl": "https://replicate.delivery/xezq/qrK1ZXYQQ0rVJN9vqlPa1itoVpPVJ4kq4bUBKRCOwd7ssnlF/tmpqzugukjp.jpg",
+      "file": "/Users/mac/dev/phantom-auth0/devpost-covers/replicate/04_phantom-mascot.png"
+    },
+    {
+      "index": 5,
+      "title": "Architectural Editorial",
+      "slug": "architectural-editorial",
+      "prompt": "High-end editorial illustration for a technical architecture story: local AI browser agent, hosted companion app, identity platform, token vault, connected accounts, and external APIs arranged as floating layers in space. The style should feel like a launch visual for a modern identity platform: dark charcoal canvas, warm orange accents, crisp white lines, premium gradients, sophisticated lighting, clean information-design energy, no readable text, no logos, no watermark, 16:9.",
+      "predictionId": "8gkb6tbv2srmw0cx8q2vcrhkfm",
+      "outputUrl": "https://replicate.delivery/xezq/f0HO8aACBW0IOiLiaMRiXnAK1mVOszQbzQK0t7rJxAulZPLLA/tmp1mt3ig4v.jpg",
+      "file": "/Users/mac/dev/phantom-auth0/devpost-covers/replicate/05_architectural-editorial.png"
+    }
+  ]
+}
