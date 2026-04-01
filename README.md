@@ -31,7 +31,6 @@ Phantom Auth0 is a two-part system:
 
 - `extension/`: the local browser agent. It handles voice UI, page context, browser-native interaction, and the tool calls that reach the Auth0 gateway.
 - `server/`: the hosted companion app and action gateway. It handles Auth0 login, Connected Accounts, Token Vault exchanges, pairing approval, and delegated action history.
-- `docs/`: setup guides, testing notes, and judge-facing references.
 
 Current user-visible capabilities:
 
@@ -176,11 +175,3 @@ AUTH0_GOOGLE_CONNECTION=google-oauth2
 AUTH0_GITHUB_CONNECTION=github
 AUTH0_SLACK_CONNECTION=slack-oauth-2
 ```
-
-## Docs
-
-The operational docs live in `docs/`:
-
-- `SETUP_AUTH0.md`
-- `TESTING.md`
-- `JUDGE_GUIDE.md`
