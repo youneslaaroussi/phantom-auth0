@@ -10,8 +10,6 @@ That is exactly the pattern I wanted to avoid.
 
 Instead of treating Auth0 as just a login button, I wanted Auth0 to become the trust layer of the product. The goal was to keep Phantom local and restricted while moving identity, connected accounts, delegated access, and approval boundaries into a hosted companion app built around Auth0 for AI Agents.
 
-![Phantom Auth0 architecture](auth0-architecture.svg)
-
 ### The shift from agent capability to delegated authority
 
 The most important architectural decision in this project was separating **what the agent can understand locally** from **what the agent is allowed to do externally**.

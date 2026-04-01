@@ -11,8 +11,6 @@ It reframes Phantom as a restricted local browser agent that can operate across 
 
 This repo is intentionally isolated from the original Phantom repo, deployment identity, and judging flow.
 
-![Phantom Auth0 architecture](docs/auth0-architecture.svg)
-
 ## Why This Is An Auth0 Project
 
 This submission uses `Auth0 for AI Agents Token Vault` as part of the runtime path, not as a cosmetic integration.
