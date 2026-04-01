@@ -70,8 +70,6 @@ The extension is tied directly into the delegated action path. Auth0 is not a se
 - The gateway uses Auth0 refresh-token exchange and Token Vault to mint provider access on demand.
 - High-risk actions enter an approval state before execution.
 
-![Delegated action flow](docs/auth0-delegation-flow.svg)
-
 ## Approval Boundaries
 
 The repo distinguishes between low-risk and high-risk actions.
@@ -80,8 +78,6 @@ The repo distinguishes between low-risk and high-risk actions.
 - High-risk actions such as sending, posting, creating, or mutating external state can require Auth0 approval.
 
 This is the part of the project that matters most for the hackathon judging criteria around security model, user control, and production-aware implementation.
-
-![Approval-aware execution](docs/auth0-approval-flow.svg)
 
 ## Current Status
 

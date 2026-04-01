@@ -45,8 +45,6 @@ In Phantom Auth0, the Token Vault path is real:
 4. the gateway exchanges the Auth0 refresh token through Token Vault
 5. the provider action executes with delegated access
 
-![Delegated action flow](auth0-delegation-flow.svg)
-
 That design also let me express a much cleaner user-control model. Safe actions such as reads, drafts, and previews can be fast. Risky actions such as sending, posting, or creating can be routed into an approval flow.
 
 This is where the project became much more than “browser automation plus auth.” It became a system for showing where authority comes from, where it lives, and when the user should be brought back into the loop.
@@ -87,8 +85,6 @@ High-risk actions include things like:
 - posting to Slack
 
 Those actions are not just technically different. They feel different to users. Reads and previews can be treated as lightweight delegated tasks. State-changing actions need a stronger boundary. Auth0’s approval-oriented flow made it possible to model that boundary explicitly.
-
-![Approval-aware execution](auth0-approval-flow.svg)
 
 This became one of the clearest product lessons of the build: users do not just need a powerful agent. They need a believable explanation for why an action was allowed to happen.
 
