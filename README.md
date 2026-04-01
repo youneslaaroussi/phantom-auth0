@@ -13,7 +13,7 @@ This repo is intentionally isolated from the original Phantom repo, deployment i
 
 ## Why This Is An Auth0 Project
 
-This submission uses `Auth0 for AI Agents Token Vault` as part of the runtime path, not as a cosmetic integration.
+This repo uses `Auth0 for AI Agents Token Vault` as part of the runtime path, not as a cosmetic integration.
 
 The local extension does not directly own provider secrets. Instead:
 
@@ -31,7 +31,7 @@ Phantom Auth0 is a two-part system:
 
 - `extension/`: the local browser agent. It handles voice UI, page context, browser-native interaction, and the tool calls that reach the Auth0 gateway.
 - `server/`: the hosted companion app and action gateway. It handles Auth0 login, Connected Accounts, Token Vault exchanges, pairing approval, and delegated action history.
-- `docs/`: setup guides, testing notes, submission material, and judge-facing references.
+- `docs/`: setup guides, testing notes, and judge-facing references.
 
 Current user-visible capabilities:
 
@@ -177,38 +177,10 @@ AUTH0_GITHUB_CONNECTION=github
 AUTH0_SLACK_CONNECTION=slack-oauth-2
 ```
 
-## Auth0 Setup
+## Docs
 
-Use these docs in this order:
+The operational docs live in `docs/`:
 
-1. [SETUP_AUTH0.md](docs/SETUP_AUTH0.md)
-2. [TESTING.md](docs/TESTING.md)
-3. [JUDGE_GUIDE.md](docs/JUDGE_GUIDE.md)
-
-## Submission Material
-
-Prepared submission docs:
-
-- [JUDGE_GUIDE.md](docs/JUDGE_GUIDE.md)
-- [SETUP_AUTH0.md](docs/SETUP_AUTH0.md)
-- [TESTING.md](docs/TESTING.md)
-- [DEVPOST_SUBMISSION.md](docs/DEVPOST_SUBMISSION.md)
-- [BONUS_BLOG_POST.md](docs/BONUS_BLOG_POST.md)
-- [SUBMISSION_CHECKLIST.md](docs/SUBMISSION_CHECKLIST.md)
-
-## Significant Update Narrative
-
-This repo is the hackathon-specific significant update created during the submission period. The main additions here are:
-
-- isolated repo and deployment identity
-- hosted Auth0 companion app
-- extension-to-companion pairing flow
-- Auth0 Connected Accounts flow
-- Token Vault-backed Google and GitHub gateway actions
-- action history and approval-state tracking
-- judge-facing Auth0 status surfaces inside the extension
-- Auth0-first docs and architecture framing for the submission
-
-## Notes For Judges
-
-If only one path is tested, test the Google path first. It is the most complete and reliable path in the repo today.
+- `SETUP_AUTH0.md`
+- `TESTING.md`
+- `JUDGE_GUIDE.md`
