@@ -1,196 +1,122 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -60 1250 1060" width="100%" height="100%" style="background-color: #f8fafc; font-family: 'Google Sans', sans-serif;">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 760" width="100%" height="100%">
   <defs>
-    <marker id="arrow-slate" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
-    </marker>
-    <marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6" />
-    </marker>
-    <marker id="arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#22c55e" />
-    </marker>
-    <marker id="arrow-amber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b" />
-    </marker>
-    <marker id="arrow-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" />
-    </marker>
-    <marker id="arrow-fuchsia" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#d946ef" />
-    </marker>
-
-
-    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity="0.08" flood-color="#0f172a"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0d1825"/>
+      <stop offset="100%" stop-color="#08111b"/>
+    </linearGradient>
+    <linearGradient id="orange" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff8b63"/>
+      <stop offset="100%" stop-color="#eb5424"/>
+    </linearGradient>
+    <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7ae4ff"/>
+      <stop offset="100%" stop-color="#3cc7fb"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#000000" flood-opacity="0.28"/>
     </filter>
+    <marker id="arrow-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#eb5424"/>
+    </marker>
+    <marker id="arrow-cyan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#53d3ff"/>
+    </marker>
+    <marker id="arrow-slate" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8da0b4"/>
+    </marker>
   </defs>
 
-  <text x="70" y="-10" font-size="24" font-weight="bold" fill="#1e293b">Phantom — System Architecture</text>
+  <rect width="1240" height="760" fill="url(#bg)"/>
+  <rect x="30" y="30" width="1180" height="700" rx="28" fill="none" stroke="rgba(255,255,255,0.08)"/>
 
-  <image href="mascot.png" x="1020" y="-20" width="170" height="170" />
+  <text x="70" y="90" fill="#f3f7fb" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="34" font-weight="600">Phantom Auth0 Security Architecture</text>
+  <text x="70" y="122" fill="#91a2b6" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="16">Local browser execution on the left. Hosted authorization and external-state control on the right.</text>
 
-  <rect x="70" y="30" width="370" height="90" rx="8" fill="#f1f5f9" stroke="#cbd5e1" stroke-dasharray="6,4" />
-  <rect x="206" y="40" width="100" height="20" rx="4" fill="#f1f5f9" />
-  <text x="255" y="55" text-anchor="middle" font-size="12" font-weight="700" fill="#64748b" letter-spacing="1">USER INPUT</text>
+  <rect x="70" y="170" width="260" height="500" rx="28" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)"/>
+  <text x="102" y="214" fill="#ff9a74" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13" font-weight="600" letter-spacing="2">LOCAL RUNTIME</text>
 
-  <rect x="70" y="150" width="1090" height="130" rx="8" fill="#eff6ff" stroke="#bfdbfe" stroke-dasharray="6,4" />
-  <rect x="850" y="135" width="310" height="20" rx="4" fill="#f8fafc" />
-  <text x="1158" y="150" text-anchor="end" font-size="12" font-weight="700" fill="#3b82f6" letter-spacing="1">CUSTOM BEHAVIORS (UNITY / CLIENT)</text>
+  <rect x="370" y="170" width="320" height="500" rx="28" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)"/>
+  <text x="402" y="214" fill="#ff9a74" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13" font-weight="600" letter-spacing="2">HOSTED CONTROL SURFACE</text>
 
-  <rect x="250" y="380" width="580" height="120" rx="8" fill="#fdf4ff" stroke="#f0abfc" stroke-dasharray="6,4" />
-  <rect x="640" y="380" width="180" height="20" rx="4" fill="#fdf4ff" />
-  <text x="818" y="395" text-anchor="end" font-size="12" font-weight="700" fill="#d946ef" letter-spacing="1">MIDDLEWARE / PROXY</text>
-
-
-
-  <rect x="70" y="770" width="650" height="160" rx="8" fill="#fffbeb" stroke="#fde68a" stroke-dasharray="6,4" />
-  <rect x="302" y="780" width="170" height="20" rx="4" fill="#fffbeb" />
-  <text x="310" y="795" font-size="12" font-weight="700" fill="#f59e0b" letter-spacing="1">MULTIMODAL OUTPUTS</text>
-
-  <rect x="880" y="770" width="300" height="160" rx="8" fill="#fef2f2" stroke="#fecaca" stroke-dasharray="6,4" />
-  <rect x="880" y="932" width="185" height="20" rx="4" fill="#f8fafc" />
-  <text x="888" y="947" font-size="12" font-weight="700" fill="#ef4444" letter-spacing="1">VISION &amp; PROCESSING</text>
-
-
-  <path d="M 150 110 L 150 190" stroke="#64748b" stroke-width="2" marker-end="url(#arrow-slate)" />
-  <path d="M 360 110 L 360 190" stroke="#64748b" stroke-width="2" marker-end="url(#arrow-slate)" />
-
-  <path d="M 210 230 L 290 230" stroke="#3b82f6" stroke-width="2" marker-end="url(#arrow-blue)" />
-  <path d="M 420 230 L 490 230" stroke="#3b82f6" stroke-width="2" marker-end="url(#arrow-blue)" />
-  <path d="M 610 230 L 750 230" stroke="#3b82f6" stroke-width="2" marker-end="url(#arrow-blue)" />
-
-  <path d="M 150 260 L 150 600 Q 150 610 160 610 L 505 610" stroke="#22c55e" stroke-width="2.5" fill="none" marker-end="url(#arrow-green)" />
-
-  <path d="M 820 270 L 820 590 Q 820 610 800 610 L 615 610" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="6,4" fill="none" marker-end="url(#arrow-blue)" />
-
-  <path d="M 610 230 Q 680 230 680 260 L 680 340 Q 680 360 700 360 L 920 360 Q 940 360 940 380 L 940 600 Q 940 610 920 610 L 615 610" stroke="#22c55e" stroke-width="2.5" fill="none" marker-end="url(#arrow-green)" />
-
-  <path d="M 360 260 L 360 400" stroke="#d946ef" stroke-width="2" fill="none" marker-end="url(#arrow-fuchsia)" />
-  <path d="M 550 260 L 550 310 Q 550 320 540 320 L 400 320 Q 390 320 390 330 L 390 400" stroke="#d946ef" stroke-width="2" fill="none" marker-end="url(#arrow-fuchsia)" />
-  
-  <path d="M 430 440 L 660 440" stroke="#d946ef" stroke-width="2" fill="none" marker-start="url(#arrow-fuchsia)" marker-end="url(#arrow-fuchsia)" />
-
-  <path d="M 360 470 L 360 590 Q 360 610 380 610 L 505 610" stroke="#d946ef" stroke-width="2" fill="none" marker-start="url(#arrow-fuchsia)" marker-end="url(#arrow-fuchsia)" />
-  <path d="M 730 490 L 730 590 Q 730 610 710 610 L 615 610" stroke="#d946ef" stroke-width="2" fill="none" marker-start="url(#arrow-fuchsia)" marker-end="url(#arrow-fuchsia)" />
-
-  <path d="M 510 260 L 510 340 Q 510 350 500 350 L 40 350 Q 30 350 30 360 L 30 810 Q 30 820 40 820 L 630 820" stroke="#f59e0b" stroke-width="2" fill="none" stroke-dasharray="6,4" />
-  <path d="M 150 820 L 150 840" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow-amber)" />
-  <path d="M 310 820 L 310 840" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow-amber)" />
-  <path d="M 470 820 L 470 840" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow-amber)" />
-  <path d="M 630 820 L 630 840" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow-amber)" />
-
-  <path d="M 970 260 L 970 840" stroke="#ef4444" stroke-width="2" marker-end="url(#arrow-red)" />
-  <path d="M 1090 260 L 1090 840" stroke="#ef4444" stroke-width="2" marker-end="url(#arrow-red)" />
-
-  <path d="M 970 850 L 970 630 Q 970 610 950 610 L 615 610" stroke="#ef4444" stroke-width="2" fill="none" stroke-dasharray="6,4" marker-end="url(#arrow-red)" />
-
-
-  <rect x="232" y="220" width="36" height="20" rx="4" fill="#eff6ff" />
-  <text x="250" y="234" text-anchor="middle" font-size="11" font-weight="bold" fill="#3b82f6">PCM</text>
-
-  <rect x="180" y="590" width="90" height="20" rx="4" fill="#f0fdf4" />
-  <text x="225" y="604" text-anchor="middle" font-size="11" font-weight="bold" fill="#22c55e">audio chunks</text>
-
-  <rect x="510" y="430" width="80" height="20" rx="4" fill="#f8fafc" />
-  <text x="550" y="444" text-anchor="middle" font-size="11" font-weight="bold" fill="#f59e0b">function_call</text>
-
-  <rect x="830" y="430" width="80" height="20" rx="4" fill="#f8fafc" />
-  <text x="870" y="444" text-anchor="middle" font-size="11" font-weight="bold" fill="#3b82f6">audio (PCM)</text>
-
-  <rect x="500" y="430" width="90" height="20" rx="4" fill="#fdf4ff" />
-  <text x="545" y="444" text-anchor="middle" font-size="11" font-weight="bold" fill="#d946ef">WebSockets</text>
-
-  <rect x="910" y="700" width="120" height="20" rx="4" fill="#f8fafc" />
-  <text x="970" y="714" text-anchor="middle" font-size="11" font-weight="bold" fill="#ef4444">base64 frame stream</text>
-
+  <rect x="730" y="170" width="440" height="500" rx="28" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)"/>
+  <text x="762" y="214" fill="#7ae4ff" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13" font-weight="600" letter-spacing="2">AUTH0 + PROVIDER AUTHORITY</text>
 
   <g filter="url(#shadow)">
-    <g transform="translate(138,42)" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 19v3"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><rect x="9" y="2" width="6" height="13" rx="3"/></g>
-    <rect x="100" y="70" width="100" height="40" rx="6" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" />
-    <text x="150" y="95" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">Voice</text>
-    
-    <g transform="translate(348,42)" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M10 8h.01"/><path d="M12 12h.01"/><path d="M14 8h.01"/><path d="M16 12h.01"/><path d="M18 8h.01"/><path d="M6 8h.01"/><path d="M7 16h10"/><path d="M8 12h.01"/><rect width="20" height="16" x="2" y="4" rx="2"/></g>
-    <rect x="310" y="70" width="100" height="40" rx="6" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" />
-    <text x="360" y="95" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">Text</text>
+    <rect x="100" y="260" width="200" height="112" rx="24" fill="#101b28" stroke="rgba(255,255,255,0.08)"/>
+    <text x="128" y="302" fill="#f3f7fb" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="22" font-weight="600">Phantom Extension</text>
+    <text x="128" y="328" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Page context</text>
+    <text x="128" y="350" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Voice / UI / tools</text>
+
+    <rect x="100" y="418" width="200" height="112" rx="24" fill="#101b28" stroke="rgba(255,255,255,0.08)"/>
+    <text x="128" y="460" fill="#f3f7fb" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="22" font-weight="600">Local Session</text>
+    <text x="128" y="486" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Pair request</text>
+    <text x="128" y="508" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Action intent</text>
+
+    <rect x="400" y="238" width="260" height="112" rx="24" fill="#101b28" stroke="rgba(255,255,255,0.08)"/>
+    <text x="430" y="280" fill="#f3f7fb" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="22" font-weight="600">Companion Console</text>
+    <text x="430" y="306" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Pairing, account state, audit</text>
+    <text x="430" y="328" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Approval visibility</text>
+
+    <rect x="400" y="396" width="260" height="112" rx="24" fill="#101b28" stroke="rgba(255,255,255,0.08)"/>
+    <text x="430" y="438" fill="#f3f7fb" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="22" font-weight="600">Action Gateway</text>
+    <text x="430" y="464" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Classifies reads vs writes</text>
+    <text x="430" y="486" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Requests delegated execution</text>
+
+    <rect x="400" y="554" width="260" height="84" rx="24" fill="#101b28" stroke="rgba(255,255,255,0.08)"/>
+    <text x="430" y="602" fill="#f3f7fb" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="21" font-weight="600">Action History</text>
+    <text x="430" y="624" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Status, result, approval trail</text>
+
+    <rect x="760" y="238" width="180" height="110" rx="24" fill="#0f1b29" stroke="rgba(83,211,255,0.22)"/>
+    <text x="788" y="282" fill="#f3f7fb" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="22" font-weight="600">Auth0</text>
+    <text x="788" y="308" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Universal Login</text>
+    <text x="788" y="330" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Actor identity</text>
+
+    <rect x="960" y="238" width="180" height="110" rx="24" fill="#0f1b29" stroke="rgba(83,211,255,0.22)"/>
+    <text x="988" y="282" fill="#f3f7fb" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="22" font-weight="600">Connected</text>
+    <text x="988" y="308" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Accounts</text>
+    <text x="988" y="330" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Delegated providers</text>
+
+    <rect x="760" y="418" width="180" height="110" rx="24" fill="#0f1b29" stroke="rgba(83,211,255,0.22)"/>
+    <text x="788" y="462" fill="#f3f7fb" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="22" font-weight="600">Token Vault</text>
+    <text x="788" y="488" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Runtime token</text>
+    <text x="788" y="510" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">exchange</text>
+
+    <rect x="960" y="418" width="180" height="110" rx="24" fill="#0f1b29" stroke="rgba(235,84,36,0.22)"/>
+    <text x="988" y="462" fill="#f3f7fb" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="22" font-weight="600">Approval Gate</text>
+    <text x="988" y="488" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">High-risk writes</text>
+    <text x="988" y="510" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">wait for consent</text>
+
+    <rect x="820" y="574" width="260" height="84" rx="24" fill="#101b28" stroke="rgba(255,255,255,0.08)"/>
+    <text x="852" y="622" fill="#f3f7fb" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="21" font-weight="600">Provider APIs</text>
+    <text x="852" y="644" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">GitHub, Google, Slack and other delegated systems</text>
   </g>
 
-  <g filter="url(#shadow)">
-    <g transform="translate(185,173)" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/></g>
-    <rect x="90" y="200" width="120" height="60" rx="6" fill="#ffffff" stroke="#3b82f6" stroke-width="1.5" />
-    <text x="150" y="228" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">Audio</text>
-    <text x="150" y="246" text-anchor="middle" font-size="12" fill="#475569">Capture</text>
+  <path d="M300 316 C 340 316, 352 294, 400 294" fill="none" stroke="url(#orange)" stroke-width="4" marker-end="url(#arrow-orange)"/>
+  <text x="338" y="286" fill="#ff9a74" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13">pairing link</text>
 
-    <g transform="translate(395,173)" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><rect width="20" height="8" x="2" y="14" rx="2"/><path d="M6.01 18H6"/><path d="M10.01 18H10"/><path d="M15 10v4"/><path d="M17.84 7.17a4 4 0 0 0-5.66 0"/><path d="M20.66 4.34a8 8 0 0 0-11.31 0"/></g>
-    <rect x="300" y="200" width="120" height="60" rx="6" fill="#ffffff" stroke="#3b82f6" stroke-width="1.5" />
-    <text x="360" y="228" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">Session</text>
-    <text x="360" y="246" text-anchor="middle" font-size="12" fill="#475569">Router</text>
+  <path d="M300 474 C 348 474, 354 452, 400 452" fill="none" stroke="url(#orange)" stroke-width="4" marker-end="url(#arrow-orange)"/>
+  <text x="320" y="446" fill="#ff9a74" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13">action intent</text>
 
-    <g transform="translate(538,173)" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></g>
-    <rect x="490" y="200" width="120" height="60" rx="6" fill="#ffffff" stroke="#3b82f6" stroke-width="1.5" />
-    <text x="550" y="228" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">Message</text>
-    <text x="550" y="246" text-anchor="middle" font-size="12" fill="#475569">Handler</text>
+  <path d="M660 294 C 706 294, 716 294, 760 294" fill="none" stroke="url(#cyan)" stroke-width="4" marker-end="url(#arrow-cyan)"/>
+  <text x="676" y="274" fill="#7ae4ff" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13">authenticate actor</text>
 
-    <g transform="translate(808,173)" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/></g>
-    <rect x="760" y="200" width="120" height="60" rx="6" fill="#ffffff" stroke="#3b82f6" stroke-width="1.5" />
-    <text x="820" y="228" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">Audio</text>
-    <text x="820" y="246" text-anchor="middle" font-size="12" fill="#475569">Playback</text>
+  <path d="M940 294 C 948 294, 952 294, 960 294" fill="none" stroke="url(#cyan)" stroke-width="4" marker-end="url(#arrow-cyan)"/>
+  <text x="958" y="222" fill="#7ae4ff" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13">linked providers</text>
 
-    <g transform="translate(958,173)" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></g>
-    <rect x="920" y="200" width="100" height="60" rx="6" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" />
-    <text x="970" y="228" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">Video</text>
-    <text x="970" y="246" text-anchor="middle" font-size="12" fill="#475569">Capture</text>
+  <path d="M660 452 C 708 452, 716 472, 760 472" fill="none" stroke="url(#cyan)" stroke-width="4" marker-end="url(#arrow-cyan)"/>
+  <text x="680" y="506" fill="#7ae4ff" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13">request delegated token</text>
 
-    <g transform="translate(1078,173)" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></g>
-    <rect x="1040" y="200" width="100" height="60" rx="6" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" />
-    <text x="1090" y="228" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">Screen</text>
-    <text x="1090" y="246" text-anchor="middle" font-size="12" fill="#475569">Capture</text>
-  </g>
+  <path d="M940 472 C 948 472, 952 472, 960 472" fill="none" stroke="url(#orange)" stroke-width="4" marker-end="url(#arrow-orange)"/>
+  <text x="962" y="402" fill="#ff9a74" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13">write requires approval</text>
 
-  <g filter="url(#shadow)">
-    <rect x="290" y="410" width="140" height="60" rx="6" fill="#ffffff" stroke="#d946ef" stroke-width="1.5" />
-    <text x="360" y="445" text-anchor="middle" font-size="15" font-weight="bold" fill="#1e293b">Local Proxy</text>
+  <path d="M1050 528 C 1050 552, 1010 566, 980 586" fill="none" stroke="url(#orange)" stroke-width="4" marker-end="url(#arrow-orange)"/>
+  <text x="1070" y="560" fill="#ff9a74" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13">approved action</text>
 
-    <image href="cloud-run.svg" x="705" y="415" width="50" height="50" />
-    <text x="730" y="470" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e293b">Cloud Proxy</text>
-    <text x="730" y="484" text-anchor="middle" font-size="10" fill="#475569">(Cloud Run)</text>
-  </g>
+  <path d="M850 528 C 850 552, 884 568, 910 586" fill="none" stroke="url(#cyan)" stroke-width="4" marker-end="url(#arrow-cyan)"/>
+  <text x="742" y="560" fill="#7ae4ff" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13">low-risk read / preview</text>
 
-  <image href="gemini-logo.svg" x="510" y="560" width="100" height="100" />
-  <text x="560" y="675" text-anchor="middle" font-size="16" font-weight="bold" fill="#166534">GEMINI LIVE API</text>
-  <text x="560" y="692" text-anchor="middle" font-size="10" fill="#15803d">gemini-2.5-flash · Bidirectional WebSocket</text>
+  <path d="M950 658 C 950 688, 600 688, 600 638" fill="none" stroke="#8da0b4" stroke-width="3" stroke-dasharray="8 8" marker-end="url(#arrow-slate)"/>
+  <text x="664" y="714" fill="#8da0b4" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13">status, audit trail, and results returned to the console</text>
 
-  <g filter="url(#shadow)">
-    <g transform="translate(185,823)" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"/></g>
-    <rect x="90" y="850" width="120" height="60" rx="6" fill="#ffffff" stroke="#f59e0b" stroke-width="1.5" />
-    <text x="150" y="878" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">Navigation</text>
-    <text x="150" y="896" text-anchor="middle" font-size="11" fill="#475569">spatial data</text>
-
-    <g transform="translate(345,823)" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></g>
-    <rect x="250" y="850" width="120" height="60" rx="6" fill="#ffffff" stroke="#f59e0b" stroke-width="1.5" />
-    <text x="310" y="878" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">Character</text>
-    <text x="310" y="896" text-anchor="middle" font-size="11" fill="#475569">chat &amp; lipsync</text>
-
-    <g transform="translate(505,823)" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/></g>
-    <rect x="410" y="850" width="120" height="60" rx="6" fill="#ffffff" stroke="#f59e0b" stroke-width="1.5" />
-    <text x="470" y="878" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">Select/Click</text>
-    <text x="470" y="896" text-anchor="middle" font-size="11" fill="#475569">interactivity</text>
-
-    <g transform="translate(665,823)" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></g>
-    <rect x="570" y="850" width="120" height="60" rx="6" fill="#ffffff" stroke="#f59e0b" stroke-width="1.5" />
-    <text x="630" y="878" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">Inspector</text>
-    <text x="630" y="896" text-anchor="middle" font-size="11" fill="#475569">UI dashboards</text>
-  </g>
-
-  <g filter="url(#shadow)">
-    <g transform="translate(1005,823)" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></g>
-    <rect x="910" y="850" width="120" height="60" rx="6" fill="#ffffff" stroke="#ef4444" stroke-width="1.5" />
-    <text x="970" y="878" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">Vision Module</text>
-    <text x="970" y="896" text-anchor="middle" font-size="11" fill="#475569">1 FPS stream</text>
-
-    <g transform="translate(1125,823)" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3"/><path d="m16 16-1.9-1.9"/></g>
-    <rect x="1050" y="850" width="100" height="60" rx="6" fill="#ffffff" stroke="#ef4444" stroke-width="1.5" />
-    <text x="1100" y="878" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">Extraction</text>
-    <text x="1100" y="896" text-anchor="middle" font-size="11" fill="#475569">concepts</text>
-  </g>
-
+  <rect x="72" y="88" width="14" height="14" rx="4" fill="url(#orange)"/>
 </svg>
