@@ -10,13 +10,11 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="Phantom Auth0 | Authorization Surface For Browser Agents">
   <meta property="og:description" content="Keep the agent local. Move authority into Auth0.">
-  <meta property="og:image" content="https://phantom-auth0.onrender.com/system-architecture.svg">
   <meta property="og:url" content="https://phantom-auth0.onrender.com">
   <meta property="og:site_name" content="Phantom Auth0">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Phantom Auth0 | Authorization Surface For Browser Agents">
   <meta name="twitter:description" content="A security-first Auth0 control plane for browser agents.">
-  <meta name="twitter:image" content="https://phantom-auth0.onrender.com/system-architecture.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -193,7 +191,7 @@
       margin: 0 auto;
       width: 100%;
       display: grid;
-      grid-template-columns: minmax(0, 680px) 1fr;
+      grid-template-columns: minmax(0, 760px);
       align-items: center;
       gap: 36px;
       padding: 56px 26px 64px;
@@ -299,96 +297,6 @@
       gap: 8px;
     }
 
-    .hero-visual {
-      position: relative;
-      min-height: 620px;
-      display: grid;
-      place-items: center;
-    }
-
-    .signal-field {
-      width: min(46vw, 600px);
-      aspect-ratio: 1 / 1.08;
-      position: relative;
-      transform: translateX(4%);
-    }
-
-    .ring,
-    .line,
-    .node,
-    .label {
-      position: absolute;
-    }
-
-    .ring {
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: radial-gradient(circle at center, rgba(255,255,255,0.02), transparent 62%);
-    }
-
-    .ring.one { inset: 6% 10% 26% 18%; }
-    .ring.two { inset: 18% 4% 14% 28%; }
-    .ring.three { inset: 30% 12% 4% 6%; }
-
-    .line {
-      background: linear-gradient(90deg, rgba(235, 84, 36, 0), rgba(235, 84, 36, 0.9), rgba(235, 84, 36, 0));
-      height: 1px;
-      transform-origin: left center;
-      opacity: 0.78;
-    }
-
-    .line.l1 {
-      width: 48%;
-      left: 10%;
-      top: 32%;
-      transform: rotate(18deg);
-    }
-
-    .line.l2 {
-      width: 44%;
-      left: 38%;
-      top: 56%;
-      transform: rotate(-18deg);
-    }
-
-    .line.l3 {
-      width: 36%;
-      left: 20%;
-      top: 76%;
-      transform: rotate(-4deg);
-    }
-
-    .node {
-      width: 14px;
-      height: 14px;
-      border-radius: 999px;
-      background: #ff8d66;
-      box-shadow: 0 0 0 8px rgba(235, 84, 36, 0.08), 0 0 26px rgba(235, 84, 36, 0.32);
-    }
-
-    .node.n1 { left: 19%; top: 29%; }
-    .node.n2 { left: 56%; top: 44%; }
-    .node.n3 { left: 78%; top: 71%; }
-
-    .label {
-      max-width: 180px;
-      color: var(--muted-strong);
-      font-size: 13px;
-      line-height: 1.6;
-    }
-
-    .label strong {
-      display: block;
-      color: var(--text);
-      font-size: 14px;
-      margin-bottom: 4px;
-      font-weight: 600;
-    }
-
-    .label.a { left: 2%; top: 19%; }
-    .label.b { left: 56%; top: 32%; }
-    .label.c { right: -2%; bottom: 16%; text-align: right; }
-
     main section {
       max-width: var(--max);
       margin: 0 auto;
@@ -456,8 +364,8 @@
 
     .detail-grid {
       display: grid;
-      grid-template-columns: 0.9fr 1.1fr;
-      gap: 48px;
+      grid-template-columns: 1fr;
+      gap: 34px;
       align-items: start;
     }
 
@@ -484,19 +392,6 @@
       color: var(--muted);
       line-height: 1.8;
       font-size: 15px;
-    }
-
-    .detail-figure {
-      position: sticky;
-      top: 104px;
-      border-left: 1px solid rgba(255,255,255,0.08);
-      padding-left: 34px;
-    }
-
-    .detail-figure object {
-      display: block;
-      width: 100%;
-      min-height: 520px;
     }
 
     .sequence {
@@ -638,21 +533,6 @@
         grid-template-columns: 1fr;
       }
 
-      .hero-visual {
-        min-height: 420px;
-      }
-
-      .signal-field {
-        width: min(74vw, 540px);
-        transform: none;
-      }
-
-      .detail-figure {
-        position: static;
-        border-left: 0;
-        padding-left: 0;
-      }
-
       .proof-grid,
       .sequence {
         grid-template-columns: 1fr 1fr;
@@ -716,13 +596,6 @@
         padding-bottom: 0;
       }
 
-      .hero-visual {
-        min-height: 360px;
-      }
-
-      .signal-field {
-        width: 100%;
-      }
     }
   </style>
 </head>
@@ -770,22 +643,6 @@
           </div>
         </div>
 
-        <div class="hero-visual" aria-hidden="true">
-          <div class="signal-field">
-            <div class="ring one"></div>
-            <div class="ring two"></div>
-            <div class="ring three"></div>
-            <div class="line l1"></div>
-            <div class="line l2"></div>
-            <div class="line l3"></div>
-            <div class="node n1"></div>
-            <div class="node n2"></div>
-            <div class="node n3"></div>
-            <div class="label a"><strong>Local Phantom</strong>page context, interaction, runtime tools</div>
-            <div class="label b"><strong>Auth0 control plane</strong>identity, connected accounts, delegation</div>
-            <div class="label c"><strong>Approval boundary</strong>writes wait before external state changes</div>
-          </div>
-        </div>
       </div>
     </div>
   </header>
@@ -816,7 +673,7 @@
     <section>
       <div class="section-head" data-reveal>
         <div class="section-kicker">Architecture</div>
-        <h2>One diagram, one idea.</h2>
+        <h2>One boundary, one model.</h2>
         <p>The extension remains the operator. The companion becomes the control surface. Auth0 becomes the authority layer that mediates connected accounts and write-sensitive actions.</p>
       </div>
       <div class="detail-grid">
@@ -837,9 +694,6 @@
             <strong>Return status to the same surface.</strong>
             <p>The outcome, approval state, and action history all land back in the companion so the user can understand what happened after the request ran.</p>
           </div>
-        </div>
-        <div class="detail-figure" data-reveal>
-          <object type="image/svg+xml" data="/system-architecture.svg">Phantom Auth0 architecture diagram</object>
         </div>
       </div>
     </section>

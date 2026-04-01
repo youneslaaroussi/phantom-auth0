@@ -8,12 +8,10 @@
   <meta property="og:type" content="article">
   <meta property="og:title" content="Why Phantom Auth0 Became An Authorization Product">
   <meta property="og:description" content="A security-first narrative about local execution, hosted authority, and approval-aware delegation.">
-  <meta property="og:image" content="https://phantom-auth0.onrender.com/approval-boundary.svg">
   <meta property="og:url" content="https://phantom-auth0.onrender.com/blog">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Why Phantom Auth0 Became An Authorization Product">
   <meta name="twitter:description" content="How Phantom Auth0 reframed browser automation around identity, delegation, and approval.">
-  <meta name="twitter:image" content="https://phantom-auth0.onrender.com/approval-boundary.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -144,7 +142,7 @@
 
     .hero-inner {
       display: grid;
-      grid-template-columns: minmax(0, 820px) 1fr;
+      grid-template-columns: minmax(0, 820px);
       gap: 32px;
       align-items: end;
     }
@@ -192,19 +190,6 @@
       font-size: 12px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-    }
-
-    .hero-side {
-      align-self: stretch;
-      display: grid;
-      align-content: end;
-      padding-bottom: 16px;
-    }
-
-    .hero-side object {
-      width: 100%;
-      min-height: 320px;
-      opacity: 0.9;
     }
 
     article {
@@ -276,25 +261,6 @@
       background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
     }
 
-    figure {
-      margin: 6px 0;
-      padding: 24px 0;
-      border-top: 1px solid rgba(255,255,255,0.08);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-
-    figure object {
-      width: 100%;
-      min-height: 360px;
-      display: block;
-    }
-
-    figcaption {
-      margin-top: 12px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
     .closing {
       padding-top: 12px;
       border-top: 1px solid rgba(255,255,255,0.08);
@@ -328,9 +294,6 @@
         min-height: auto;
       }
 
-      .hero-side {
-        padding-bottom: 0;
-      }
     }
 
     @media (max-width: 720px) {
@@ -392,9 +355,6 @@
           <span>Approval-aware</span>
         </div>
       </div>
-      <div class="hero-side">
-        <object type="image/svg+xml" data="/approval-boundary.svg">Approval boundary diagram</object>
-      </div>
     </div>
   </header>
 
@@ -423,11 +383,6 @@
       <p>The product therefore reads differently. It is no longer “browser agent plus integrations.” It is an <strong>authorization surface for browser agents</strong>.</p>
     </section>
 
-    <figure>
-      <object type="image/svg+xml" data="/system-architecture.svg">Phantom Auth0 architecture diagram</object>
-      <figcaption>Local runtime on one side, hosted authority on the other, and the approval boundary in between.</figcaption>
-    </figure>
-
     <section>
       <h2>Different actions deserve different friction.</h2>
       <p>A secure agent should not treat every action the same way. Reads should remain fast. Drafts should remain reviewable. High-risk writes should pause when they would mutate external state.</p>
@@ -446,11 +401,6 @@
       </ul>
       <p>That is the product value. Delegation stops being hidden runtime state and becomes something a user can verify before trusting the system.</p>
     </section>
-
-    <figure>
-      <object type="image/svg+xml" data="/approval-boundary.svg">Approval boundary model</object>
-      <figcaption>Reads, drafts, and writes do not belong in the same lane. The control model separates them on purpose.</figcaption>
-    </figure>
 
     <section class="closing">
       <h2>The shortest way to understand the build.</h2>
