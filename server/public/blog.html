@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Why Phantom Auth0 Became An Authorization Product</title>
-  <meta name="description" content="The security narrative behind Phantom Auth0: local execution, hosted authority, connected accounts, approval gates, and Auth0 as the visible trust layer.">
+  <meta name="description" content="Why Phantom Auth0 shifted from a browser demo to an Auth0-centered authorization surface for browser agents.">
   <meta property="og:type" content="article">
   <meta property="og:title" content="Why Phantom Auth0 Became An Authorization Product">
-  <meta property="og:description" content="A security-first narrative for Phantom Auth0 and its Auth0-centered control surface.">
+  <meta property="og:description" content="A security-first narrative about local execution, hosted authority, and approval-aware delegation.">
   <meta property="og:image" content="https://phantom-auth0.onrender.com/approval-boundary.svg">
   <meta property="og:url" content="https://phantom-auth0.onrender.com/blog">
   <meta name="twitter:card" content="summary_large_image">
@@ -19,22 +19,20 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       color-scheme: dark;
-      --bg: #07111a;
-      --panel: rgba(12, 21, 33, 0.94);
-      --panel-soft: rgba(255,255,255,0.03);
-      --line: rgba(157,173,193,0.16);
-      --text: #f2f7fb;
-      --muted: #95a7bb;
-      --muted-strong: #b7c5d2;
+      --bg: #06090e;
+      --line: rgba(255,255,255,0.08);
+      --text: #f4f2ec;
+      --muted: #aaa79f;
+      --muted-strong: #cbc7bf;
       --accent: #eb5424;
-      --accent-soft: rgba(235,84,36,0.14);
-      --display: "Space Grotesk", sans-serif;
+      --display: "Sora", sans-serif;
       --body: "IBM Plex Sans", sans-serif;
-      --max: 860px;
+      --max: 1240px;
+      --article: 740px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -42,9 +40,10 @@
       font-family: var(--body);
       color: var(--text);
       background:
-        radial-gradient(circle at top left, rgba(235,84,36,0.14), transparent 24%),
-        linear-gradient(180deg, #08111a 0%, #050a10 100%);
-      line-height: 1.75;
+        radial-gradient(circle at 82% 8%, rgba(235,84,36,0.1), transparent 18%),
+        linear-gradient(180deg, #05080d 0%, #090c11 100%);
+      line-height: 1.8;
+      -webkit-font-smoothing: antialiased;
     }
 
     nav {
@@ -52,37 +51,37 @@
       top: 0;
       z-index: 30;
       backdrop-filter: blur(16px);
-      background: rgba(5,10,16,0.72);
-      border-bottom: 1px solid rgba(255,255,255,0.07);
+      background: rgba(5,8,13,0.74);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
     }
 
     .nav-inner {
-      max-width: 1100px;
+      max-width: var(--max);
       margin: 0 auto;
-      min-height: 72px;
-      padding: 0 24px;
+      min-height: 76px;
+      padding: 0 26px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 20px;
+      gap: 16px;
     }
 
     .brand {
+      text-decoration: none;
       display: inline-flex;
       align-items: center;
-      gap: 12px;
-      text-decoration: none;
+      gap: 14px;
       color: inherit;
     }
 
     .brand-mark {
-      width: 16px;
-      height: 16px;
-      border-radius: 4px;
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
       transform: rotate(45deg);
-      background: linear-gradient(135deg, #eb5424, rgba(235,84,36,0.3));
+      background: linear-gradient(135deg, #ff8d66, #eb5424);
+      box-shadow: 0 0 22px rgba(235,84,36,0.22);
       position: relative;
-      box-shadow: 0 0 18px rgba(235,84,36,0.22);
     }
 
     .brand-mark::after {
@@ -90,21 +89,21 @@
       position: absolute;
       inset: 3px;
       border-radius: 3px;
-      background: #0a121b;
+      background: var(--bg);
     }
 
-    .brand-copy strong {
+    .brand strong {
       display: block;
-      font: 700 17px/1 var(--display);
-      letter-spacing: -0.02em;
+      font: 700 18px/1 var(--display);
+      letter-spacing: -0.03em;
     }
 
-    .brand-copy span {
+    .brand span {
       display: block;
-      font-size: 11px;
       color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
       margin-top: 2px;
     }
 
@@ -119,177 +118,247 @@
       color: var(--muted-strong);
       padding: 10px 14px;
       border-radius: 999px;
-      border: 1px solid transparent;
-      transition: 160ms ease;
       font-size: 14px;
     }
 
     .nav-links a:hover {
       color: var(--text);
       background: rgba(255,255,255,0.04);
-      border-color: rgba(255,255,255,0.08);
     }
 
     .nav-links .cta {
-      border-color: rgba(235,84,36,0.3);
       background: rgba(235,84,36,0.12);
+      box-shadow: inset 0 0 0 1px rgba(235,84,36,0.28);
       color: var(--text);
     }
 
-    .article-wrap {
+    .hero {
       max-width: var(--max);
       margin: 0 auto;
-      padding: 64px 24px 96px;
+      padding: 72px 26px 42px;
+      min-height: calc(100svh - 76px);
+      display: grid;
+      align-items: end;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 820px) 1fr;
+      gap: 32px;
+      align-items: end;
     }
 
     .eyebrow {
-      display: inline-block;
-      margin-bottom: 18px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
       color: var(--muted-strong);
-      font-size: 13px;
+      margin-bottom: 22px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 34px;
+      height: 1px;
+      background: rgba(235,84,36,0.68);
     }
 
     h1 {
       font-family: var(--display);
-      font-size: clamp(40px, 6vw, 68px);
-      line-height: 0.98;
-      letter-spacing: -0.05em;
-      max-width: 11ch;
-      margin-bottom: 16px;
+      font-size: clamp(54px, 8vw, 108px);
+      line-height: 0.9;
+      letter-spacing: -0.07em;
+      max-width: 10ch;
+      margin-bottom: 20px;
     }
 
     .intro {
-      font-size: 18px;
       color: var(--muted-strong);
-      max-width: 60ch;
+      font-size: 19px;
+      line-height: 1.85;
+      max-width: 44ch;
       margin-bottom: 24px;
     }
 
     .meta {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 38px;
-    }
-
-    .meta span {
-      padding: 9px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: rgba(255,255,255,0.03);
+      gap: 16px;
       color: var(--muted);
       font-size: 12px;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
     }
 
-    article {
+    .hero-side {
+      align-self: stretch;
       display: grid;
-      gap: 36px;
+      align-content: end;
+      padding-bottom: 16px;
     }
 
-    .callout {
-      padding: 22px 24px;
-      border-radius: 24px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.02));
-      border: 1px solid rgba(255,255,255,0.08);
-      box-shadow: 0 18px 40px rgba(0,0,0,0.18);
+    .hero-side object {
+      width: 100%;
+      min-height: 320px;
+      opacity: 0.9;
     }
 
-    .callout p {
-      margin: 0;
-      color: var(--muted-strong);
-      font-size: 17px;
+    article {
+      max-width: var(--article);
+      margin: 0 auto;
+      padding: 56px 26px 96px;
+      display: grid;
+      gap: 38px;
+    }
+
+    section {
+      display: grid;
+      gap: 14px;
+    }
+
+    .lead-note {
+      font-size: 24px;
+      line-height: 1.5;
+      color: var(--text);
+      padding-left: 24px;
+      border-left: 2px solid rgba(235,84,36,0.6);
     }
 
     h2 {
       font-family: var(--display);
-      font-size: clamp(28px, 4vw, 40px);
-      line-height: 1.04;
-      letter-spacing: -0.04em;
-      margin-bottom: 14px;
+      font-size: clamp(32px, 4vw, 46px);
+      line-height: 0.98;
+      letter-spacing: -0.06em;
+      max-width: 14ch;
     }
 
     p {
       color: var(--muted-strong);
-      margin-bottom: 16px;
       font-size: 17px;
+      line-height: 1.9;
     }
 
     strong { color: var(--text); }
-    a { color: #ff9a74; }
+    a { color: #ff9b78; }
 
     ul {
-      padding-left: 22px;
-      color: var(--muted-strong);
+      list-style: none;
       display: grid;
-      gap: 10px;
-      margin: 18px 0;
+      gap: 12px;
+      margin-top: 4px;
     }
 
-    li { font-size: 16px; }
-
-    figure {
-      margin: 10px 0 4px;
-      border-radius: 28px;
-      overflow: hidden;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.025);
+    li {
+      padding-left: 18px;
+      position: relative;
+      color: var(--muted-strong);
+      font-size: 17px;
+      line-height: 1.85;
     }
 
-    figure object {
-      display: block;
-      width: 100%;
-      min-height: 420px;
-    }
-
-    figcaption {
-      padding: 14px 18px;
-      color: var(--muted);
-      font-size: 13px;
-      border-top: 1px solid var(--line);
-      background: rgba(255,255,255,0.02);
+    li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 13px;
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
     }
 
     .divider {
       height: 1px;
       background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
-      margin: 4px 0;
+    }
+
+    figure {
+      margin: 6px 0;
+      padding: 24px 0;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    figure object {
+      width: 100%;
+      min-height: 360px;
+      display: block;
+    }
+
+    figcaption {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .closing {
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.08);
     }
 
     footer {
       max-width: var(--max);
       margin: 0 auto;
-      padding: 0 24px 40px;
+      padding: 0 26px 40px;
       display: flex;
       justify-content: space-between;
-      gap: 20px;
+      gap: 18px;
       flex-wrap: wrap;
       color: var(--muted);
       font-size: 13px;
     }
 
     footer a {
-      color: var(--muted);
+      color: inherit;
       text-decoration: none;
     }
 
     footer a:hover { color: var(--text); }
 
-    @media (max-width: 760px) {
+    @media (max-width: 920px) {
+      .hero-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+      }
+
+      .hero-side {
+        padding-bottom: 0;
+      }
+    }
+
+    @media (max-width: 720px) {
       .nav-inner,
-      .article-wrap,
+      .hero,
+      article,
       footer {
         padding-left: 18px;
         padding-right: 18px;
       }
 
-      .nav-links a.nav-link { display: none; }
-      h1 { max-width: 12ch; }
+      .nav-links a.nav-link {
+        display: none;
+      }
+
+      h1 {
+        font-size: clamp(42px, 15vw, 72px);
+      }
+
+      .intro,
+      p,
+      li {
+        font-size: 16px;
+      }
+
+      .lead-note {
+        font-size: 20px;
+      }
     }
   </style>
 </head>
@@ -298,7 +367,7 @@
     <div class="nav-inner">
       <a href="/" class="brand">
         <span class="brand-mark"></span>
-        <span class="brand-copy">
+        <span>
           <strong>Phantom Auth0</strong>
           <span>Security Narrative</span>
         </span>
@@ -311,91 +380,84 @@
     </div>
   </nav>
 
-  <div class="article-wrap">
-    <div class="eyebrow">Authorization architecture for browser agents</div>
-    <h1>Why Phantom Auth0 became an authorization product.</h1>
-    <p class="intro">The important shift was not adding another tool or another provider integration. It was making identity, delegation, and approval visible enough that the user can understand the agent’s authority before it acts.</p>
-    <div class="meta">
-      <span>Auth0-first</span>
-      <span>Delegated access</span>
-      <span>Approval-aware execution</span>
-    </div>
-
-    <article>
-      <div class="callout">
-        <p><strong>Core thesis:</strong> keep browser execution local, then move every sensitive trust decision into a hosted Auth0 surface where identity, connected accounts, and approval state can be inspected.</p>
+  <header class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="eyebrow">Authorization architecture</div>
+        <h1>Why Phantom Auth0 became an authorization product.</h1>
+        <p class="intro">The project stopped being about whether a browser agent could click, read, or call tools. The real question became who it was allowed to act for and where that authority should live.</p>
+        <div class="meta">
+          <span>Auth0-first</span>
+          <span>Delegated access</span>
+          <span>Approval-aware</span>
+        </div>
       </div>
-
-      <section>
-        <h2>The problem stopped being “can the agent do it?”</h2>
-        <p>Once the local browser agent could navigate, inspect pages, and trigger external workflows, the harder question became <strong>who it should be allowed to act for</strong> and <strong>under what boundary</strong>. That is where Phantom Auth0 changes the shape of the product.</p>
-        <p>Instead of treating external access as hidden backend plumbing, the hosted companion makes the trust model legible. The user sees which account is signed in, which external providers are connected, and whether a requested action crosses a line that should require approval.</p>
-      </section>
-
-      <div class="divider"></div>
-
-      <section>
-        <h2>Auth0 is the control plane, not just a login button</h2>
-        <p>In this build, Auth0 is the place where authority is established and explained.</p>
-        <ul>
-          <li>Universal Login establishes the actor.</li>
-          <li>Connected Accounts define which external systems are delegated.</li>
-          <li>Token Vault enables runtime access without baking provider secrets into the extension.</li>
-          <li>Approval-oriented flows create a visible checkpoint before high-risk writes.</li>
-        </ul>
-        <p>That means the product story changes from “browser agent with integrations” to <strong>browser agent with an authorization surface</strong>.</p>
-      </section>
-
-      <figure>
-        <object type="image/svg+xml" data="/system-architecture.svg">Phantom Auth0 system architecture</object>
-        <figcaption>Local execution remains in the extension. Auth0 becomes the hosted authority layer that gates external actions.</figcaption>
-      </figure>
-
-      <section>
-        <h2>Not every action deserves the same friction</h2>
-        <p>A secure agent should not force the same ceremony for every task. Reads and previews should stay fast. Draft actions can remain reversible. High-risk operations should stop when they would mutate external state.</p>
-        <p>That distinction is what makes approval feel intentional instead of performative. The user only gets interrupted when the system is about to do something that matters.</p>
-      </section>
-
-      <figure>
+      <div class="hero-side">
         <object type="image/svg+xml" data="/approval-boundary.svg">Approval boundary diagram</object>
-        <figcaption>The control model separates low-risk reads, previewable drafts, and approval-required external writes.</figcaption>
-      </figure>
+      </div>
+    </div>
+  </header>
 
-      <section>
-        <h2>The companion exists to answer trust questions quickly</h2>
-        <p>The hosted console is intentionally direct. It is there to answer the operational questions a user or judge asks immediately:</p>
-        <ul>
-          <li>Which actor is the local agent paired to?</li>
-          <li>Which external accounts are connected right now?</li>
-          <li>What action was requested?</li>
-          <li>Was approval required before the request executed?</li>
-          <li>What happened after the request completed or failed?</li>
-        </ul>
-        <p>That is the real security value of the surface. It turns delegation from hidden runtime state into something the user can inspect before trusting the product.</p>
-      </section>
+  <article>
+    <section>
+      <p class="lead-note">The important shift was simple: keep browser execution local, then move identity, delegation, and approval into a hosted Auth0 surface the user can actually inspect.</p>
+    </section>
 
-      <div class="divider"></div>
+    <div class="divider"></div>
 
-      <section>
-        <h2>Why the branding changed too</h2>
-        <p>The public site now leans into a darker, security-oriented visual system because the old browser-demo styling no longer matched the product’s center of gravity. This is not a playful assistant homepage anymore. It is a control surface for delegated authority.</p>
-        <p>The diagrams, copy, and presentation now emphasize:</p>
-        <ul>
-          <li>control boundaries over feature novelty</li>
-          <li>delegation over raw automation</li>
-          <li>Auth0 as the center of trust</li>
-          <li>approval and audit visibility as product features</li>
-        </ul>
-      </section>
+    <section>
+      <h2>Automation was never the hard part.</h2>
+      <p>Once the extension could navigate pages and trigger external workflows, the interesting problem was no longer capability. It was <strong>authority</strong>. If a browser agent can reach outside the tab and act in a provider system, the user needs a clear answer to three questions: who the actor is, which external accounts are delegated, and when a sensitive action crosses a line that should require approval.</p>
+      <p>That is the reason Phantom Auth0 changed shape. The companion stopped being a side surface. It became the actual control plane.</p>
+    </section>
 
-      <section>
-        <h2>The shortest way to understand the product</h2>
-        <p>Open the companion. Pair the extension. Sign in through Auth0. Connect a provider account. Ask the agent to plan a delegated action. If the action is sensitive, approve it before it executes. Then inspect the outcome in the same surface.</p>
-        <p>That loop is the product. The rest of the system exists to make that loop trustworthy.</p>
-      </section>
-    </article>
-  </div>
+    <section>
+      <h2>Auth0 became the visible trust layer.</h2>
+      <p>In this version, Auth0 is not just the way the user signs in. It is the place where authority is established, constrained, and explained.</p>
+      <ul>
+        <li>Universal Login establishes the actor.</li>
+        <li>Connected Accounts show which provider relationships are delegated.</li>
+        <li>Runtime exchange makes access possible without embedding raw provider credentials in the extension.</li>
+        <li>Approval-aware execution creates a real boundary before high-risk writes run.</li>
+      </ul>
+      <p>The product therefore reads differently. It is no longer “browser agent plus integrations.” It is an <strong>authorization surface for browser agents</strong>.</p>
+    </section>
+
+    <figure>
+      <object type="image/svg+xml" data="/system-architecture.svg">Phantom Auth0 architecture diagram</object>
+      <figcaption>Local runtime on one side, hosted authority on the other, and the approval boundary in between.</figcaption>
+    </figure>
+
+    <section>
+      <h2>Different actions deserve different friction.</h2>
+      <p>A secure agent should not treat every action the same way. Reads should remain fast. Drafts should remain reviewable. High-risk writes should pause when they would mutate external state.</p>
+      <p>That distinction is what makes approval meaningful instead of ornamental. The user only gets interrupted when the system is about to do something irreversible enough to matter.</p>
+    </section>
+
+    <section>
+      <h2>The companion exists to answer trust questions quickly.</h2>
+      <p>The hosted console is there to answer the questions that matter in a live evaluation:</p>
+      <ul>
+        <li>Which actor is this local browser session paired to?</li>
+        <li>Which external accounts are connected right now?</li>
+        <li>What action is the agent asking to perform?</li>
+        <li>Does that request require approval before it executes?</li>
+        <li>What happened after the request completed or failed?</li>
+      </ul>
+      <p>That is the product value. Delegation stops being hidden runtime state and becomes something a user can verify before trusting the system.</p>
+    </section>
+
+    <figure>
+      <object type="image/svg+xml" data="/approval-boundary.svg">Approval boundary model</object>
+      <figcaption>Reads, drafts, and writes do not belong in the same lane. The control model separates them on purpose.</figcaption>
+    </figure>
+
+    <section class="closing">
+      <h2>The shortest way to understand the build.</h2>
+      <p>Pair the extension. Sign in through Auth0. Connect a provider account. Ask the agent to plan a delegated action. If the action is sensitive, approve it before it runs. Then inspect the result in the same surface.</p>
+      <p>That loop is the whole idea. The rest of the implementation exists to make that loop defensible.</p>
+    </section>
+  </article>
 
   <footer>
     <span>Phantom Auth0 by <a href="https://youneslaaroussi.ca">youneslaaroussi.ca</a></span>

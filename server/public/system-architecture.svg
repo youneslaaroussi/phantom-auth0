@@ -1,122 +1,60 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 760" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 780" width="100%" height="100%">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#0d1825"/>
-      <stop offset="100%" stop-color="#08111b"/>
+    <linearGradient id="fade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#eb5424" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#eb5424" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#eb5424" stop-opacity="0"/>
     </linearGradient>
-    <linearGradient id="orange" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#ff8b63"/>
+    <linearGradient id="spot" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff9b78"/>
       <stop offset="100%" stop-color="#eb5424"/>
     </linearGradient>
-    <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#7ae4ff"/>
-      <stop offset="100%" stop-color="#3cc7fb"/>
-    </linearGradient>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#000000" flood-opacity="0.28"/>
-    </filter>
-    <marker id="arrow-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#eb5424"/>
-    </marker>
-    <marker id="arrow-cyan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#53d3ff"/>
-    </marker>
-    <marker id="arrow-slate" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8da0b4"/>
-    </marker>
   </defs>
 
-  <rect width="1240" height="760" fill="url(#bg)"/>
-  <rect x="30" y="30" width="1180" height="700" rx="28" fill="none" stroke="rgba(255,255,255,0.08)"/>
+  <rect width="1240" height="780" fill="#070a0f"/>
+  <rect x="24" y="24" width="1192" height="732" rx="28" fill="none" stroke="rgba(255,255,255,0.08)"/>
 
-  <text x="70" y="90" fill="#f3f7fb" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="34" font-weight="600">Phantom Auth0 Security Architecture</text>
-  <text x="70" y="122" fill="#91a2b6" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="16">Local browser execution on the left. Hosted authorization and external-state control on the right.</text>
+  <text x="76" y="92" fill="#f4f2ec" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="34" font-weight="600">Phantom Auth0 system architecture</text>
+  <text x="76" y="124" fill="#aaa79f" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="16">One path, three zones: local runtime, hosted control surface, external authority.</text>
 
-  <rect x="70" y="170" width="260" height="500" rx="28" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)"/>
-  <text x="102" y="214" fill="#ff9a74" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13" font-weight="600" letter-spacing="2">LOCAL RUNTIME</text>
+  <line x1="120" y1="392" x2="1120" y2="392" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  <line x1="120" y1="392" x2="1120" y2="392" stroke="url(#fade)" stroke-width="3"/>
 
-  <rect x="370" y="170" width="320" height="500" rx="28" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)"/>
-  <text x="402" y="214" fill="#ff9a74" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13" font-weight="600" letter-spacing="2">HOSTED CONTROL SURFACE</text>
+  <line x1="414" y1="186" x2="414" y2="618" stroke="rgba(255,255,255,0.08)" stroke-dasharray="8 10"/>
+  <line x1="792" y1="186" x2="792" y2="618" stroke="rgba(255,255,255,0.08)" stroke-dasharray="8 10"/>
 
-  <rect x="730" y="170" width="440" height="500" rx="28" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)"/>
-  <text x="762" y="214" fill="#7ae4ff" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13" font-weight="600" letter-spacing="2">AUTH0 + PROVIDER AUTHORITY</text>
+  <text x="120" y="182" fill="#cbc7bf" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="12" letter-spacing="2" text-transform="uppercase">LOCAL RUNTIME</text>
+  <text x="456" y="182" fill="#cbc7bf" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="12" letter-spacing="2" text-transform="uppercase">HOSTED CONTROL SURFACE</text>
+  <text x="834" y="182" fill="#cbc7bf" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="12" letter-spacing="2" text-transform="uppercase">AUTH0 + PROVIDERS</text>
 
-  <g filter="url(#shadow)">
-    <rect x="100" y="260" width="200" height="112" rx="24" fill="#101b28" stroke="rgba(255,255,255,0.08)"/>
-    <text x="128" y="302" fill="#f3f7fb" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="22" font-weight="600">Phantom Extension</text>
-    <text x="128" y="328" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Page context</text>
-    <text x="128" y="350" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Voice / UI / tools</text>
+  <circle cx="226" cy="392" r="74" fill="none" stroke="rgba(255,255,255,0.08)"/>
+  <circle cx="226" cy="392" r="38" fill="none" stroke="rgba(235,84,36,0.4)"/>
+  <circle cx="226" cy="392" r="10" fill="url(#spot)"/>
+  <text x="120" y="532" fill="#f4f2ec" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="26" font-weight="600">Phantom extension</text>
+  <text x="120" y="562" fill="#aaa79f" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Page context, browser tools, local interaction, pair requests.</text>
 
-    <rect x="100" y="418" width="200" height="112" rx="24" fill="#101b28" stroke="rgba(255,255,255,0.08)"/>
-    <text x="128" y="460" fill="#f3f7fb" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="22" font-weight="600">Local Session</text>
-    <text x="128" y="486" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Pair request</text>
-    <text x="128" y="508" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Action intent</text>
+  <circle cx="604" cy="392" r="98" fill="none" stroke="rgba(255,255,255,0.08)"/>
+  <circle cx="604" cy="392" r="54" fill="none" stroke="rgba(235,84,36,0.4)"/>
+  <circle cx="604" cy="392" r="10" fill="url(#spot)"/>
+  <text x="472" y="532" fill="#f4f2ec" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="26" font-weight="600">Companion + gateway</text>
+  <text x="472" y="562" fill="#aaa79f" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Actor state, connected accounts, action planning, approval visibility, history.</text>
 
-    <rect x="400" y="238" width="260" height="112" rx="24" fill="#101b28" stroke="rgba(255,255,255,0.08)"/>
-    <text x="430" y="280" fill="#f3f7fb" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="22" font-weight="600">Companion Console</text>
-    <text x="430" y="306" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Pairing, account state, audit</text>
-    <text x="430" y="328" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Approval visibility</text>
+  <circle cx="982" cy="392" r="74" fill="none" stroke="rgba(255,255,255,0.08)"/>
+  <circle cx="982" cy="392" r="38" fill="none" stroke="rgba(235,84,36,0.4)"/>
+  <circle cx="982" cy="392" r="10" fill="url(#spot)"/>
+  <text x="850" y="532" fill="#f4f2ec" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="26" font-weight="600">Auth0 and providers</text>
+  <text x="850" y="562" fill="#aaa79f" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Identity, Connected Accounts, Token Vault, approval gates, provider APIs.</text>
 
-    <rect x="400" y="396" width="260" height="112" rx="24" fill="#101b28" stroke="rgba(255,255,255,0.08)"/>
-    <text x="430" y="438" fill="#f3f7fb" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="22" font-weight="600">Action Gateway</text>
-    <text x="430" y="464" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Classifies reads vs writes</text>
-    <text x="430" y="486" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Requests delegated execution</text>
+  <path d="M226 392 C 316 392, 470 318, 604 318" fill="none" stroke="#eb5424" stroke-width="2.5"/>
+  <path d="M604 318 C 706 318, 850 392, 982 392" fill="none" stroke="#eb5424" stroke-width="2.5"/>
+  <path d="M604 466 C 734 466, 832 466, 982 466" fill="none" stroke="#eb5424" stroke-width="1.5" stroke-dasharray="7 10"/>
 
-    <rect x="400" y="554" width="260" height="84" rx="24" fill="#101b28" stroke="rgba(255,255,255,0.08)"/>
-    <text x="430" y="602" fill="#f3f7fb" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="21" font-weight="600">Action History</text>
-    <text x="430" y="624" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Status, result, approval trail</text>
+  <circle cx="604" cy="318" r="5" fill="#eb5424"/>
+  <circle cx="982" cy="466" r="5" fill="#eb5424"/>
 
-    <rect x="760" y="238" width="180" height="110" rx="24" fill="#0f1b29" stroke="rgba(83,211,255,0.22)"/>
-    <text x="788" y="282" fill="#f3f7fb" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="22" font-weight="600">Auth0</text>
-    <text x="788" y="308" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Universal Login</text>
-    <text x="788" y="330" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Actor identity</text>
+  <text x="306" y="302" fill="#cbc7bf" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13">pair request</text>
+  <text x="678" y="302" fill="#cbc7bf" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13">delegated execution</text>
+  <text x="736" y="492" fill="#aaa79f" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13">result + audit trail</text>
 
-    <rect x="960" y="238" width="180" height="110" rx="24" fill="#0f1b29" stroke="rgba(83,211,255,0.22)"/>
-    <text x="988" y="282" fill="#f3f7fb" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="22" font-weight="600">Connected</text>
-    <text x="988" y="308" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Accounts</text>
-    <text x="988" y="330" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Delegated providers</text>
-
-    <rect x="760" y="418" width="180" height="110" rx="24" fill="#0f1b29" stroke="rgba(83,211,255,0.22)"/>
-    <text x="788" y="462" fill="#f3f7fb" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="22" font-weight="600">Token Vault</text>
-    <text x="788" y="488" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">Runtime token</text>
-    <text x="788" y="510" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">exchange</text>
-
-    <rect x="960" y="418" width="180" height="110" rx="24" fill="#0f1b29" stroke="rgba(235,84,36,0.22)"/>
-    <text x="988" y="462" fill="#f3f7fb" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="22" font-weight="600">Approval Gate</text>
-    <text x="988" y="488" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">High-risk writes</text>
-    <text x="988" y="510" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">wait for consent</text>
-
-    <rect x="820" y="574" width="260" height="84" rx="24" fill="#101b28" stroke="rgba(255,255,255,0.08)"/>
-    <text x="852" y="622" fill="#f3f7fb" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="21" font-weight="600">Provider APIs</text>
-    <text x="852" y="644" fill="#8fa2b7" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="15">GitHub, Google, Slack and other delegated systems</text>
-  </g>
-
-  <path d="M300 316 C 340 316, 352 294, 400 294" fill="none" stroke="url(#orange)" stroke-width="4" marker-end="url(#arrow-orange)"/>
-  <text x="338" y="286" fill="#ff9a74" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13">pairing link</text>
-
-  <path d="M300 474 C 348 474, 354 452, 400 452" fill="none" stroke="url(#orange)" stroke-width="4" marker-end="url(#arrow-orange)"/>
-  <text x="320" y="446" fill="#ff9a74" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13">action intent</text>
-
-  <path d="M660 294 C 706 294, 716 294, 760 294" fill="none" stroke="url(#cyan)" stroke-width="4" marker-end="url(#arrow-cyan)"/>
-  <text x="676" y="274" fill="#7ae4ff" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13">authenticate actor</text>
-
-  <path d="M940 294 C 948 294, 952 294, 960 294" fill="none" stroke="url(#cyan)" stroke-width="4" marker-end="url(#arrow-cyan)"/>
-  <text x="958" y="222" fill="#7ae4ff" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13">linked providers</text>
-
-  <path d="M660 452 C 708 452, 716 472, 760 472" fill="none" stroke="url(#cyan)" stroke-width="4" marker-end="url(#arrow-cyan)"/>
-  <text x="680" y="506" fill="#7ae4ff" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13">request delegated token</text>
-
-  <path d="M940 472 C 948 472, 952 472, 960 472" fill="none" stroke="url(#orange)" stroke-width="4" marker-end="url(#arrow-orange)"/>
-  <text x="962" y="402" fill="#ff9a74" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13">write requires approval</text>
-
-  <path d="M1050 528 C 1050 552, 1010 566, 980 586" fill="none" stroke="url(#orange)" stroke-width="4" marker-end="url(#arrow-orange)"/>
-  <text x="1070" y="560" fill="#ff9a74" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13">approved action</text>
-
-  <path d="M850 528 C 850 552, 884 568, 910 586" fill="none" stroke="url(#cyan)" stroke-width="4" marker-end="url(#arrow-cyan)"/>
-  <text x="742" y="560" fill="#7ae4ff" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13">low-risk read / preview</text>
-
-  <path d="M950 658 C 950 688, 600 688, 600 638" fill="none" stroke="#8da0b4" stroke-width="3" stroke-dasharray="8 8" marker-end="url(#arrow-slate)"/>
-  <text x="664" y="714" fill="#8da0b4" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="13">status, audit trail, and results returned to the console</text>
-
-  <rect x="72" y="88" width="14" height="14" rx="4" fill="url(#orange)"/>
+  <text x="120" y="668" fill="#aaa79f" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="14">The extension remains the operator. The hosted surface becomes the legible control plane. Auth0 becomes the authority boundary.</text>
 </svg>

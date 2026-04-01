@@ -4,18 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Phantom Auth0 | Authorization Surface For Browser Agents</title>
-  <meta name="description" content="A dark, security-first product surface for browser agents. Phantom Auth0 keeps browser execution local and moves identity, delegation, and approval into Auth0.">
-  <meta name="keywords" content="phantom auth0, auth0 for ai agents, token vault, connected accounts, browser agent security, delegated authorization">
+  <meta name="description" content="Keep browser execution local and move identity, delegation, and approval into Auth0. Phantom Auth0 is an authorization surface for browser agents.">
+  <meta name="keywords" content="phantom auth0, auth0 for ai agents, token vault, connected accounts, approval gates, browser agent security">
   <meta name="author" content="Younes Laaroussi">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Phantom Auth0 | Authorization Surface For Browser Agents">
-  <meta property="og:description" content="Keep the agent local. Centralize identity, delegation, and approval in Auth0.">
+  <meta property="og:description" content="Keep the agent local. Move authority into Auth0.">
   <meta property="og:image" content="https://phantom-auth0.onrender.com/system-architecture.svg">
   <meta property="og:url" content="https://phantom-auth0.onrender.com">
   <meta property="og:site_name" content="Phantom Auth0">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Phantom Auth0 | Authorization Surface For Browser Agents">
-  <meta name="twitter:description" content="Security-focused browser agent architecture built around Auth0.">
+  <meta name="twitter:description" content="A security-first Auth0 control plane for browser agents.">
   <meta name="twitter:image" content="https://phantom-auth0.onrender.com/system-architecture.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
   <link rel="icon" type="image/png" href="/favicon.png">
@@ -23,42 +23,38 @@
   <link rel="canonical" href="https://phantom-auth0.onrender.com">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     :root {
       color-scheme: dark;
-      --bg: #07111a;
-      --bg-deep: #03080f;
-      --panel: rgba(13, 24, 37, 0.88);
-      --panel-strong: #0e1926;
-      --panel-soft: #132131;
-      --line: rgba(157, 173, 193, 0.16);
-      --line-strong: rgba(157, 173, 193, 0.28);
-      --text: #f3f7fb;
-      --muted: #8fa2b7;
-      --muted-strong: #b5c2cf;
+      --bg: #070a0f;
+      --bg-soft: #0b1016;
+      --surface: #11161d;
+      --line: rgba(255, 255, 255, 0.08);
+      --line-strong: rgba(255, 255, 255, 0.16);
+      --text: #f4f2ec;
+      --muted: #aaa79f;
+      --muted-strong: #cbc7bf;
       --accent: #eb5424;
-      --accent-soft: rgba(235, 84, 36, 0.15);
-      --signal: #53d3ff;
-      --signal-soft: rgba(83, 211, 255, 0.14);
-      --ok: #4ce0a2;
-      --max: 1160px;
-      --display: "Space Grotesk", "Segoe UI", sans-serif;
-      --body: "IBM Plex Sans", "Segoe UI", sans-serif;
-      --mono: "IBM Plex Sans", ui-monospace, monospace;
-      --shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+      --accent-soft: rgba(235, 84, 36, 0.12);
+      --display: "Sora", sans-serif;
+      --body: "IBM Plex Sans", sans-serif;
+      --max: 1180px;
+      --copy: 640px;
+      --ease: 560ms cubic-bezier(.2,.7,.2,1);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
+
     body {
       font-family: var(--body);
-      background:
-        radial-gradient(circle at 18% 18%, rgba(235, 84, 36, 0.14), transparent 30%),
-        radial-gradient(circle at 82% 12%, rgba(83, 211, 255, 0.1), transparent 26%),
-        linear-gradient(180deg, #08131d 0%, #060c14 100%);
       color: var(--text);
+      background:
+        radial-gradient(circle at 72% 18%, rgba(235, 84, 36, 0.1), transparent 20%),
+        radial-gradient(circle at 18% 82%, rgba(235, 84, 36, 0.08), transparent 18%),
+        linear-gradient(180deg, #06090e 0%, #0a0d12 100%);
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
     }
@@ -68,12 +64,11 @@
       position: fixed;
       inset: 0;
       background-image:
-        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-      background-size: 56px 56px;
-      mask-image: linear-gradient(180deg, rgba(255,255,255,0.65), transparent 75%);
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: linear-gradient(180deg, rgba(255,255,255,0.55), transparent 78%);
       pointer-events: none;
-      opacity: 0.28;
     }
 
     a { color: inherit; }
@@ -81,28 +76,28 @@
     nav {
       position: sticky;
       top: 0;
-      z-index: 40;
+      z-index: 50;
+      background: rgba(6, 9, 14, 0.72);
       backdrop-filter: blur(18px);
-      background: rgba(5, 10, 16, 0.68);
-      border-bottom: 1px solid rgba(157, 173, 193, 0.1);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
     }
 
     .nav-inner {
       max-width: var(--max);
       margin: 0 auto;
-      padding: 0 24px;
-      min-height: 74px;
+      min-height: 76px;
+      padding: 0 26px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 20px;
+      gap: 16px;
     }
 
     .brand {
+      text-decoration: none;
       display: inline-flex;
       align-items: center;
-      gap: 12px;
-      text-decoration: none;
+      gap: 14px;
     }
 
     .brand-mark {
@@ -110,12 +105,10 @@
       height: 18px;
       border-radius: 5px;
       transform: rotate(45deg);
-      background:
-        linear-gradient(135deg, rgba(235, 84, 36, 1), rgba(235, 84, 36, 0.3));
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,0.08),
-        0 0 22px rgba(235, 84, 36, 0.28);
+      background: linear-gradient(135deg, #ff8d66, #eb5424);
+      box-shadow: 0 0 26px rgba(235, 84, 36, 0.22);
       position: relative;
+      flex: 0 0 auto;
     }
 
     .brand-mark::after {
@@ -123,23 +116,23 @@
       position: absolute;
       inset: 3px;
       border-radius: 3px;
-      background: linear-gradient(180deg, #101a27, #0a111a);
+      background: var(--bg);
     }
 
     .brand-copy {
       display: grid;
-      gap: 1px;
+      gap: 2px;
     }
 
-    .brand-title {
-      font: 700 17px/1 var(--display);
-      letter-spacing: 0.01em;
+    .brand-name {
+      font: 700 18px/1 var(--display);
+      letter-spacing: -0.03em;
     }
 
-    .brand-sub {
-      font-size: 11px;
+    .brand-tag {
       color: var(--muted);
-      letter-spacing: 0.12em;
+      font-size: 11px;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
     }
 
@@ -151,72 +144,105 @@
 
     .nav-links a {
       text-decoration: none;
-      padding: 11px 16px;
-      border-radius: 999px;
       color: var(--muted-strong);
+      padding: 10px 15px;
+      border-radius: 999px;
       font-size: 14px;
       transition: 180ms ease;
-      border: 1px solid transparent;
     }
 
     .nav-links a:hover {
       color: var(--text);
       background: rgba(255,255,255,0.04);
-      border-color: rgba(255,255,255,0.08);
     }
 
     .nav-links .cta {
+      background: var(--accent-soft);
       color: var(--text);
-      background: linear-gradient(135deg, rgba(235, 84, 36, 0.2), rgba(235, 84, 36, 0.08));
-      border-color: rgba(235, 84, 36, 0.38);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+      box-shadow: inset 0 0 0 1px rgba(235, 84, 36, 0.28);
     }
 
     .hero {
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 72px 24px 44px;
-      min-height: calc(100svh - 74px);
-      display: grid;
-      align-items: center;
+      min-height: calc(100svh - 76px);
+      position: relative;
+      padding: 0;
+      overflow: clip;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
     }
 
-    .hero-grid {
+    .hero-inner {
+      min-height: calc(100svh - 76px);
       display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 36px;
       align-items: center;
+      max-width: none;
+      position: relative;
+    }
+
+    .hero-plane {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 75% 24%, rgba(235, 84, 36, 0.12), transparent 20%),
+        linear-gradient(120deg, transparent 0 56%, rgba(255,255,255,0.02) 56% 58%, transparent 58%),
+        linear-gradient(180deg, rgba(255,255,255,0.02), transparent 22%);
+      pointer-events: none;
+    }
+
+    .hero-shell {
+      max-width: var(--max);
+      margin: 0 auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 680px) 1fr;
+      align-items: center;
+      gap: 36px;
+      padding: 56px 26px 64px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-copy {
+      max-width: var(--copy);
+      padding: 20px 0;
     }
 
     .eyebrow {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
       color: var(--muted-strong);
-      font-size: 13px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
       margin-bottom: 22px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 34px;
+      height: 1px;
+      background: rgba(235, 84, 36, 0.7);
+      box-shadow: 0 0 12px rgba(235, 84, 36, 0.2);
     }
 
     .hero h1 {
       font-family: var(--display);
-      font-size: clamp(42px, 6vw, 78px);
-      line-height: 0.95;
-      letter-spacing: -0.045em;
-      max-width: 8.8ch;
-      margin-bottom: 20px;
+      font-size: clamp(56px, 9vw, 118px);
+      line-height: 0.9;
+      letter-spacing: -0.07em;
+      max-width: 8.2ch;
+      margin-bottom: 22px;
     }
 
-    .hero h1 .accent { color: #ff8b63; }
+    .hero h1 .accent {
+      color: #ff9b78;
+    }
 
     .hero p {
-      max-width: 58ch;
       color: var(--muted-strong);
       font-size: 18px;
-      line-height: 1.75;
+      line-height: 1.8;
+      max-width: 48ch;
       margin-bottom: 28px;
     }
 
@@ -224,199 +250,150 @@
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
-      margin-bottom: 26px;
+      margin-bottom: 24px;
     }
 
     .button {
       display: inline-flex;
       align-items: center;
-      gap: 9px;
+      gap: 10px;
       text-decoration: none;
+      padding: 14px 18px;
       border-radius: 999px;
-      padding: 14px 20px;
-      font-weight: 600;
       font-size: 15px;
+      font-weight: 600;
       transition: 180ms ease;
-      border: 1px solid rgba(255,255,255,0.09);
     }
 
     .button.primary {
-      background: linear-gradient(135deg, #eb5424, #ff7a4b);
-      color: #fff;
-      box-shadow: 0 18px 50px rgba(235, 84, 36, 0.22);
-      border-color: rgba(255,255,255,0.14);
+      background: #f0ece5;
+      color: #131516;
     }
 
     .button.primary:hover {
       transform: translateY(-1px);
-      box-shadow: 0 24px 56px rgba(235, 84, 36, 0.28);
+      background: #fff;
     }
 
     .button.secondary {
-      background: rgba(255,255,255,0.03);
       color: var(--text);
+      box-shadow: inset 0 0 0 1px var(--line-strong);
+      background: rgba(255,255,255,0.02);
     }
 
     .button.secondary:hover {
-      background: rgba(255,255,255,0.06);
-      border-color: rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.05);
     }
 
-    .hero-strip {
+    .hero-proof {
       display: flex;
+      gap: 18px;
       flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .hero-strip span {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.035);
-      border: 1px solid rgba(255,255,255,0.08);
-      color: var(--muted-strong);
+      color: var(--muted);
       font-size: 13px;
     }
 
-    .hero-panel {
-      position: relative;
-      border-radius: 28px;
-      background:
-        linear-gradient(180deg, rgba(15, 27, 40, 0.92), rgba(9, 17, 26, 0.92));
-      border: 1px solid var(--line);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      min-height: 520px;
-    }
-
-    .hero-panel::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at 20% 22%, rgba(235, 84, 36, 0.22), transparent 26%),
-        radial-gradient(circle at 78% 16%, rgba(83, 211, 255, 0.16), transparent 24%),
-        linear-gradient(180deg, rgba(255,255,255,0.03), transparent 55%);
-      pointer-events: none;
-    }
-
-    .panel-head {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      justify-content: space-between;
+    .hero-proof span {
+      display: inline-flex;
       align-items: center;
-      padding: 18px 20px 0;
-      color: var(--muted);
-      font-size: 12px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
+      gap: 8px;
     }
 
-    .signal-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--ok);
-      box-shadow: 0 0 16px rgba(76, 224, 162, 0.45);
-      animation: pulse 2.2s ease-in-out infinite;
-    }
-
-    .panel-body {
+    .hero-visual {
       position: relative;
-      z-index: 1;
-      padding: 24px 20px 20px;
+      min-height: 620px;
       display: grid;
-      gap: 16px;
+      place-items: center;
     }
 
-    .terminal {
-      border-radius: 22px;
-      background: rgba(3, 8, 15, 0.62);
+    .signal-field {
+      width: min(46vw, 600px);
+      aspect-ratio: 1 / 1.08;
+      position: relative;
+      transform: translateX(4%);
+    }
+
+    .ring,
+    .line,
+    .node,
+    .label {
+      position: absolute;
+    }
+
+    .ring {
+      border-radius: 999px;
       border: 1px solid rgba(255,255,255,0.08);
-      padding: 18px;
-      display: grid;
-      gap: 14px;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.02), transparent 62%);
     }
 
-    .terminal-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding-bottom: 14px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+    .ring.one { inset: 6% 10% 26% 18%; }
+    .ring.two { inset: 18% 4% 14% 28%; }
+    .ring.three { inset: 30% 12% 4% 6%; }
+
+    .line {
+      background: linear-gradient(90deg, rgba(235, 84, 36, 0), rgba(235, 84, 36, 0.9), rgba(235, 84, 36, 0));
+      height: 1px;
+      transform-origin: left center;
+      opacity: 0.78;
     }
 
-    .terminal-row:last-child {
-      padding-bottom: 0;
-      border-bottom: 0;
+    .line.l1 {
+      width: 48%;
+      left: 10%;
+      top: 32%;
+      transform: rotate(18deg);
     }
 
-    .terminal-tag {
-      min-width: 108px;
-      font-size: 11px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: #ff9a74;
-      padding-top: 2px;
+    .line.l2 {
+      width: 44%;
+      left: 38%;
+      top: 56%;
+      transform: rotate(-18deg);
     }
 
-    .terminal-copy strong {
+    .line.l3 {
+      width: 36%;
+      left: 20%;
+      top: 76%;
+      transform: rotate(-4deg);
+    }
+
+    .node {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: #ff8d66;
+      box-shadow: 0 0 0 8px rgba(235, 84, 36, 0.08), 0 0 26px rgba(235, 84, 36, 0.32);
+    }
+
+    .node.n1 { left: 19%; top: 29%; }
+    .node.n2 { left: 56%; top: 44%; }
+    .node.n3 { left: 78%; top: 71%; }
+
+    .label {
+      max-width: 180px;
+      color: var(--muted-strong);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .label strong {
       display: block;
-      font-size: 16px;
+      color: var(--text);
+      font-size: 14px;
       margin-bottom: 4px;
       font-weight: 600;
     }
 
-    .terminal-copy p {
-      font-size: 14px;
-      line-height: 1.65;
-      color: var(--muted);
-      margin: 0;
-    }
-
-    .trust-badges {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .trust-badges .badge {
-      border-radius: 18px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      padding: 16px;
-      min-height: 118px;
-    }
-
-    .badge .label {
-      color: var(--muted);
-      font-size: 11px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-
-    .badge strong {
-      display: block;
-      font-size: 17px;
-      font-weight: 600;
-      margin-bottom: 7px;
-    }
-
-    .badge p {
-      margin: 0;
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.6;
-    }
+    .label.a { left: 2%; top: 19%; }
+    .label.b { left: 56%; top: 32%; }
+    .label.c { right: -2%; bottom: 16%; text-align: right; }
 
     main section {
       max-width: var(--max);
       margin: 0 auto;
-      padding: 30px 24px 96px;
+      padding: 88px 26px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
     }
 
     .section-head {
@@ -425,271 +402,180 @@
     }
 
     .section-kicker {
-      color: #ff9a74;
+      color: var(--muted);
       text-transform: uppercase;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.14em;
       font-size: 12px;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
 
     .section-head h2 {
       font-family: var(--display);
-      font-size: clamp(32px, 4vw, 50px);
-      line-height: 1.02;
-      letter-spacing: -0.04em;
-      margin-bottom: 14px;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 0.95;
+      letter-spacing: -0.06em;
+      margin-bottom: 16px;
+      max-width: 12ch;
     }
 
     .section-head p {
       color: var(--muted-strong);
-      font-size: 17px;
-      line-height: 1.75;
-      max-width: 62ch;
+      font-size: 18px;
+      line-height: 1.8;
+      max-width: 54ch;
     }
 
-    .principles {
+    .proof-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
+      gap: 28px;
+      padding-top: 8px;
     }
 
-    .principle {
-      padding: 24px;
-      border-radius: 24px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.02));
-      border: 1px solid rgba(255,255,255,0.08);
-      min-height: 240px;
+    .proof {
+      padding-right: 24px;
+      border-right: 1px solid rgba(255,255,255,0.08);
     }
 
-    .principle-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 14px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 18px;
-      background: linear-gradient(180deg, rgba(235,84,36,0.18), rgba(235,84,36,0.08));
-      color: #ff8b63;
-      border: 1px solid rgba(235,84,36,0.24);
-    }
+    .proof:last-child { border-right: 0; padding-right: 0; }
 
-    .principle h3 {
-      font-size: 22px;
-      line-height: 1.12;
-      margin-bottom: 12px;
+    .proof strong {
+      display: block;
       font-family: var(--display);
-      letter-spacing: -0.03em;
+      font-size: 28px;
+      line-height: 0.96;
+      letter-spacing: -0.05em;
+      margin-bottom: 10px;
     }
 
-    .principle p {
+    .proof p {
       color: var(--muted);
-      line-height: 1.75;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    .detail-copy {
+      display: grid;
+      gap: 24px;
+    }
+
+    .detail-item {
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .detail-item:last-child { border-bottom: 0; padding-bottom: 0; }
+
+    .detail-item strong {
+      display: block;
+      font-size: 19px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .detail-item p {
+      color: var(--muted);
+      line-height: 1.8;
       font-size: 15px;
     }
 
-    .flow {
-      display: grid;
-      grid-template-columns: 0.95fr 1.05fr;
-      gap: 24px;
-      align-items: center;
+    .detail-figure {
+      position: sticky;
+      top: 104px;
+      border-left: 1px solid rgba(255,255,255,0.08);
+      padding-left: 34px;
     }
 
-    .flow-copy {
-      display: grid;
-      gap: 14px;
-    }
-
-    .flow-step {
-      padding: 18px 18px 18px 22px;
-      border-left: 2px solid rgba(235,84,36,0.6);
-      background: rgba(255,255,255,0.02);
-      border-radius: 0 18px 18px 0;
-    }
-
-    .flow-step strong {
-      display: block;
-      font-size: 17px;
-      margin-bottom: 6px;
-    }
-
-    .flow-step p {
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.7;
-    }
-
-    .flow-graphic {
-      border-radius: 28px;
-      overflow: hidden;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.02);
-      box-shadow: var(--shadow);
-    }
-
-    .flow-graphic object {
+    .detail-figure object {
       display: block;
       width: 100%;
-      min-height: 500px;
+      min-height: 520px;
     }
 
-    .audit-layout {
+    .sequence {
       display: grid;
-      grid-template-columns: 0.9fr 1.1fr;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 20px;
     }
 
-    .audit-panel,
-    .audit-list {
-      border-radius: 26px;
-      background: linear-gradient(180deg, rgba(13,24,37,0.9), rgba(9,15,23,0.9));
-      border: 1px solid var(--line);
-      padding: 22px;
+    .step {
+      padding-top: 18px;
+      border-top: 1px solid rgba(255,255,255,0.08);
     }
 
-    .audit-panel h3,
-    .audit-list h3 {
-      font-family: var(--display);
-      font-size: 24px;
-      letter-spacing: -0.03em;
+    .step-num {
+      color: var(--accent);
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
       margin-bottom: 12px;
     }
 
-    .audit-panel p {
-      color: var(--muted-strong);
-      line-height: 1.8;
-      margin-bottom: 22px;
-    }
-
-    .signal-list {
-      list-style: none;
-      display: grid;
-      gap: 14px;
-    }
-
-    .signal-list li {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      color: var(--muted);
-      line-height: 1.7;
-      font-size: 14px;
-    }
-
-    .signal-list li::before {
-      content: "";
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      margin-top: 8px;
-      background: linear-gradient(180deg, #ff8b63, #eb5424);
-      box-shadow: 0 0 0 6px rgba(235,84,36,0.08);
-      flex: 0 0 auto;
-    }
-
-    .audit-items {
-      display: grid;
-      gap: 14px;
-    }
-
-    .audit-item {
-      padding: 16px 18px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.08);
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      align-items: center;
-    }
-
-    .audit-item strong {
+    .step strong {
       display: block;
-      margin-bottom: 4px;
+      font-size: 18px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .step p {
+      color: var(--muted);
+      line-height: 1.8;
       font-size: 15px;
     }
 
-    .audit-item span {
-      display: block;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.6;
-    }
-
-    .status {
-      white-space: nowrap;
-      font-size: 12px;
-      padding: 9px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.08);
-      color: var(--muted-strong);
-    }
-
-    .status.warn {
-      color: #ffb394;
-      border-color: rgba(235,84,36,0.28);
-      background: rgba(235,84,36,0.1);
-    }
-
-    .status.ok {
-      color: #92f0c4;
-      border-color: rgba(76,224,162,0.24);
-      background: rgba(76,224,162,0.1);
-    }
-
     .cta-band {
-      padding-bottom: 118px;
-    }
-
-    .cta-box {
-      padding: 34px;
-      border-radius: 30px;
-      background:
-        radial-gradient(circle at top right, rgba(235,84,36,0.18), transparent 28%),
-        linear-gradient(180deg, rgba(14,25,38,0.96), rgba(8,14,22,0.96));
-      border: 1px solid rgba(235,84,36,0.22);
-      box-shadow: var(--shadow);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
       gap: 24px;
+      align-items: end;
+      padding: 0 0 8px;
     }
 
-    .cta-copy h2 {
+    .cta-band h2 {
       font-family: var(--display);
-      font-size: clamp(30px, 4vw, 48px);
-      line-height: 0.98;
-      letter-spacing: -0.04em;
-      margin-bottom: 12px;
+      font-size: clamp(36px, 5vw, 64px);
+      line-height: 0.92;
+      letter-spacing: -0.06em;
+      margin-bottom: 14px;
+      max-width: 10ch;
     }
 
-    .cta-copy p {
+    .cta-band p {
       color: var(--muted-strong);
-      max-width: 56ch;
+      max-width: 46ch;
       line-height: 1.8;
-      font-size: 16px;
+      font-size: 17px;
     }
 
     footer {
       max-width: var(--max);
       margin: 0 auto;
-      padding: 0 24px 36px;
+      padding: 30px 26px 44px;
       display: flex;
       justify-content: space-between;
       gap: 20px;
+      flex-wrap: wrap;
       color: var(--muted);
       font-size: 13px;
     }
 
-    footer .footer-links {
+    footer .links {
       display: flex;
-      gap: 18px;
+      gap: 16px;
       flex-wrap: wrap;
     }
 
     footer a {
-      color: var(--muted);
       text-decoration: none;
+      color: inherit;
     }
 
     footer a:hover { color: var(--text); }
@@ -697,7 +583,7 @@
     [data-reveal] {
       opacity: 0;
       transform: translateY(18px);
-      transition: opacity 520ms ease, transform 520ms ease;
+      transition: opacity var(--ease), transform var(--ease);
     }
 
     [data-reveal].in {
@@ -705,50 +591,137 @@
       transform: translateY(0);
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.55; transform: scale(0.9); }
+    .hero-copy > * {
+      opacity: 0;
+      transform: translateY(22px);
+      animation: rise 760ms cubic-bezier(.18,.72,.22,1) forwards;
     }
 
-    @media (max-width: 1040px) {
-      .hero-grid,
-      .flow,
-      .audit-layout,
-      .cta-box {
+    .hero-copy > *:nth-child(1) { animation-delay: 80ms; }
+    .hero-copy > *:nth-child(2) { animation-delay: 150ms; }
+    .hero-copy > *:nth-child(3) { animation-delay: 220ms; }
+    .hero-copy > *:nth-child(4) { animation-delay: 290ms; }
+    .hero-copy > *:nth-child(5) { animation-delay: 360ms; }
+
+    .signal-field,
+    .signal-field .line,
+    .signal-field .node,
+    .signal-field .label {
+      opacity: 0;
+      animation: settle 900ms cubic-bezier(.18,.72,.22,1) forwards;
+    }
+
+    .signal-field { animation-delay: 220ms; }
+    .signal-field .line.l1 { animation-delay: 460ms; }
+    .signal-field .line.l2 { animation-delay: 540ms; }
+    .signal-field .line.l3 { animation-delay: 620ms; }
+    .signal-field .node.n1 { animation-delay: 500ms; }
+    .signal-field .node.n2 { animation-delay: 590ms; }
+    .signal-field .node.n3 { animation-delay: 670ms; }
+    .signal-field .label.a { animation-delay: 560ms; }
+    .signal-field .label.b { animation-delay: 640ms; }
+    .signal-field .label.c { animation-delay: 720ms; }
+
+    @keyframes rise {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes settle {
+      from { opacity: 0; transform: translateY(18px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @media (max-width: 980px) {
+      .hero-shell,
+      .detail-grid,
+      .cta-band {
         grid-template-columns: 1fr;
-        display: grid;
       }
 
-      .cta-box {
-        justify-items: start;
+      .hero-visual {
+        min-height: 420px;
+      }
+
+      .signal-field {
+        width: min(74vw, 540px);
+        transform: none;
+      }
+
+      .detail-figure {
+        position: static;
+        border-left: 0;
+        padding-left: 0;
+      }
+
+      .proof-grid,
+      .sequence {
+        grid-template-columns: 1fr 1fr;
       }
     }
 
-    @media (max-width: 760px) {
+    @media (max-width: 720px) {
       .nav-inner,
-      .hero,
+      .hero-shell,
       main section,
       footer {
         padding-left: 18px;
         padding-right: 18px;
       }
 
-      .nav-links a.nav-link:first-child { display: none; }
-      .hero { padding-top: 46px; }
-      .principles,
-      .trust-badges {
+      .nav-links a.nav-link {
+        display: none;
+      }
+
+      .hero {
+        min-height: auto;
+      }
+
+      .hero-inner {
+        min-height: auto;
+      }
+
+      .hero-shell {
+        padding-top: 34px;
+        padding-bottom: 52px;
+      }
+
+      .hero h1 {
+        font-size: clamp(44px, 14vw, 72px);
+      }
+
+      .hero p,
+      .section-head p {
+        font-size: 17px;
+      }
+
+      .button {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .proof-grid,
+      .sequence {
         grid-template-columns: 1fr;
       }
 
-      .hero h1 { max-width: 10ch; }
-      .hero p { font-size: 17px; }
-      .button { width: 100%; justify-content: center; }
+      .proof {
+        border-right: 0;
+        padding-right: 0;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+      }
 
-      .nav-links .nav-link { display: none; }
+      .proof:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+      }
 
-      footer {
-        flex-direction: column;
-        align-items: flex-start;
+      .hero-visual {
+        min-height: 360px;
+      }
+
+      .signal-field {
+        width: 100%;
       }
     }
   </style>
@@ -759,8 +732,8 @@
       <a href="/" class="brand">
         <span class="brand-mark"></span>
         <span class="brand-copy">
-          <span class="brand-title">Phantom Auth0</span>
-          <span class="brand-sub">Authorization Surface</span>
+          <span class="brand-name">Phantom Auth0</span>
+          <span class="brand-tag">Authorization Surface</span>
         </span>
       </a>
       <div class="nav-links">
@@ -773,78 +746,44 @@
   </nav>
 
   <header class="hero">
-    <div class="hero-grid">
-      <div data-reveal>
-        <div class="eyebrow">
-          <i data-lucide="shield" style="width:14px;height:14px"></i>
-          Security-first browser agent architecture
-        </div>
-        <h1>Keep the agent local. <span class="accent">Move authority into Auth0.</span></h1>
-        <p>
-          Phantom Auth0 reframes browser automation as an authorization product. The extension keeps page context, interaction, and local execution. The hosted control plane handles identity, connected accounts, delegated tokens, approval gates, and audit visibility.
-        </p>
-        <div class="hero-actions">
-          <a class="button primary" href="/companion">
-            <i data-lucide="arrow-up-right" style="width:18px;height:18px"></i>
-            Open companion console
-          </a>
-          <a class="button secondary" href="/blog">
-            <i data-lucide="file-text" style="width:18px;height:18px"></i>
-            Read the security narrative
-          </a>
-        </div>
-        <div class="hero-strip">
-          <span><i data-lucide="lock" style="width:14px;height:14px"></i> Delegated access, not embedded credentials</span>
-          <span><i data-lucide="stamp" style="width:14px;height:14px"></i> Approval required for high-risk actions</span>
-          <span><i data-lucide="history" style="width:14px;height:14px"></i> Visible action history and account state</span>
-        </div>
-      </div>
-
-      <div class="hero-panel" data-reveal>
-        <div class="panel-head">
-          <span>Live control surface</span>
-          <span class="signal-dot"></span>
-        </div>
-        <div class="panel-body">
-          <div class="terminal">
-            <div class="terminal-row">
-              <div class="terminal-tag">Session</div>
-              <div class="terminal-copy">
-                <strong>Local agent paired to hosted authority</strong>
-                <p>The browser runtime stays where page context lives. Authentication, provider linking, and delegated execution boundaries move into a separate surface the user can inspect.</p>
-              </div>
-            </div>
-            <div class="terminal-row">
-              <div class="terminal-tag">Auth0</div>
-              <div class="terminal-copy">
-                <strong>Universal Login, Connected Accounts, Token Vault</strong>
-                <p>The companion becomes the place where the user sees exactly which external accounts are attached and when the system is allowed to request access.</p>
-              </div>
-            </div>
-            <div class="terminal-row">
-              <div class="terminal-tag">Guardrail</div>
-              <div class="terminal-copy">
-                <strong>Approval gate inserted before state changes</strong>
-                <p>Reads and previews can flow with low friction. Sends, posts, issue creation, and other irreversible actions can stop for explicit approval first.</p>
-              </div>
-            </div>
+    <div class="hero-inner">
+      <div class="hero-plane"></div>
+      <div class="hero-shell">
+        <div class="hero-copy">
+          <div class="eyebrow">Auth0 for AI agents</div>
+          <h1>Keep the agent local. <span class="accent">Move authority into Auth0.</span></h1>
+          <p>Phantom Auth0 turns browser automation into an authorization product. The extension keeps context, interaction, and local execution. The hosted surface owns identity, delegation, approval, and visible control.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="/companion">
+              <i data-lucide="arrow-up-right" style="width:18px;height:18px"></i>
+              Open companion console
+            </a>
+            <a class="button secondary" href="/blog">
+              <i data-lucide="file-text" style="width:18px;height:18px"></i>
+              Read the narrative
+            </a>
           </div>
-          <div class="trust-badges">
-            <div class="badge">
-              <div class="label">Identity</div>
-              <strong>Companion-first</strong>
-              <p>Hosted sign-in and actor state replace ad hoc runtime trust.</p>
-            </div>
-            <div class="badge">
-              <div class="label">Delegation</div>
-              <strong>Provider-scoped</strong>
-              <p>Connected accounts and runtime exchange make access explicit.</p>
-            </div>
-            <div class="badge">
-              <div class="label">Control</div>
-              <strong>Approval-aware</strong>
-              <p>High-risk actions can wait for the user instead of guessing intent.</p>
-            </div>
+          <div class="hero-proof">
+            <span><i data-lucide="lock" style="width:14px;height:14px"></i> connected accounts</span>
+            <span><i data-lucide="shield-check" style="width:14px;height:14px"></i> approval gates</span>
+            <span><i data-lucide="history" style="width:14px;height:14px"></i> action history</span>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-hidden="true">
+          <div class="signal-field">
+            <div class="ring one"></div>
+            <div class="ring two"></div>
+            <div class="ring three"></div>
+            <div class="line l1"></div>
+            <div class="line l2"></div>
+            <div class="line l3"></div>
+            <div class="node n1"></div>
+            <div class="node n2"></div>
+            <div class="node n3"></div>
+            <div class="label a"><strong>Local Phantom</strong>page context, interaction, runtime tools</div>
+            <div class="label b"><strong>Auth0 control plane</strong>identity, connected accounts, delegation</div>
+            <div class="label c"><strong>Approval boundary</strong>writes wait before external state changes</div>
           </div>
         </div>
       </div>
@@ -854,119 +793,92 @@
   <main>
     <section>
       <div class="section-head" data-reveal>
-        <div class="section-kicker">Core principles</div>
-        <h2>Authority becomes a product surface, not hidden middleware.</h2>
-        <p>The branding, copy, and structure now reflect the actual value of this build: Auth0 is not decorative login chrome. It is the visible control plane that determines who the agent acts for, what accounts it can use, and when it must stop for human approval.</p>
+        <div class="section-kicker">What changes</div>
+        <h2>Authority stops being hidden middleware.</h2>
+        <p>The point of the product is not another browser demo. It is a visible trust layer where the user can understand who the agent acts for, which accounts are delegated, and when approval is required.</p>
       </div>
-      <div class="principles">
-        <article class="principle" data-reveal>
-          <div class="principle-icon"><i data-lucide="server-cog" style="width:22px;height:22px"></i></div>
-          <h3>Local execution, hosted authority</h3>
-          <p>The extension still performs browser-native work. The hosted companion owns identity, linked accounts, approval state, and the explanation layer around delegated actions.</p>
-        </article>
-        <article class="principle" data-reveal>
-          <div class="principle-icon"><i data-lucide="shield-check" style="width:22px;height:22px"></i></div>
-          <h3>Security model users can read</h3>
-          <p>Connected account state, token-backed delegation, and action history are surfaced in product UI so the trust model is legible to users, reviewers, and judges.</p>
-        </article>
-        <article class="principle" data-reveal>
-          <div class="principle-icon"><i data-lucide="git-pull-request-arrow" style="width:22px;height:22px"></i></div>
-          <h3>Approval inserted where it matters</h3>
-          <p>Not every action needs friction. The system distinguishes low-risk reads from drafts and high-risk writes, so the user only gets interrupted when authority actually changes external state.</p>
-        </article>
-      </div>
-    </section>
-
-    <section>
-      <div class="section-head" data-reveal>
-        <div class="section-kicker">Execution flow</div>
-        <h2>The security path is short enough to demo and strict enough to trust.</h2>
-        <p>Pair the extension, authenticate through Auth0, attach external accounts, and let the agent request delegated work through a surface built to expose identity and control boundaries.</p>
-      </div>
-      <div class="flow">
-        <div class="flow-copy">
-          <div class="flow-step" data-reveal>
-            <strong>1. Pair a local runtime to a hosted actor</strong>
-            <p>The browser extension starts a pairing request and hands off to the companion. The hosted surface becomes the authoritative session anchor for that local agent.</p>
-          </div>
-          <div class="flow-step" data-reveal>
-            <strong>2. Authenticate and attach external accounts</strong>
-            <p>The user signs in through Auth0, links providers, and gets a visible record of which delegated accounts are currently active.</p>
-          </div>
-          <div class="flow-step" data-reveal>
-            <strong>3. Evaluate action class before execution</strong>
-            <p>Low-risk reads can run directly. Drafts can be previewed. High-risk sends, creates, and posts can trigger approval before the gateway touches external state.</p>
-          </div>
-          <div class="flow-step" data-reveal>
-            <strong>4. Log the outcome back into the control surface</strong>
-            <p>The companion exposes status, approval decisions, and execution outcomes so the trust model remains visible after the action completes.</p>
-          </div>
+      <div class="proof-grid">
+        <div class="proof" data-reveal>
+          <strong>Identity lives in a hosted surface.</strong>
+          <p>Auth0 establishes the actor and makes that state legible in the companion instead of burying trust inside the extension runtime.</p>
         </div>
-        <div class="flow-graphic" data-reveal>
-          <object type="image/svg+xml" data="/system-architecture.svg">Phantom Auth0 security architecture diagram</object>
+        <div class="proof" data-reveal>
+          <strong>Delegation becomes user-facing.</strong>
+          <p>Connected accounts and runtime token exchange expose which external systems are attached before the agent uses them.</p>
+        </div>
+        <div class="proof" data-reveal>
+          <strong>Approval happens where it matters.</strong>
+          <p>Reads and previews can stay fast. High-risk writes can pause at a boundary the user can inspect and approve.</p>
         </div>
       </div>
     </section>
 
     <section>
       <div class="section-head" data-reveal>
-        <div class="section-kicker">Operator view</div>
-        <h2>What the user should always be able to answer.</h2>
-        <p>A security-focused agent product should make three things obvious: who the system is acting for, which accounts are delegated, and whether a sensitive action required approval.</p>
+        <div class="section-kicker">Architecture</div>
+        <h2>One diagram, one idea.</h2>
+        <p>The extension remains the operator. The companion becomes the control surface. Auth0 becomes the authority layer that mediates connected accounts and write-sensitive actions.</p>
       </div>
-      <div class="audit-layout">
-        <div class="audit-panel" data-reveal>
-          <h3>Control questions</h3>
-          <p>The hosted console is designed to answer the core operational questions without leaving the product surface.</p>
-          <ul class="signal-list">
-            <li>Which identity is currently paired to the local agent runtime?</li>
-            <li>Which provider accounts are connected and what scopes are available?</li>
-            <li>Did the agent read, draft, or attempt to mutate external state?</li>
-            <li>Was approval required before the action crossed a high-risk boundary?</li>
-            <li>What happened after the action request completed or failed?</li>
-          </ul>
-        </div>
-        <div class="audit-list" data-reveal>
-          <h3>Example control surface</h3>
-          <div class="audit-items">
-            <div class="audit-item">
-              <div>
-                <strong>Pairing request approved</strong>
-                <span>Local browser session bound to hosted actor identity with explicit user approval.</span>
-              </div>
-              <div class="status ok">Approved</div>
-            </div>
-            <div class="audit-item">
-              <div>
-                <strong>Connected account attached</strong>
-                <span>Delegated provider access available through Auth0 without embedding raw third-party credentials in the extension.</span>
-              </div>
-              <div class="status ok">Connected</div>
-            </div>
-            <div class="audit-item">
-              <div>
-                <strong>Draft action planned</strong>
-                <span>Draft or preview path available immediately while still leaving a visible audit trail in the companion.</span>
-              </div>
-              <div class="status">Reviewable</div>
-            </div>
-            <div class="audit-item">
-              <div>
-                <strong>High-risk write requested</strong>
-                <span>Agent attempted an external-state mutation. Approval boundary inserted before execution.</span>
-              </div>
-              <div class="status warn">Approval Gate</div>
-            </div>
+      <div class="detail-grid">
+        <div class="detail-copy">
+          <div class="detail-item" data-reveal>
+            <strong>Pair a local runtime to a hosted actor.</strong>
+            <p>The browser starts a pair request, then hands control to the hosted surface where the user can approve the binding and establish who the session belongs to.</p>
           </div>
+          <div class="detail-item" data-reveal>
+            <strong>Attach external accounts through Auth0.</strong>
+            <p>The user sees which providers are connected and what delegated paths are available before the browser agent tries to use them.</p>
+          </div>
+          <div class="detail-item" data-reveal>
+            <strong>Classify action risk before execution.</strong>
+            <p>Read paths can complete immediately. Draft paths stay reviewable. Writes can stop for explicit approval before external state changes.</p>
+          </div>
+          <div class="detail-item" data-reveal>
+            <strong>Return status to the same surface.</strong>
+            <p>The outcome, approval state, and action history all land back in the companion so the user can understand what happened after the request ran.</p>
+          </div>
+        </div>
+        <div class="detail-figure" data-reveal>
+          <object type="image/svg+xml" data="/system-architecture.svg">Phantom Auth0 architecture diagram</object>
         </div>
       </div>
     </section>
 
-    <section class="cta-band">
-      <div class="cta-box" data-reveal>
-        <div class="cta-copy">
+    <section>
+      <div class="section-head" data-reveal>
+        <div class="section-kicker">Judge path</div>
+        <h2>The demo loop is short, clear, and defensible.</h2>
+        <p>Everything important fits in one evaluation path: pair the extension, sign in through Auth0, connect a provider, attempt a delegated action, and inspect whether approval was required.</p>
+      </div>
+      <div class="sequence">
+        <div class="step" data-reveal>
+          <div class="step-num">Step 01</div>
+          <strong>Pair the browser session</strong>
+          <p>The extension generates a pending local request and points the user to the hosted surface.</p>
+        </div>
+        <div class="step" data-reveal>
+          <div class="step-num">Step 02</div>
+          <strong>Authenticate and connect</strong>
+          <p>The user signs in, links a provider account, and exposes delegated authority inside the control plane.</p>
+        </div>
+        <div class="step" data-reveal>
+          <div class="step-num">Step 03</div>
+          <strong>Plan a delegated action</strong>
+          <p>The gateway decides whether the action is a read, a previewable draft, or a write that should stop for approval.</p>
+        </div>
+        <div class="step" data-reveal>
+          <div class="step-num">Step 04</div>
+          <strong>Review the outcome</strong>
+          <p>The same companion shows the approval state, execution result, and recorded action history.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="cta-band" data-reveal>
+        <div>
           <h2>Open the Auth0 control plane.</h2>
-          <p>The live deployment now reflects the security story directly: dark branding, Auth0-first copy, explicit delegation language, and diagrams that frame the product as an authorization surface rather than a generic browser demo.</p>
+          <p>The live deployment is built to show the security model directly, not explain it away after the fact.</p>
         </div>
         <div class="hero-actions">
           <a class="button primary" href="/companion">
@@ -984,7 +896,7 @@
 
   <footer>
     <span>Phantom Auth0 by <a href="https://youneslaaroussi.ca">youneslaaroussi.ca</a></span>
-    <div class="footer-links">
+    <div class="links">
       <a href="/blog">Narrative</a>
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
@@ -995,23 +907,21 @@
     lucide.createIcons();
 
     (function () {
-      var nodes = document.querySelectorAll("[data-reveal]");
+      const nodes = document.querySelectorAll("[data-reveal]");
       if (!("IntersectionObserver" in window)) {
-        nodes.forEach(function (node) { node.classList.add("in"); });
+        nodes.forEach((node) => node.classList.add("in"));
         return;
       }
-
-      var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add("in");
             io.unobserve(entry.target);
           }
         });
-      }, { threshold: 0.14 });
-
-      nodes.forEach(function (node, index) {
-        node.style.transitionDelay = Math.min(index * 35, 220) + "ms";
+      }, { threshold: 0.16 });
+      nodes.forEach((node, index) => {
+        node.style.transitionDelay = `${Math.min(index * 40, 220)}ms`;
         io.observe(node);
       });
     })();
