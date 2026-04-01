@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { readFile } from "node:fs/promises";
 import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
@@ -14,6 +15,7 @@ import { completeConnectedAccountFlow, getActionForUser, listActionsForUser, lis
 
 const app = new Hono();
 const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
+const blogPageUrl = new URL("../public/blog.html", import.meta.url);
 
 setInterval(() => cleanupState(), 60_000).unref?.();
 
@@ -264,9 +266,14 @@ app.get(
   })
 );
 
-// Blog route
-app.get("/blog", (c) => {
-  return c.redirect("/blog.html");
+app.get("/blog", async (c) => {
+  const html = await readFile(blogPageUrl, "utf8");
+  return c.html(html);
+});
+
+app.get("/blog.html", async (c) => {
+  const html = await readFile(blogPageUrl, "utf8");
+  return c.html(html);
 });
 
 app.get("/privacy", (c) => {
