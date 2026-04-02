@@ -20,6 +20,79 @@ import {
 
 type ActorIdentity = ReturnType<typeof actorIdentity>;
 
+function providerLabel(provider: "google" | "github" | "slack"): string {
+  switch (provider) {
+    case "google":
+      return "Google";
+    case "github":
+      return "GitHub";
+    case "slack":
+      return "Slack";
+  }
+}
+
+async function getDelegatedProviderAccessToken(
+  identity: ActorIdentity,
+  provider: "google" | "github" | "slack"
+): Promise<string> {
+  if (!identity.refreshToken) {
+    throw new Error(
+      `Sign in again to ${providerLabel(provider)} with offline access enabled, then retry.`
+    );
+  }
+
+  try {
+    return await exchangeTokenVaultAccessToken({
+      accessToken: identity.accessToken,
+      refreshToken: identity.refreshToken,
+      connection: providerConnectionName(provider),
+    });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Delegated provider access failed";
+
+    if (message.includes("Federated connection Refresh Token not found")) {
+      throw new Error(
+        `${providerLabel(provider)} is not connected for the current Auth0 user. Open the companion, connect ${providerLabel(provider)}, then retry.`
+      );
+    }
+
+    if (
+      message.includes("Unknown or invalid refresh token") ||
+      message.includes("Missing Auth0 access token for Token Vault exchange")
+    ) {
+      throw new Error(
+        `Your Auth0 session for ${providerLabel(provider)} is no longer usable. Sign out, sign back in, reconnect ${providerLabel(provider)} if needed, then retry.`
+      );
+    }
+
+    throw error;
+  }
+}
+
+function payloadSignature(payload: Record<string, unknown>): string {
+  return JSON.stringify(payload);
+}
+
+function findActiveMatchingAction(params: {
+  userSub: string;
+  type: ExternalActionType;
+  payload: Record<string, unknown>;
+}): ExternalActionRecord | null {
+  const signature = payloadSignature(params.payload);
+  return (
+    [...externalActions.values()]
+      .filter(
+        (record) =>
+          record.userSub === params.userSub &&
+          record.type === params.type &&
+          (record.status === "pending_approval" || record.status === "pending_auth0") &&
+          payloadSignature(record.payload) === signature
+      )
+      .sort((left, right) => right.createdAt - left.createdAt)[0] || null
+  );
+}
+
 function providerConnectionName(provider: "google" | "github" | "slack"): string {
   switch (provider) {
     case "google":
@@ -41,7 +114,7 @@ export async function listConnectedAccounts(actor: Actor) {
   const token = await getMyAccountAccessToken(identity.refreshToken);
   updateActorRefreshToken(actor, token.refreshToken);
   const base = getMyAccountAudience();
-  const url = `${base.replace(/\/$/, "")}/v1/connected-accounts/connections`;
+  const url = `${base.replace(/\/$/, "")}/v1/connected-accounts/accounts`;
   const response = await fetch(url, {
     headers: {
       authorization: `Bearer ${token.accessToken}`,
@@ -62,7 +135,56 @@ export async function listConnectedAccounts(actor: Actor) {
       `Failed to query connected accounts (${response.status}): ${detail}`
     );
   }
-  return Array.isArray(json.connections) ? json.connections : [];
+  return Array.isArray(json.accounts) ? json.accounts : [];
+}
+
+export async function disconnectConnectedAccount(params: {
+  actor: Actor;
+  connectedAccountId: string;
+}) {
+  const identity = actorIdentity(params.actor);
+  if (!identity.refreshToken) {
+    throw new Error("This session does not have a refresh token. Re-login with offline access enabled.");
+  }
+
+  if (!params.connectedAccountId) {
+    throw new Error("Connected account ID is required");
+  }
+
+  const token = await getMyAccountAccessToken(identity.refreshToken);
+  updateActorRefreshToken(params.actor, token.refreshToken);
+  const base = getMyAccountAudience();
+  const response = await fetch(
+    `${base.replace(/\/$/, "")}/v1/connected-accounts/accounts/${encodeURIComponent(params.connectedAccountId)}`,
+    {
+      method: "DELETE",
+      headers: {
+        authorization: `Bearer ${token.accessToken}`,
+        "content-type": "application/json",
+      },
+    }
+  );
+
+  if (response.status === 204) {
+    return { disconnected: true };
+  }
+
+  let detail = "Failed to disconnect account";
+  try {
+    const json = (await response.json()) as Record<string, unknown>;
+    detail =
+      typeof json.message === "string"
+        ? json.message
+        : typeof json.error_description === "string"
+          ? json.error_description
+          : typeof json.error === "string"
+            ? json.error
+            : JSON.stringify(json);
+  } catch {
+    // keep fallback detail
+  }
+
+  throw new Error(`Failed to disconnect account (${response.status}): ${detail}`);
 }
 
 export async function startConnectedAccountFlow(params: {
@@ -128,6 +250,7 @@ export async function startConnectedAccountFlow(params: {
     authSession: String(json.auth_session || ""),
     provider: params.provider,
     redirectUri,
+    myAccountAccessToken: myAccountToken.accessToken,
     createdAt: Date.now(),
   };
   connectedAccountFlows.set(flowId, flow);
@@ -152,35 +275,44 @@ export async function startConnectedAccountFlow(params: {
 }
 
 export async function completeConnectedAccountFlow(params: {
-  actor: Actor;
+  actor?: Actor;
   flowId: string;
   connectCode: string;
   redirectUri?: string;
 }) {
-  const identity = actorIdentity(params.actor);
-  if (!identity.refreshToken) {
-    throw new Error("Missing refresh token for connected-account completion");
-  }
   const flow = connectedAccountFlows.get(params.flowId);
   if (!flow) {
     throw new Error("Connected-account flow not found or expired");
   }
 
-  const myAccountToken = await getMyAccountAccessToken(identity.refreshToken);
-  updateActorRefreshToken(params.actor, myAccountToken.refreshToken);
+  const identity = params.actor ? actorIdentity(params.actor) : null;
+  if (params.actor && !identity?.refreshToken) {
+    throw new Error("Missing refresh token for connected-account completion");
+  }
+
   const audience = getMyAccountAudience();
-  const response = await fetch(`${audience.replace(/\/$/, "")}/v1/connected-accounts/complete`, {
-    method: "POST",
-    headers: {
-      authorization: `Bearer ${myAccountToken.accessToken}`,
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      auth_session: flow.authSession,
-      connect_code: params.connectCode,
-      redirect_uri: params.redirectUri || flow.redirectUri,
-    }),
-  });
+  const completeRequest = async (accessToken: string) =>
+    fetch(`${audience.replace(/\/$/, "")}/v1/connected-accounts/complete`, {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${accessToken}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        auth_session: flow.authSession,
+        connect_code: params.connectCode,
+        redirect_uri: params.redirectUri || flow.redirectUri,
+      }),
+    });
+
+  let response = await completeRequest(flow.myAccountAccessToken);
+
+  if ((response.status === 401 || response.status === 403) && identity?.refreshToken && params.actor) {
+    const myAccountToken = await getMyAccountAccessToken(identity.refreshToken);
+    updateActorRefreshToken(params.actor, myAccountToken.refreshToken);
+    flow.myAccountAccessToken = myAccountToken.accessToken;
+    response = await completeRequest(myAccountToken.accessToken);
+  }
 
   if (!response.ok) {
     const json = (await response.json()) as Record<string, unknown>;
@@ -211,13 +343,7 @@ function formatMailPayload(to: string[], subject: string, body: string): string 
 }
 
 async function executeGoogleAvailability(identity: ActorIdentity, payload: Record<string, unknown>) {
-  if (!identity.refreshToken) {
-    throw new Error("Missing refresh token for Google action");
-  }
-  const token = await exchangeTokenVaultAccessToken({
-    refreshToken: identity.refreshToken,
-    connection: providerConnectionName("google"),
-  });
+  const token = await getDelegatedProviderAccessToken(identity, "google");
   const response = await fetch("https://www.googleapis.com/calendar/v3/freeBusy", {
     method: "POST",
     headers: {
@@ -238,13 +364,7 @@ async function executeGoogleAvailability(identity: ActorIdentity, payload: Recor
 }
 
 async function executeGoogleDraft(identity: ActorIdentity, payload: Record<string, unknown>) {
-  if (!identity.refreshToken) {
-    throw new Error("Missing refresh token for Gmail draft action");
-  }
-  const token = await exchangeTokenVaultAccessToken({
-    refreshToken: identity.refreshToken,
-    connection: providerConnectionName("google"),
-  });
+  const token = await getDelegatedProviderAccessToken(identity, "google");
   const raw = formatMailPayload(
     Array.isArray(payload.to) ? payload.to.map(String) : [String(payload.to || "")],
     String(payload.subject || ""),
@@ -266,13 +386,7 @@ async function executeGoogleDraft(identity: ActorIdentity, payload: Record<strin
 }
 
 async function executeGoogleSend(identity: ActorIdentity, payload: Record<string, unknown>) {
-  if (!identity.refreshToken) {
-    throw new Error("Missing refresh token for Gmail send action");
-  }
-  const token = await exchangeTokenVaultAccessToken({
-    refreshToken: identity.refreshToken,
-    connection: providerConnectionName("google"),
-  });
+  const token = await getDelegatedProviderAccessToken(identity, "google");
   const raw = formatMailPayload(
     Array.isArray(payload.to) ? payload.to.map(String) : [String(payload.to || "")],
     String(payload.subject || ""),
@@ -294,13 +408,7 @@ async function executeGoogleSend(identity: ActorIdentity, payload: Record<string
 }
 
 async function executeCalendarCreate(identity: ActorIdentity, payload: Record<string, unknown>) {
-  if (!identity.refreshToken) {
-    throw new Error("Missing refresh token for calendar create action");
-  }
-  const token = await exchangeTokenVaultAccessToken({
-    refreshToken: identity.refreshToken,
-    connection: providerConnectionName("google"),
-  });
+  const token = await getDelegatedProviderAccessToken(identity, "google");
   const response = await fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events", {
     method: "POST",
     headers: {
@@ -334,13 +442,7 @@ async function executeSlackPrepare(_identity: ActorIdentity, payload: Record<str
 }
 
 async function executeGitHubRepoList(identity: ActorIdentity) {
-  if (!identity.refreshToken) {
-    throw new Error("Missing refresh token for GitHub action");
-  }
-  const token = await exchangeTokenVaultAccessToken({
-    refreshToken: identity.refreshToken,
-    connection: providerConnectionName("github"),
-  });
+  const token = await getDelegatedProviderAccessToken(identity, "github");
   const response = await fetch("https://api.github.com/user/repos?sort=updated&per_page=20", {
     headers: {
       authorization: `Bearer ${token}`,
@@ -379,18 +481,12 @@ async function executeGitHubIssuePrepare(_identity: ActorIdentity, payload: Reco
 }
 
 async function executeGitHubIssueCreate(identity: ActorIdentity, payload: Record<string, unknown>) {
-  if (!identity.refreshToken) {
-    throw new Error("Missing refresh token for GitHub action");
-  }
   const repoOwner = String(payload.repoOwner || "");
   const repoName = String(payload.repoName || "");
   if (!repoOwner || !repoName) {
     throw new Error("repoOwner and repoName are required to create a GitHub issue");
   }
-  const token = await exchangeTokenVaultAccessToken({
-    refreshToken: identity.refreshToken,
-    connection: providerConnectionName("github"),
-  });
+  const token = await getDelegatedProviderAccessToken(identity, "github");
   const response = await fetch(`https://api.github.com/repos/${encodeURIComponent(repoOwner)}/${encodeURIComponent(repoName)}/issues`, {
     method: "POST",
     headers: {
@@ -417,13 +513,7 @@ async function executeGitHubIssueCreate(identity: ActorIdentity, payload: Record
 }
 
 async function executeSlackPost(identity: ActorIdentity, payload: Record<string, unknown>) {
-  if (!identity.refreshToken) {
-    throw new Error("Missing refresh token for Slack action");
-  }
-  const token = await exchangeTokenVaultAccessToken({
-    refreshToken: identity.refreshToken,
-    connection: providerConnectionName("slack"),
-  });
+  const token = await getDelegatedProviderAccessToken(identity, "slack");
   const response = await fetch("https://slack.com/api/chat.postMessage", {
     method: "POST",
     headers: {
@@ -506,6 +596,19 @@ export async function planAction(params: {
   type: ExternalActionType;
   payload: Record<string, unknown>;
 }) {
+  const existing = findActiveMatchingAction({
+    userSub: params.identity.profile.sub,
+    type: params.type,
+    payload: params.payload,
+  });
+
+  if (existing) {
+    if (existing.status === "pending_auth0") {
+      return refreshActionStatus({ identity: params.identity, record: existing });
+    }
+    return existing;
+  }
+
   const record: ExternalActionRecord = {
     id: createId("act"),
     type: params.type,
@@ -595,6 +698,16 @@ export function listActionsForUser(userSub: string) {
   return [...externalActions.values()]
     .filter((record) => record.userSub === userSub)
     .sort((left, right) => right.createdAt - left.createdAt);
+}
+
+export async function listActionsForUserWithRefresh(identity: ActorIdentity) {
+  const actions = listActionsForUser(identity.profile.sub);
+  for (const record of actions) {
+    if (record.status === "pending_auth0") {
+      await refreshActionStatus({ identity, record });
+    }
+  }
+  return listActionsForUser(identity.profile.sub);
 }
 
 export function getActionForUser(userSub: string, actionId: string) {

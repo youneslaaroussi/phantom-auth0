@@ -5,6 +5,8 @@ import { MicSelector } from "./mic-selector";
 import { playWake, playConnect, playSuccess, playPersona } from "../lib/sounds";
 import { PERSONAS, savePersonaId, type Persona } from "../lib/personas";
 import { loadEmbeddingModel, isModelReady, type ProgressCallback } from "../lib/memory";
+import { CompanionSetupCard } from "./companion-setup-card";
+import { useAuth0CompanionStatus } from "../lib/use-auth0-companion-status";
 
 const PERSONA_COLORS: Record<string, { accent: string; bg: string }> = {
   default:   { accent: "#4285F4", bg: "#e8f0fe" },
@@ -213,8 +215,8 @@ interface SetupScreenProps {
   onComplete: () => void;
 }
 
-type Step = "meet" | "persona" | "permissions" | "mic";
-const STEPS: Step[] = ["meet", "persona", "permissions", "mic"];
+type Step = "meet" | "persona" | "permissions" | "companion" | "mic";
+const STEPS: Step[] = ["meet", "persona", "permissions", "companion", "mic"];
 
 export const SetupScreen = ({ onComplete }: SetupScreenProps) => {
   const { setPersonaId } = useSession();
@@ -226,6 +228,23 @@ export const SetupScreen = ({ onComplete }: SetupScreenProps) => {
   const [micGranted, setMicGranted] = useState(false);
   const [micDenied, setMicDenied] = useState(false);
   const soundAllowed = true;
+  const {
+    pairStatus,
+    pairCode,
+    pairedActor,
+    webAuthenticated,
+    webActor,
+    connectedAccounts,
+    recentActions,
+    auth0StatusError,
+    refreshAuth0Status,
+    handleOpenCompanion,
+    handleSignIn,
+    handleSignOut,
+    handlePairExtension,
+    handleApprovePairing,
+    handleConnectProvider,
+  } = useAuth0CompanionStatus();
 
   useEffect(() => { playWake(); }, []);
 
@@ -267,6 +286,11 @@ export const SetupScreen = ({ onComplete }: SetupScreenProps) => {
     })();
   }, [step, embeddingReady]);
 
+  useEffect(() => {
+    if (step !== "companion") return;
+    void refreshAuth0Status();
+  }, [step, refreshAuth0Status]);
+
   const handlePersonaPick = async (p: Persona) => {
     setSelectedPersona(p);
     await savePersonaId(p.id);
@@ -294,7 +318,7 @@ export const SetupScreen = ({ onComplete }: SetupScreenProps) => {
 
   if (step === "meet") {
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center px-8" style={{ background: "var(--g-surface)", color: "var(--g-on-surface)" }}>
+      <div className="security-shell w-full h-full flex flex-col items-center justify-center px-8" style={{ background: "var(--g-surface)", color: "var(--g-on-surface)" }}>
         <div className="max-w-sm w-full flex flex-col items-center text-center space-y-6">
           <img
             src={chrome.runtime.getURL("assets/mascot.png")}
@@ -304,9 +328,10 @@ export const SetupScreen = ({ onComplete }: SetupScreenProps) => {
           />
 
           <div className="space-y-2">
-            <h1 className="text-2xl font-google font-bold tracking-tight">Hey, I'm Phantom</h1>
+            <div className="text-[10px] security-label">Secure Delegation Runtime</div>
+            <h1 className="text-2xl font-google font-bold tracking-tight">Phantom, under policy.</h1>
             <p className="text-sm font-google-text leading-relaxed" style={{ color: "var(--g-on-surface-variant)" }}>
-              A little spirit that lives in your browser. Tell me what to do and I'll click, scroll, type, and navigate for you.
+              Local execution stays in your browser. Identity, connected accounts, and approvals move through the Auth0 boundary.
             </p>
           </div>
 
@@ -354,16 +379,17 @@ export const SetupScreen = ({ onComplete }: SetupScreenProps) => {
     };
 
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center px-8" style={{ background: "var(--g-surface)", color: "var(--g-on-surface)" }}>
+      <div className="security-shell w-full h-full flex flex-col items-center justify-center px-8" style={{ background: "var(--g-surface)", color: "var(--g-on-surface)" }}>
         <div className="max-w-sm w-full flex flex-col items-center text-center space-y-6">
           <div className="p-4 rounded-full" style={{ background: "var(--g-blue-bg)" }}>
             <Shield className="w-8 h-8" style={{ color: "var(--g-blue)" }} />
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-xl font-google font-bold tracking-tight">Setting things up</h1>
+            <div className="text-[10px] security-label">Local Permissions</div>
+            <h1 className="text-xl font-google font-bold tracking-tight">Authorize the runtime</h1>
             <p className="text-sm font-google-text" style={{ color: "var(--g-on-surface-variant)" }}>
-              {selectedPersona.name} needs a couple of things to work properly.
+              {selectedPersona.name} only asks for the capabilities needed to listen, remember, and speak back.
             </p>
           </div>
 
@@ -377,7 +403,7 @@ export const SetupScreen = ({ onComplete }: SetupScreenProps) => {
                   <div className="text-left">
                     <div className="text-sm font-google font-medium">Microphone</div>
                     <div className="text-xs font-google-text" style={{ color: "var(--g-on-surface-variant)" }}>
-                      {micGranted ? "Access granted" : micDenied ? "Access denied" : "For voice conversations"}
+                      {micGranted ? "Access granted" : micDenied ? "Access denied" : "Required for live voice commands"}
                     </div>
                   </div>
                 </div>
@@ -413,7 +439,7 @@ export const SetupScreen = ({ onComplete }: SetupScreenProps) => {
                   <div className="text-left">
                     <div className="text-sm font-google font-medium">Memory Model</div>
                     <div className="text-xs font-google-text" style={{ color: "var(--g-on-surface-variant)" }}>
-                      {embeddingReady ? "Ready" : "Downloads ~30MB for local memory"}
+                      {embeddingReady ? "Ready" : "Downloads ~30MB for local memory search"}
                     </div>
                   </div>
                 </div>
@@ -442,7 +468,7 @@ export const SetupScreen = ({ onComplete }: SetupScreenProps) => {
                   <div className="text-left">
                     <div className="text-sm font-google font-medium">Sound</div>
                     <div className="text-xs font-google-text" style={{ color: "var(--g-on-surface-variant)" }}>
-                      {soundAllowed ? "Enabled" : "Enable sound to hear Phantom"}
+                      {soundAllowed ? "Enabled" : "Enable output for spoken responses"}
                     </div>
                   </div>
                 </div>
@@ -461,7 +487,7 @@ export const SetupScreen = ({ onComplete }: SetupScreenProps) => {
             </div>
           </div>
 
-          <div className="flex gap-3 pt-2">
+              <div className="flex gap-3 pt-2">
             <button
               onClick={() => setStep("persona")}
               className="flex items-center gap-1 px-5 py-2.5 rounded-g-full text-sm font-google font-medium transition-all hover:bg-g-surface-container"
@@ -470,7 +496,7 @@ export const SetupScreen = ({ onComplete }: SetupScreenProps) => {
               <ChevronLeft className="w-4 h-4" /> Back
             </button>
             <button
-              onClick={() => setStep("mic")}
+              onClick={() => setStep("companion")}
               className="flex items-center gap-2 px-6 py-2.5 rounded-g-full font-google font-medium text-sm transition-all text-white"
               style={{ background: "var(--g-blue)", boxShadow: "var(--g-shadow-1)" }}
             >
@@ -485,8 +511,68 @@ export const SetupScreen = ({ onComplete }: SetupScreenProps) => {
     );
   }
 
+  if (step === "companion") {
+    const isReadyToContinue = pairStatus === "paired" || connectedAccounts.length > 0;
+
+    return (
+      <div className="security-shell w-full h-full flex flex-col items-center justify-center px-8" style={{ background: "var(--g-surface)", color: "var(--g-on-surface)" }}>
+        <div className="max-w-sm w-full flex flex-col items-center text-center space-y-6">
+          <div className="p-4 rounded-full" style={{ background: "var(--g-blue-bg)" }}>
+            <Shield className="w-8 h-8" style={{ color: "var(--g-blue)" }} />
+          </div>
+
+          <div className="space-y-2">
+            <div className="text-[10px] security-label">Hosted Authority</div>
+            <h1 className="text-xl font-google font-bold tracking-tight">Bind the control plane</h1>
+            <p className="text-sm font-google-text" style={{ color: "var(--g-on-surface-variant)" }}>
+              Pair Phantom with the Auth0 companion so delegated providers and approval states are available from the first session.
+            </p>
+          </div>
+
+          <CompanionSetupCard
+            pairStatus={pairStatus}
+            pairCode={pairCode}
+            pairedActor={pairedActor}
+            webAuthenticated={webAuthenticated}
+            webActor={webActor}
+            connectedAccounts={connectedAccounts}
+            recentActions={recentActions}
+            auth0StatusError={auth0StatusError}
+            onOpenCompanion={handleOpenCompanion}
+            onSignIn={handleSignIn}
+            onSignOut={handleSignOut}
+            onPairExtension={handlePairExtension}
+            onApprovePairing={handleApprovePairing}
+            onConnectProvider={handleConnectProvider}
+            onRefresh={refreshAuth0Status}
+          />
+
+          <div className="flex gap-3 pt-2">
+            <button
+              onClick={() => setStep("permissions")}
+              className="flex items-center gap-1 px-5 py-2.5 rounded-g-full text-sm font-google font-medium transition-all hover:bg-g-surface-container"
+              style={{ color: "var(--g-on-surface-variant)" }}
+            >
+              <ChevronLeft className="w-4 h-4" /> Back
+            </button>
+            <button
+              onClick={() => setStep("mic")}
+              className="flex items-center gap-2 px-6 py-2.5 rounded-g-full font-google font-medium text-sm transition-all text-white"
+              style={{ background: "var(--g-blue)", boxShadow: "var(--g-shadow-1)" }}
+            >
+              {isReadyToContinue ? "Continue" : "Skip for now"}
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          {dots}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center px-8" style={{ background: "var(--g-surface)", color: "var(--g-on-surface)" }}>
+    <div className="security-shell w-full h-full flex flex-col items-center justify-center px-8" style={{ background: "var(--g-surface)", color: "var(--g-on-surface)" }}>
       <div className="max-w-sm w-full flex flex-col items-center text-center space-y-6">
         <img
           src={chrome.runtime.getURL("assets/" + selectedPersona.image)}
@@ -496,8 +582,9 @@ export const SetupScreen = ({ onComplete }: SetupScreenProps) => {
         />
 
         <div className="space-y-2">
-          <h1 className="text-xl font-google font-bold tracking-tight">One last thing</h1>
-          <p className="text-sm font-google-text" style={{ color: "var(--g-on-surface-variant)" }}>Pick your microphone, then we're good to go.</p>
+          <div className="text-[10px] security-label">Live Channel</div>
+          <h1 className="text-xl font-google font-bold tracking-tight">Select your mic</h1>
+          <p className="text-sm font-google-text" style={{ color: "var(--g-on-surface-variant)" }}>Choose the input device that will carry live commands into the runtime.</p>
         </div>
 
         <div className="w-full">
@@ -510,7 +597,7 @@ export const SetupScreen = ({ onComplete }: SetupScreenProps) => {
           style={{ background: "var(--g-blue)", boxShadow: "var(--g-shadow-1)" }}
         >
           <Mic className="w-4 h-4" />
-          Start talking to {selectedPersona.name}
+          Arm {selectedPersona.name}
         </button>
 
         {dots}

@@ -12,6 +12,14 @@ export const appConfig = {
     domain: process.env.AUTH0_DOMAIN || "",
     clientId: process.env.AUTH0_CLIENT_ID || "",
     clientSecret: process.env.AUTH0_CLIENT_SECRET || "",
+    tokenVaultClientId:
+      process.env.AUTH0_TOKEN_VAULT_CLIENT_ID ||
+      process.env.AUTH0_CLIENT_ID ||
+      "",
+    tokenVaultClientSecret:
+      process.env.AUTH0_TOKEN_VAULT_CLIENT_SECRET ||
+      process.env.AUTH0_CLIENT_SECRET ||
+      "",
     apiAudience: process.env.AUTH0_API_AUDIENCE || "",
     scopes:
       process.env.AUTH0_SCOPES ||

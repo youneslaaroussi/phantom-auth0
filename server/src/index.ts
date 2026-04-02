@@ -4,14 +4,15 @@ import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { createNodeWebSocket } from "@hono/node-ws";
+import QRCode from "qrcode";
 import { createGeminiProxy } from "./proxy.js";
 import { handleComputerUse } from "./computer-use.js";
 import { handleSummarize } from "./summarize.js";
 import { handleContentAction } from "./content-actions.js";
-import { auth0ReadyResponse, beginLogin, getWebSession, handleLoginCallback, logout, requireActor, actorIdentity } from "./auth0.js";
+import { auth0ReadyResponse, beginLogin, createGuardianEnrollmentTicket, getUserAuthenticationMethods, getWebSession, handleLoginCallback, logout, requireActor, actorIdentity } from "./auth0.js";
 import { appConfig } from "./config.js";
 import { cleanupState, createId, createShortCode, pairSessionsByCode, pairSessionsByToken, touchUpdated } from "./state.js";
-import { completeConnectedAccountFlow, getActionForUser, listActionsForUser, listConnectedAccounts, planAction, refreshActionStatus, startApproval, startConnectedAccountFlow } from "./action-gateway.js";
+import { completeConnectedAccountFlow, disconnectConnectedAccount, getActionForUser, listActionsForUserWithRefresh, listConnectedAccounts, planAction, refreshActionStatus, startApproval, startConnectedAccountFlow } from "./action-gateway.js";
 
 const app = new Hono();
 const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
@@ -33,6 +34,84 @@ app.get("/api/me", (c) => {
     companionUrl: `${appConfig.publicBaseUrl.replace(/\/$/, "")}${appConfig.companionPath}`,
     repoUrl: appConfig.repoUrl,
   });
+});
+
+app.get("/api/mfa/status", async (c) => {
+  try {
+    const session = getWebSession(c);
+    if (!session) {
+      return c.json({ error: "Authentication required" }, 401);
+    }
+
+    const methods = await getUserAuthenticationMethods(session.profile.sub);
+    const normalized = methods.map((method) => {
+      const type = String((method.type || method.authentication_method || method.name || "")).toLowerCase();
+      const name = String((method.name || method.type || method.authentication_method || "")).toLowerCase();
+      return {
+        raw: method,
+        type,
+        name,
+      };
+    });
+
+    const pushMethod =
+      normalized.find((method) => method.type.includes("push")) ||
+      normalized.find((method) => method.name.includes("guardian")) ||
+      null;
+    const otpMethod =
+      normalized.find((method) => method.type.includes("otp")) ||
+      normalized.find((method) => method.name.includes("otp")) ||
+      null;
+
+    return c.json({
+      enrolled: methods.length > 0,
+      pushEnrolled: Boolean(pushMethod),
+      methods,
+      summary: pushMethod
+        ? "Guardian push enrolled"
+        : otpMethod
+          ? "MFA enrolled; Guardian push unconfirmed"
+          : methods.length
+            ? "MFA enrolled; Guardian push not yet confirmed"
+          : "No MFA methods enrolled",
+    });
+  } catch (error) {
+    return c.json(
+      { error: error instanceof Error ? error.message : "Failed to fetch MFA status" },
+      400
+    );
+  }
+});
+
+app.post("/api/guardian/enrollment-ticket", async (c) => {
+  try {
+    const session = getWebSession(c);
+    if (!session) {
+      return c.json({ error: "Authentication required" }, 401);
+    }
+
+    const ticket = await createGuardianEnrollmentTicket({
+      userSub: session.profile.sub,
+      email: session.profile.email,
+    });
+    const qrDataUrl = await QRCode.toDataURL(ticket.ticketUrl, {
+      width: 220,
+      margin: 1,
+      color: {
+        dark: "#021117",
+        light: "#ffffff",
+      },
+    });
+
+    return c.json({
+      ...ticket,
+      qrDataUrl,
+      retryPrompt: "Retry the last Auth0 action.",
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to create Guardian enrollment ticket";
+    return c.json({ error: message }, 400);
+  }
 });
 
 app.post("/api/pair/start", (c) => {
@@ -125,9 +204,25 @@ app.post("/api/accounts/:provider/connect", async (c) => {
   }
 });
 
-app.post("/api/accounts/complete", async (c) => {
+app.delete("/api/accounts/:accountId", async (c) => {
   try {
     const actor = requireActor(c);
+    const result = await disconnectConnectedAccount({
+      actor,
+      connectedAccountId: String(c.req.param("accountId") || ""),
+    });
+    return c.json(result);
+  } catch (error) {
+    return c.json({ error: error instanceof Error ? error.message : "Failed to disconnect account" }, 400);
+  }
+});
+
+app.post("/api/accounts/complete", async (c) => {
+  try {
+    let actor: ReturnType<typeof requireActor> | undefined;
+    try {
+      actor = requireActor(c);
+    } catch {}
     const body = await c.req.json();
     const result = await completeConnectedAccountFlow({
       actor,
@@ -186,7 +281,14 @@ app.get("/api/actions/history", (c) => {
   try {
     const actor = requireActor(c);
     const identity = actorIdentity(actor);
-    return c.json({ actions: listActionsForUser(identity.profile.sub) });
+    return Promise.resolve(listActionsForUserWithRefresh(identity))
+      .then((actions) => c.json({ actions }))
+      .catch((error) =>
+        c.json(
+          { error: error instanceof Error ? error.message : "Failed to list actions" },
+          401
+        )
+      );
   } catch (error) {
     return c.json({ error: error instanceof Error ? error.message : "Failed to list actions" }, 401);
   }

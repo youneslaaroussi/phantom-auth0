@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Phantom Auth0 mark</title>
+  <desc id="desc">A cyan diamond mark with a recessed center.</desc>
+  <defs>
+    <linearGradient id="g" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#8BF0FF"/>
+      <stop offset="70%" stop-color="#68E5FF"/>
+      <stop offset="100%" stop-color="#72F3C0"/>
+    </linearGradient>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0.88  0 0 1 0 0.98  0 0 0 0.3 0"/>
+    </filter>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="#040A10"/>
+  <g filter="url(#glow)" opacity="0.9">
+    <rect x="41" y="41" width="46" height="46" rx="8" transform="rotate(45 64 64)" fill="#68E5FF"/>
+  </g>
+  <g transform="translate(64 64) rotate(45)">
+    <rect x="-32" y="-32" width="64" height="64" rx="6" fill="url(#g)"/>
+    <rect x="-32" y="-32" width="64" height="64" rx="6" fill="none" stroke="#FFFFFF" stroke-opacity="0.35"/>
+    <rect x="-22" y="-22" width="44" height="44" rx="4" fill="#08131B"/>
+    <rect x="-22" y="-22" width="44" height="44" rx="4" fill="none" stroke="#68E5FF" stroke-opacity="0.2"/>
+  </g>
+</svg>

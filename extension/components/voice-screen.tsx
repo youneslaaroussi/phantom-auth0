@@ -7,7 +7,7 @@ import { AnimatedMascot } from "./animated-mascot";
 import { playSparkles } from "../lib/sparkle-effect";
 import { BLUR_SENSITIVE_SCRIPT, UNBLUR_SCRIPT } from "../lib/privacy/inject";
 import { Tooltip } from "./tooltip";
-import { getConnectedAccountsStatus, getPairStatus } from "../lib/auth0-actions";
+import { useAuth0CompanionStatus } from "../lib/use-auth0-companion-status";
 
 import type { LiveVoiceName } from "../lib/live/types";
 
@@ -47,6 +47,14 @@ function humanizeToolName(name: string): string {
   return TOOL_LABELS[name] || name.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase()).trim();
 }
 
+function humanizeProviderName(name: string): string {
+  const normalized = name.toLowerCase();
+  if (normalized.includes("google")) return "Google";
+  if (normalized.includes("github")) return "GitHub";
+  if (normalized.includes("slack")) return "Slack";
+  return name.replace(/[-_]+/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
 export const VoiceScreen = ({ onOpenSettings, onOpenTraces, onOpenDom, onOpenMemory }: VoiceScreenProps) => {
   const {
     state,
@@ -76,13 +84,29 @@ export const VoiceScreen = ({ onOpenSettings, onOpenTraces, onOpenDom, onOpenMem
   } = useSession();
 
   const [textInput, setTextInput] = useState("");
-  const [pairStatus, setPairStatus] = useState("unpaired");
-  const [connectedAccounts, setConnectedAccounts] = useState<string[]>([]);
+  const [guardianModalOpen, setGuardianModalOpen] = useState(false);
+  const [guardianTicketUrl, setGuardianTicketUrl] = useState("");
+  const [guardianRetryPrompt, setGuardianRetryPrompt] = useState("Retry the last Auth0 action.");
+  const [guardianLoading, setGuardianLoading] = useState(false);
+  const [guardianError, setGuardianError] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const visionBtnRef = useRef<HTMLButtonElement>(null);
   const audioBtnRef = useRef<HTMLButtonElement>(null);
   const spotlightBtnRef = useRef<HTMLButtonElement>(null);
+  const {
+    pairStatus,
+    pairedActor,
+    connectedAccounts,
+    recentActions,
+    auth0StatusError,
+    guardianSetupRequired,
+    guardianSetupMessage,
+    handleOpenCompanion,
+    handlePairExtension,
+    dismissGuardianSetup,
+    getGuardianEnrollmentTicket,
+  } = useAuth0CompanionStatus();
 
   const isConnected = state.status === "connected";
   const isConnecting = state.status === "connecting";
@@ -92,44 +116,10 @@ export const VoiceScreen = ({ onOpenSettings, onOpenTraces, onOpenDom, onOpenMem
   }, [isConnected]);
 
   useEffect(() => {
-    let cancelled = false;
-
-    const refreshAuth0Status = async () => {
-      try {
-        const pairing = await getPairStatus();
-        if (!cancelled && typeof pairing.status === "string") {
-          setPairStatus(pairing.status);
-        }
-      } catch {}
-
-      try {
-        const status = await getConnectedAccountsStatus();
-        const connections = Array.isArray(status.connections)
-          ? status.connections
-              .map((connection) =>
-                connection && typeof connection === "object" && "name" in connection
-                  ? String((connection as { name?: unknown }).name || "")
-                  : ""
-              )
-              .filter(Boolean)
-          : [];
-        if (!cancelled) {
-          setConnectedAccounts(connections);
-        }
-      } catch {
-        if (!cancelled) {
-          setConnectedAccounts([]);
-        }
-      }
-    };
-
-    refreshAuth0Status();
-    const interval = window.setInterval(refreshAuth0Status, 10000);
-    return () => {
-      cancelled = true;
-      window.clearInterval(interval);
-    };
-  }, []);
+    if (guardianSetupRequired) {
+      setGuardianModalOpen(true);
+    }
+  }, [guardianSetupRequired]);
 
   const handleMicClick = useCallback(async () => {
     if (state.isListening) {
@@ -153,7 +143,53 @@ export const VoiceScreen = ({ onOpenSettings, onOpenTraces, onOpenDom, onOpenMem
     disconnect();
   };
 
-  
+  const closeGuardianModal = useCallback(() => {
+    setGuardianModalOpen(false);
+  }, []);
+
+  const handleDismissGuardianRecovery = useCallback(async () => {
+    closeGuardianModal();
+    setGuardianError("");
+    await dismissGuardianSetup();
+  }, [closeGuardianModal, dismissGuardianSetup]);
+
+  const handleLoadGuardianQr = useCallback(async () => {
+    setGuardianLoading(true);
+    setGuardianError("");
+    try {
+      const ticket = await getGuardianEnrollmentTicket();
+      if (!ticket.ticketUrl) {
+        throw new Error("Auth0 did not return an enrollment page.");
+      }
+      setGuardianTicketUrl(ticket.ticketUrl);
+      setGuardianRetryPrompt(ticket.retryPrompt || "Retry the last Auth0 action.");
+    } catch (error) {
+      setGuardianError(error instanceof Error ? error.message : "Failed to prepare Guardian enrollment.");
+    } finally {
+      setGuardianLoading(false);
+    }
+  }, [getGuardianEnrollmentTicket]);
+
+  useEffect(() => {
+    if (guardianModalOpen && !guardianTicketUrl && !guardianLoading) {
+      void handleLoadGuardianQr();
+    }
+  }, [guardianLoading, guardianModalOpen, guardianTicketUrl, handleLoadGuardianQr]);
+
+  const handleOpenGuardianEnrollment = useCallback(() => {
+    if (!guardianTicketUrl) return;
+    chrome.tabs.create({ url: guardianTicketUrl });
+  }, [guardianTicketUrl]);
+
+  const handleRetryGuardianAction = useCallback(async () => {
+    await dismissGuardianSetup();
+    setGuardianModalOpen(false);
+    setGuardianError("");
+    if (!isConnected) {
+      await connect();
+    }
+    sendText(guardianRetryPrompt || "Retry the last Auth0 action.");
+  }, [connect, dismissGuardianSetup, guardianRetryPrompt, isConnected, sendText]);
 
   const handleTextSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -174,10 +210,22 @@ export const VoiceScreen = ({ onOpenSettings, onOpenTraces, onOpenDom, onOpenMem
   const googleConnected = connectedAccounts.some((name) => name.includes("google"));
   const githubConnected = connectedAccounts.some((name) => name.includes("github"));
   const auth0Active = pairStatus === "paired" || googleConnected || githubConnected;
+  const boundaryAccent = auth0Active ? "rgba(104,229,255,0.18)" : "rgba(104,229,255,0.08)";
+  const accountLabels = connectedAccounts.map(humanizeProviderName);
+  const actorLabel = pairedActor || (pairStatus === "paired" ? "Actor attached" : "Not signed in");
+  const pairLabel =
+    pairStatus === "paired" ? "Approved"
+    : pairStatus === "pending" ? "Pending"
+    : "Not paired";
+  const awaitingApprovalAction = recentActions.find(
+    (action) => action.status === "pending_auth0" || action.status === "pending_approval"
+  );
 
   return (
-    <div ref={containerRef} className="relative w-full h-full flex flex-col" style={{ background: "var(--g-surface)" }}>
-      <div className="relative z-20 flex items-center justify-between px-4 py-3" style={{ borderBottom: "1px solid var(--g-outline-variant)" }}>
+    <div ref={containerRef} className="security-shell relative w-full h-full flex flex-col overflow-hidden" style={{ background: "var(--g-surface)" }}>
+      <div className="pointer-events-none absolute inset-0 opacity-80" style={{ background: "radial-gradient(circle at 50% 35%, rgba(104,229,255,0.08), transparent 24%)" }} />
+
+      <div className="relative z-20 flex items-center justify-between px-4 py-3" style={{ borderBottom: "1px solid rgba(104,229,255,0.08)" }}>
         <div className="flex items-center gap-2.5">
           <img
             src={chrome.runtime.getURL("assets/" + persona.image)}
@@ -185,9 +233,12 @@ export const VoiceScreen = ({ onOpenSettings, onOpenTraces, onOpenDom, onOpenMem
             className="w-8 h-8"
             style={{ imageRendering: "pixelated" as const }}
           />
-          <span className="font-google text-sm font-medium" style={{ color: "var(--g-on-surface)" }}>
-            {persona.name}
-          </span>
+          <div className="leading-none">
+            <div className="text-[10px] security-label">Secure Runtime</div>
+            <span className="font-google text-sm font-medium" style={{ color: "var(--g-on-surface)" }}>
+              {persona.name}
+            </span>
+          </div>
         </div>
 
         <div className="flex items-center gap-0.5">
@@ -320,38 +371,302 @@ export const VoiceScreen = ({ onOpenSettings, onOpenTraces, onOpenDom, onOpenMem
       </div>
 
       <div
-        className="mx-4 mt-3 rounded-g-full px-3 py-2 flex items-center justify-between gap-3"
+        className="security-panel reveal-up mx-4 mt-3 rounded-g-md px-3.5 py-3"
         style={{
-          background: auth0Active ? "#fff7f2" : "var(--g-surface-dim)",
-          border: auth0Active ? "1px solid rgba(235,84,36,0.25)" : "1px solid var(--g-outline-variant)",
+          border: `1px solid ${boundaryAccent}`,
         }}
       >
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div
-            className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
-            style={{ background: auth0Active ? "#fff0e8" : "var(--g-surface-container)" }}
-          >
-            <Shield className="w-3.5 h-3.5" style={{ color: auth0Active ? "#eb5424" : "var(--g-outline)" }} />
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div
+              className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
+              style={{ background: auth0Active ? "rgba(104,229,255,0.14)" : "var(--g-surface-container)" }}
+            >
+              <Shield className="w-3.5 h-3.5" style={{ color: auth0Active ? "var(--g-blue)" : "var(--g-outline)" }} />
+            </div>
+            <div className="min-w-0">
+              <div className="text-[10px] security-label" style={{ color: auth0Active ? "var(--g-blue)" : "var(--g-on-surface-variant)" }}>
+                Auth0 Boundary
+              </div>
+              <div className="text-[11px] font-google-text mt-0.5" style={{ color: "var(--g-on-surface-variant)" }}>
+                Companion identity and delegated access
+              </div>
+            </div>
           </div>
-          <div className="min-w-0">
-            <div className="text-[11px] font-google font-medium" style={{ color: auth0Active ? "#eb5424" : "var(--g-on-surface)" }}>
-              Auth0 Token Vault
-            </div>
-            <div className="text-[10px] font-google-text truncate" style={{ color: "var(--g-on-surface-variant)" }}>
-              Pair {pairStatus} · Google {googleConnected ? "connected" : "off"} · GitHub {githubConnected ? "connected" : "off"}
-            </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            {pairStatus !== "paired" && (
+              <button
+                onClick={() => void handlePairExtension()}
+                className="px-3 py-1.5 rounded-g-full text-[11px] font-google font-medium text-white"
+                style={{ background: "var(--g-blue)" }}
+              >
+                Pair
+              </button>
+            )}
+            <button
+              onClick={() => void handleOpenCompanion()}
+              className="px-3 py-1.5 rounded-g-full text-[11px] font-google font-medium"
+              style={{ border: "1px solid var(--g-outline-variant)", color: "var(--g-on-surface)" }}
+            >
+              Open
+            </button>
           </div>
         </div>
-        <div
-          className="px-2 py-1 rounded-g-full text-[10px] font-google font-medium shrink-0"
-          style={{
-            background: auth0Active ? "#ffe6da" : "var(--g-surface-container)",
-            color: auth0Active ? "#b43d16" : "var(--g-on-surface-variant)",
-          }}
-        >
-          {auth0Active ? "Authorized" : "Local only"}
+
+        <div className="mt-3 grid gap-2">
+          <div
+            className="rounded-g-md px-3 py-2.5 flex items-center justify-between gap-3"
+            style={{ background: auth0Active ? "rgba(104,229,255,0.08)" : "rgba(255,255,255,0.025)" }}
+          >
+            <span className="text-[10px] security-label" style={{ color: auth0Active ? "var(--g-blue)" : "var(--g-on-surface-variant)" }}>
+              Pairing
+            </span>
+            <span
+              className="text-[11px] font-google font-medium"
+              style={{ color: pairStatus === "paired" ? "var(--g-green)" : pairStatus === "pending" ? "var(--g-blue)" : "var(--g-on-surface)" }}
+            >
+              {pairLabel}
+            </span>
+          </div>
+
+          <div className="rounded-g-md px-3 py-2.5" style={{ background: "rgba(255,255,255,0.025)" }}>
+            <div className="flex items-start justify-between gap-3">
+              <span className="text-[10px] security-label" style={{ color: "var(--g-on-surface-variant)" }}>
+                Actor
+              </span>
+              <span
+                className="text-[11px] font-google-text text-right"
+                style={{ color: pairedActor ? "var(--g-on-surface)" : "var(--g-outline)", overflowWrap: "anywhere", maxWidth: "70%" }}
+              >
+                {actorLabel}
+              </span>
+            </div>
+          </div>
+
+          <div className="rounded-g-md px-3 py-2.5" style={{ background: "rgba(255,255,255,0.025)" }}>
+            <div className="flex items-start justify-between gap-3">
+              <span className="text-[10px] security-label pt-0.5" style={{ color: "var(--g-on-surface-variant)" }}>
+                Accounts
+              </span>
+              <div className="flex flex-wrap justify-end gap-1.5 max-w-[72%]">
+                {accountLabels.length ? (
+                  accountLabels.map((label) => (
+                    <span
+                      key={label}
+                      className="px-2 py-1 rounded-g-full text-[10px] font-google font-medium"
+                      style={{
+                        background: "rgba(104,229,255,0.1)",
+                        color: "var(--g-blue)",
+                        border: "1px solid rgba(104,229,255,0.14)",
+                      }}
+                    >
+                      {label}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-[11px] font-google-text" style={{ color: "var(--g-outline)" }}>
+                    No connected accounts
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {auth0StatusError && (
+            <div className="text-[10px] font-google-text px-1" style={{ color: "var(--g-red)" }}>
+              {auth0StatusError}
+            </div>
+          )}
+
+          {guardianSetupRequired && (
+            <div
+              className="rounded-g-md px-3 py-2.5 flex items-center justify-between gap-3"
+              style={{
+                background: "rgba(251,188,5,0.08)",
+                border: "1px solid rgba(251,188,5,0.18)",
+              }}
+            >
+              <div className="min-w-0">
+                <div className="text-[10px] security-label" style={{ color: "var(--g-yellow)" }}>
+                  Guardian Setup
+                </div>
+                <div className="text-[11px] font-google-text mt-0.5" style={{ color: "var(--g-on-surface-variant)" }}>
+                  {guardianSetupMessage || "Auth0 approval needs Guardian push enrollment before retrying the action."}
+                </div>
+              </div>
+              <button
+                onClick={() => setGuardianModalOpen(true)}
+                className="px-3 py-1.5 rounded-g-full text-[11px] font-google font-medium shrink-0"
+                style={{
+                  background: "rgba(251,188,5,0.14)",
+                  color: "var(--g-yellow)",
+                  border: "1px solid rgba(251,188,5,0.22)",
+                }}
+              >
+                Open
+              </button>
+            </div>
+          )}
+
+          {awaitingApprovalAction && (
+            <div
+              className="rounded-g-full px-3 py-2 flex items-center justify-between gap-3"
+              style={{
+                background: "rgba(104,229,255,0.06)",
+                border: "1px solid rgba(104,229,255,0.12)",
+              }}
+            >
+              <div className="min-w-0">
+                <div className="text-[10px] security-label" style={{ color: "var(--g-blue)" }}>
+                  Awaiting Approval
+                </div>
+                <div className="text-[11px] font-google-text mt-0.5 truncate" style={{ color: "var(--g-on-surface-variant)" }}>
+                  {awaitingApprovalAction.summary}
+                </div>
+              </div>
+              <span
+                className="shrink-0 text-[10px] font-google-text"
+                style={{ color: "var(--g-outline)" }}
+              >
+                Check Guardian
+              </span>
+            </div>
+          )}
         </div>
       </div>
+
+      {guardianModalOpen && (
+        <div className="absolute inset-0 z-40 flex items-center justify-center px-4" style={{ background: "rgba(2, 8, 13, 0.82)", backdropFilter: "blur(14px)" }}>
+          <div
+            className="security-panel w-full max-w-[360px] rounded-[22px] p-4"
+            style={{
+              border: "1px solid rgba(245,205,106,0.16)",
+              boxShadow: "var(--g-shadow-3)",
+              background: "linear-gradient(180deg, rgba(16, 27, 36, 0.96), rgba(7, 16, 21, 0.98))",
+            }}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <div className="text-[10px] security-label" style={{ color: "var(--g-yellow)" }}>
+                  Guardian Setup
+                </div>
+                <div className="mt-1 text-[20px] font-google font-medium leading-tight" style={{ color: "var(--g-on-surface)" }}>
+                  Enroll push approval
+                </div>
+                <p className="mt-2 text-[12px] font-google-text leading-5" style={{ color: "var(--g-on-surface-variant)" }}>
+                  {guardianSetupMessage || "Auth0 approval needs Guardian push enrollment before retrying the action."}
+                </p>
+              </div>
+              <button
+                onClick={() => void handleDismissGuardianRecovery()}
+                className="shrink-0 rounded-full p-2 transition-colors"
+                style={{ color: "var(--g-outline)" }}
+                aria-label="Dismiss Guardian setup"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="mt-4 grid gap-3">
+              <div
+                className="rounded-[18px] p-3"
+                style={{
+                  background: "rgba(255,255,255,0.025)",
+                  border: "1px solid rgba(104,229,255,0.08)",
+                }}
+              >
+                <div className="text-[10px] security-label" style={{ color: "var(--g-blue)" }}>
+                  Steps
+                </div>
+                <ol className="mt-2 grid gap-2 pl-4 text-[12px] font-google-text leading-5" style={{ color: "var(--g-on-surface-variant)" }}>
+                  <li>Install the Auth0 Guardian app on your phone.</li>
+                  <li>Prepare the Auth0 enrollment page from this modal.</li>
+                  <li>Open that page and scan the QR shown there in Guardian.</li>
+                  <li>Return here and retry the blocked action.</li>
+                </ol>
+              </div>
+
+              <div
+                className="rounded-[18px] p-3"
+                style={{
+                  background: "rgba(245,205,106,0.08)",
+                  border: "1px solid rgba(245,205,106,0.16)",
+                }}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-[10px] security-label" style={{ color: "var(--g-yellow)" }}>
+                    Enrollment
+                  </div>
+                  <button
+                    onClick={() => void handleLoadGuardianQr()}
+                    disabled={guardianLoading}
+                    className="px-3 py-1.5 rounded-g-full text-[11px] font-google font-medium"
+                    style={{
+                      background: "rgba(245,205,106,0.14)",
+                      color: "var(--g-yellow)",
+                      border: "1px solid rgba(245,205,106,0.2)",
+                      opacity: guardianLoading ? 0.6 : 1,
+                    }}
+                  >
+                    {guardianTicketUrl ? "Refresh ticket" : guardianLoading ? "Preparing…" : "Prepare setup"}
+                  </button>
+                </div>
+
+                <div className="mt-3 flex min-h-[236px] items-center justify-center rounded-[16px]" style={{ background: "rgba(4,10,16,0.7)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  {guardianTicketUrl ? (
+                    <div className="max-w-[248px] text-center">
+                      <div className="text-[12px] font-google-text leading-5" style={{ color: "var(--g-on-surface-variant)" }}>
+                        Open the Auth0 enrollment page, then scan the QR shown on that page with the Auth0 Guardian app.
+                      </div>
+                      <button
+                        onClick={handleOpenGuardianEnrollment}
+                        className="mt-4 px-4 py-2 rounded-g-full text-[12px] font-google font-medium"
+                        style={{ background: "var(--g-blue)", color: "#031117" }}
+                      >
+                        Open Auth0 enrollment page
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="max-w-[220px] text-center text-[12px] font-google-text leading-5" style={{ color: "var(--g-on-surface-variant)" }}>
+                      {guardianLoading ? "Preparing the Auth0 enrollment page…" : "Prepare the Auth0 enrollment page here, then scan the QR shown there."}
+                    </div>
+                  )}
+                </div>
+
+                {guardianTicketUrl && (
+                  <div className="mt-3 text-[10px] font-mono leading-5" style={{ color: "var(--g-outline)", overflowWrap: "anywhere" }}>
+                    {guardianTicketUrl}
+                  </div>
+                )}
+
+                {guardianError && (
+                  <div className="mt-3 text-[11px] font-google-text" style={{ color: "var(--g-red)" }}>
+                    {guardianError}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between gap-2">
+                <button
+                  onClick={() => void handleDismissGuardianRecovery()}
+                  className="px-3 py-2 rounded-g-full text-[11px] font-google font-medium"
+                  style={{ border: "1px solid var(--g-outline-variant)", color: "var(--g-on-surface)" }}
+                >
+                  Dismiss
+                </button>
+                <button
+                  onClick={() => void handleRetryGuardianAction()}
+                  className="px-3 py-2 rounded-g-full text-[11px] font-google font-medium"
+                  style={{ background: "var(--g-blue)", color: "#031117" }}
+                >
+                  I enrolled, retry
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex-1 relative flex flex-col items-center justify-center">
         {activeMicName && (
@@ -399,7 +714,7 @@ export const VoiceScreen = ({ onOpenSettings, onOpenTraces, onOpenDom, onOpenMem
 
         <div className="relative z-10 mt-6 text-center min-h-[60px] max-w-sm px-4">
           {isConnecting && (
-            <p className="text-sm font-google animate-pulse" style={{ color: "var(--g-blue)" }}>Connecting...</p>
+            <p className="text-sm font-google animate-pulse" style={{ color: "var(--g-blue)" }}>Establishing secure session…</p>
           )}
 
           {state.error && (
@@ -407,19 +722,19 @@ export const VoiceScreen = ({ onOpenSettings, onOpenTraces, onOpenDom, onOpenMem
           )}
 
           {!isConnected && !isConnecting && !state.error && (
-            <p className="text-sm font-google" style={{ color: "var(--g-outline)" }}>Tap to start</p>
+            <p className="text-sm font-google" style={{ color: "var(--g-outline)" }}>Arm the runtime</p>
           )}
 
           {isConnected && !state.isListening && !state.isSpeaking && !executingTool && !transcript && (
-            <p className="text-sm font-google font-medium" style={{ color: "var(--g-blue)" }}>Ready</p>
+            <p className="text-sm font-google font-medium" style={{ color: "var(--g-blue)" }}>Runtime armed</p>
           )}
 
           {state.isListening && !transcript && (
-            <p className="text-sm font-google font-medium" style={{ color: "var(--g-red)" }}>Listening...</p>
+            <p className="text-sm font-google font-medium" style={{ color: "var(--g-red)" }}>Capturing command…</p>
           )}
 
           {transcript && (
-            <div className="w-full rounded-xl px-3 py-2 overflow-hidden" style={{ background: "rgba(0,0,0,0.02)", borderRadius: "12px" }}>
+            <div className="security-panel w-full rounded-xl px-3 py-2 overflow-hidden" style={{ borderRadius: "12px" }}>
               <MarkdownText content={transcript} className="text-sm font-google-text leading-relaxed" style={{ color: "var(--g-on-surface)", overflowWrap: "break-word", wordBreak: "break-word", overflow: "hidden" }} />
             </div>
           )}
@@ -480,12 +795,12 @@ export const VoiceScreen = ({ onOpenSettings, onOpenTraces, onOpenDom, onOpenMem
             type="text"
             value={textInput}
             onChange={(e) => setTextInput(e.target.value)}
-            placeholder="Ask Phantom anything..."
+            placeholder="Queue a secure task..."
             autoFocus
             className="flex-1 h-10 px-4 text-sm font-google-text rounded-g-full transition-colors focus:outline-none"
             style={{
               background: "var(--g-surface-container)",
-              border: "1px solid var(--g-outline-variant)",
+              border: "1px solid rgba(104,229,255,0.1)",
               color: "var(--g-on-surface)",
             }}
           />

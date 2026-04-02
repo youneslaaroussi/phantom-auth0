@@ -83,11 +83,14 @@
           throw new Error(json.error || "Failed to complete account connection");
         }
         status.className = "muted";
-        status.textContent = `Connected ${json.provider}. Redirecting back to the companion console…`;
+        status.textContent = `Connected ${json.provider}. You can return to Phantom now.`;
         window.sessionStorage.removeItem("phantom-auth0-connected-flow-id");
         window.sessionStorage.removeItem("phantom-auth0-connected-provider");
         window.setTimeout(() => {
-          window.location.href = "/companion";
+          window.close();
+          if (!window.closed) {
+            window.location.href = "/";
+          }
         }, 1200);
       } catch (error) {
         status.className = "error";

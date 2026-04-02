@@ -6,265 +6,385 @@
   <title>Phantom Auth0 Companion Console</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
   <style>
     :root {
       color-scheme: dark;
-      --bg: #06090e;
-      --surface: #0b1015;
-      --surface-soft: #10161d;
-      --line: rgba(255,255,255,0.08);
-      --line-strong: rgba(255,255,255,0.14);
-      --text: #f4f2ec;
-      --muted: #aaa79f;
-      --muted-strong: #cbc7bf;
-      --accent: #eb5424;
-      --ok: #5fd7a6;
-      --danger: #ff8f78;
-      --display: "Sora", sans-serif;
+      --bg: #071018;
+      --bg-deep: #040a10;
+      --surface: rgba(11, 20, 29, 0.88);
+      --surface-strong: rgba(16, 27, 38, 0.94);
+      --line: rgba(104, 229, 255, 0.12);
+      --text: #edf6fb;
+      --muted: #8ea3b1;
+      --muted-strong: #cbd8e0;
+      --accent: #68e5ff;
+      --ok: #72f3c0;
+      --danger: #ff7b8e;
+      --display: "Space Grotesk", sans-serif;
       --body: "IBM Plex Sans", sans-serif;
-      --max: 1240px;
+      --mono: "IBM Plex Mono", monospace;
+      --max: 860px;
+      --shadow: 0 20px 60px rgba(0, 0, 0, 0.24);
     }
 
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: var(--body);
-      background:
-        radial-gradient(circle at 82% 8%, rgba(235,84,36,0.08), transparent 16%),
-        linear-gradient(180deg, #05080d 0%, #090c11 100%);
       color: var(--text);
+      background:
+        radial-gradient(circle at top, rgba(104, 229, 255, 0.12), transparent 22%),
+        radial-gradient(circle at 0% 100%, rgba(114, 243, 192, 0.06), transparent 18%),
+        linear-gradient(180deg, var(--bg-deep) 0%, var(--bg) 100%);
       -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
     }
 
-    a { color: inherit; }
+    a { color: inherit; text-decoration: none; }
 
     .shell {
       max-width: var(--max);
       margin: 0 auto;
-      padding: 28px 24px 72px;
+      padding: 32px 20px 72px;
     }
 
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: end;
-      gap: 18px;
-      padding-bottom: 18px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      margin-bottom: 26px;
+    .masthead {
+      display: grid;
+      gap: 20px;
+      margin-bottom: 20px;
     }
 
     .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
     }
 
     .brand-mark {
-      width: 18px;
-      height: 18px;
-      border-radius: 5px;
+      width: 16px;
+      height: 16px;
+      margin-top: 6px;
+      border: 1px solid rgba(104, 229, 255, 0.28);
+      background:
+        linear-gradient(135deg, rgba(104, 229, 255, 0.84), rgba(114, 243, 192, 0.2));
       transform: rotate(45deg);
-      background: linear-gradient(135deg, #ff8d66, #eb5424);
-      box-shadow: 0 0 20px rgba(235,84,36,0.2);
+      box-shadow: 0 0 20px rgba(104, 229, 255, 0.14);
       position: relative;
+      flex: none;
     }
 
     .brand-mark::after {
       content: "";
       position: absolute;
       inset: 3px;
-      border-radius: 3px;
-      background: #070a0f;
+      background: var(--bg-deep);
+      border: 1px solid rgba(104, 229, 255, 0.16);
     }
 
-    .brand strong {
+    .brand-copy strong {
       display: block;
-      font: 700 18px/1 var(--display);
-      letter-spacing: -0.03em;
+      font: 700 28px/1 var(--display);
+      letter-spacing: -0.04em;
+      margin-bottom: 10px;
     }
 
-    .brand span {
-      display: block;
-      color: var(--muted);
+    .brand-copy span,
+    .eyebrow,
+    .security-label {
+      font-family: var(--mono);
+      color: var(--accent);
       font-size: 11px;
       letter-spacing: 0.14em;
       text-transform: uppercase;
-      margin-top: 2px;
     }
 
+    .brand-copy span {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .intro {
+      max-width: 48ch;
+      color: var(--muted-strong);
+      line-height: 1.65;
+      font-size: 15px;
+    }
+
+    .masthead-row,
     .top-actions {
       display: flex;
+      justify-content: space-between;
+      align-items: center;
       gap: 10px;
       flex-wrap: wrap;
     }
 
-    .link-btn,
-    .btn {
+    .btn,
+    .link-btn {
       appearance: none;
-      border: 0;
-      background: none;
+      border: 1px solid rgba(104, 229, 255, 0.12);
+      background: rgba(255, 255, 255, 0.02);
       color: var(--muted-strong);
-      text-decoration: none;
       font: inherit;
       padding: 11px 14px;
       border-radius: 999px;
       cursor: pointer;
       transition: 180ms ease;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
     }
 
-    .link-btn:hover,
-    .btn:hover {
+    .btn:hover,
+    .link-btn:hover {
       color: var(--text);
-      background: rgba(255,255,255,0.04);
+      border-color: rgba(104, 229, 255, 0.24);
+      background: rgba(104, 229, 255, 0.07);
+    }
+
+    .btn:disabled,
+    .link-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+      color: var(--muted);
+      border-color: rgba(104, 229, 255, 0.08);
+      background: rgba(255, 255, 255, 0.02);
     }
 
     .btn.primary {
       background: var(--accent);
-      color: white;
-      box-shadow: none;
+      color: #021117;
+      border-color: transparent;
+      font-weight: 600;
     }
 
     .btn.primary:hover {
-      background: #ff6d3f;
+      background: #8bf0ff;
     }
 
-    .btn.secondary {
-      background: transparent;
+    .btn.danger {
+      color: #ffd4dc;
+      border-color: rgba(255, 123, 142, 0.22);
+      background: rgba(255, 123, 142, 0.08);
+    }
+
+    .btn.danger:hover {
+      color: #fff1f4;
+      border-color: rgba(255, 123, 142, 0.34);
+      background: rgba(255, 123, 142, 0.14);
+    }
+
+    .top-actions {
+      justify-content: flex-start;
+    }
+
+    .auth-bar,
+    .summary-strip,
+    .section {
+      background: linear-gradient(180deg, rgba(16, 27, 36, 0.78), rgba(10, 19, 27, 0.96));
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .auth-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 20px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .summary-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+
+    .summary-cell {
+      padding: 14px 16px;
+      border: 1px solid rgba(104, 229, 255, 0.08);
+      background: rgba(255, 255, 255, 0.02);
+      transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .summary-cell.is-positive {
+      background: rgba(114, 243, 192, 0.1);
+      border-color: rgba(114, 243, 192, 0.2);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    .summary-cell.is-warning {
+      background: rgba(104, 229, 255, 0.07);
+      border-color: rgba(104, 229, 255, 0.18);
+    }
+
+    .summary-cell.is-error {
+      background: rgba(255, 123, 142, 0.08);
+      border-color: rgba(255, 123, 142, 0.2);
+    }
+
+    .summary-value {
+      display: block;
+      margin-top: 6px;
+      font: 600 15px/1.4 var(--body);
+      color: var(--text);
     }
 
     .workspace {
       display: grid;
-      grid-template-columns: 0.94fr 1.06fr;
-      gap: 28px;
+      gap: 16px;
     }
 
-    .pane {
-      min-width: 0;
+    .section {
+      padding: 20px;
     }
 
-    .block {
-      padding: 0 0 24px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      margin-bottom: 24px;
-    }
-
-    .block:last-child {
-      margin-bottom: 0;
-    }
-
-    .eyebrow {
-      color: var(--muted);
-      font-size: 12px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      margin-bottom: 12px;
+    h1, h2 {
+      margin: 0;
+      font-family: var(--display);
+      letter-spacing: -0.05em;
     }
 
     h1 {
-      font-family: var(--display);
-      font-size: clamp(34px, 5vw, 58px);
-      line-height: 0.93;
-      letter-spacing: -0.06em;
-      max-width: 11ch;
-      margin: 0 0 14px;
+      font-size: clamp(30px, 5vw, 40px);
+      line-height: 0.96;
+      margin: 0;
     }
 
     h2 {
-      font-family: var(--display);
-      font-size: 24px;
-      line-height: 1;
-      letter-spacing: -0.04em;
-      margin: 0 0 10px;
+      font-size: 22px;
+      line-height: 1.1;
+      margin-bottom: 8px;
     }
 
     p {
       margin: 0;
       color: var(--muted-strong);
-      line-height: 1.8;
+      line-height: 1.65;
       font-size: 15px;
     }
 
-    .hero-copy {
-      margin-bottom: 22px;
-    }
-
-    .status-line {
+    .header-row,
+    .item-head {
       display: flex;
       justify-content: space-between;
+      align-items: flex-start;
       gap: 12px;
-      align-items: center;
       flex-wrap: wrap;
-      padding-top: 18px;
-      border-top: 1px solid rgba(255,255,255,0.08);
-    }
-
-    .panel-note {
-      color: var(--muted);
-      line-height: 1.8;
-      font-size: 14px;
-      padding-left: 18px;
-      border-left: 1px solid rgba(255,255,255,0.12);
-    }
-
-    .controls {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 16px;
-    }
-
-    .stack {
-      display: grid;
-      gap: 14px;
     }
 
     .header-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      align-items: baseline;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
-    .header-row p {
-      max-width: 42ch;
-    }
-
-    .inline-actions {
+    .controls,
+    .inline-actions,
+    .connect-row {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
+    }
+
+    .accounts-toolbar {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .toolbar-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
     }
 
     .connect-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 16px;
+      gap: 12px;
+    }
+
+    .provider-btn {
+      min-width: 112px;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .provider-btn.primary {
+      box-shadow: 0 10px 24px rgba(104, 229, 255, 0.12);
+    }
+
+    .provider-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    .panel-note {
+      padding: 16px;
+      border: 1px solid rgba(104, 229, 255, 0.08);
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
     }
 
     .list {
       display: grid;
     }
 
-    .item {
-      padding: 16px 0;
-      border-top: 1px solid rgba(255,255,255,0.08);
+    .accounts-list {
+      gap: 14px;
     }
 
-    .item:first-child { border-top: 1px solid rgba(255,255,255,0.08); }
+    .state-box {
+      margin-top: 16px;
+      padding: 16px;
+      border: 1px solid rgba(104, 229, 255, 0.1);
+      background: rgba(255, 255, 255, 0.02);
+    }
 
-    .item-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: flex-start;
-      flex-wrap: wrap;
-      margin-bottom: 8px;
+    .state-box-title {
+      display: block;
+      margin-bottom: 6px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted-strong);
+    }
+
+    .state-box p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .state-box.auth {
+      border-color: rgba(104, 229, 255, 0.16);
+    }
+
+    .state-box.auth .state-box-title {
+      color: var(--accent);
+    }
+
+    .state-box.error {
+      border-color: rgba(255, 123, 142, 0.2);
+    }
+
+    .state-box.error .state-box-title {
+      color: var(--danger);
+    }
+
+    .item {
+      padding: 16px 0;
+      border-top: 1px solid rgba(104, 229, 255, 0.08);
+    }
+
+    .item:first-child {
+      border-top: 0;
+      padding-top: 0;
     }
 
     .item strong {
@@ -278,16 +398,70 @@
     .item-body {
       color: var(--muted);
       font-size: 14px;
-      line-height: 1.7;
+      line-height: 1.75;
+    }
+
+    .account-card {
+      padding: 16px;
+      border: 1px solid rgba(114, 243, 192, 0.16);
+      background:
+        linear-gradient(180deg, rgba(114, 243, 192, 0.08), rgba(255, 255, 255, 0.02));
+    }
+
+    .account-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .account-title {
+      display: grid;
+      gap: 4px;
+    }
+
+    .account-title strong {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .account-subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      overflow-wrap: anywhere;
+      line-height: 1.4;
+    }
+
+    .scope-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .scope-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 6px 10px;
+      border: 1px solid rgba(104, 229, 255, 0.12);
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 999px;
+      color: var(--muted-strong);
+      font-size: 13px;
+      line-height: 1.2;
+      overflow-wrap: anywhere;
     }
 
     .pill {
-      padding: 7px 11px;
+      padding: 6px 10px;
       border-radius: 999px;
-      font-size: 12px;
-      letter-spacing: 0.08em;
+      font-size: 11px;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+      font-family: var(--mono);
+      border: 1px solid rgba(104, 229, 255, 0.1);
       color: var(--muted-strong);
       white-space: nowrap;
     }
@@ -295,128 +469,155 @@
     .success { color: var(--ok); }
     .error { color: var(--danger); }
     .muted { color: var(--muted); }
-    .mono { letter-spacing: 0.08em; }
-
-    code {
-      background: rgba(255,255,255,0.04);
-      padding: 2px 6px;
-      border-radius: 8px;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+    .mono {
+      font-family: var(--mono);
+      letter-spacing: 0.08em;
     }
 
-    @media (max-width: 940px) {
-      .workspace {
-        grid-template-columns: 1fr;
+    code {
+      background: rgba(104, 229, 255, 0.08);
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(104, 229, 255, 0.08);
+      font-family: var(--mono);
+    }
+
+    .stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .summary-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
     @media (max-width: 720px) {
+      .summary-strip {
+        grid-template-columns: 1fr;
+      }
+
       .shell {
-        padding-left: 18px;
-        padding-right: 18px;
-      }
-
-      .topbar {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .link-btn,
-      .btn {
-        width: 100%;
-        justify-content: center;
+        padding-left: 16px;
+        padding-right: 16px;
       }
 
       .top-actions,
       .controls,
       .inline-actions,
-      .connect-row {
+      .connect-row,
+      .auth-bar {
         width: 100%;
+      }
+
+      .btn,
+      .link-btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .section {
+        padding: 18px;
       }
     }
   </style>
 </head>
 <body>
   <div class="shell">
-    <div class="topbar">
-      <div class="brand">
-        <span class="brand-mark"></span>
-        <div>
-          <strong>Phantom Auth0</strong>
-          <span>Companion Console</span>
+    <div class="masthead">
+      <div class="masthead-row">
+        <div class="brand">
+          <span class="brand-mark"></span>
+          <div class="brand-copy">
+            <strong>Phantom Auth0</strong>
+            <span>Companion</span>
+            <p class="intro">Sign in, pair your extension, connect accounts, and review recent actions.</p>
+          </div>
+        </div>
+        <div class="top-actions">
+          <a href="/" class="link-btn">Overview</a>
+          <a href="/blog" class="link-btn">Blog</a>
         </div>
       </div>
-      <div class="top-actions">
-        <a href="/" class="link-btn">Overview</a>
-        <a href="/blog" class="link-btn">Narrative</a>
+
+      <div class="auth-bar">
+        <div id="auth-status" class="muted">Checking session…</div>
+        <div class="controls">
+          <button id="login-btn" class="btn primary">Sign in</button>
+          <button id="logout-btn" class="btn">Log out</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-strip">
+      <div class="summary-cell">
+        <div class="security-label">Signed In</div>
+        <span id="actor-chip" class="summary-value">Checking session…</span>
+      </div>
+      <div class="summary-cell">
+        <div class="security-label">Pairing</div>
+        <span id="pair-chip" class="summary-value">Awaiting extension signal</span>
+      </div>
+      <div class="summary-cell">
+        <div class="security-label">Accounts</div>
+        <span id="provider-chip" class="summary-value">No connected accounts</span>
+      </div>
+      <div class="summary-cell">
+        <div class="security-label">MFA</div>
+        <span id="mfa-chip" class="summary-value">Checking MFA…</span>
       </div>
     </div>
 
     <div class="workspace">
-      <div class="pane">
-        <section class="block">
-          <div class="eyebrow">Hosted authority</div>
-          <div class="hero-copy">
-            <h1>Operate the Auth0 control plane.</h1>
-            <p>This surface binds the local Phantom runtime to an authenticated actor, exposes connected accounts, and shows when a delegated action should stop for approval before it reaches an external system.</p>
+      <section class="section">
+        <div class="eyebrow">Pair</div>
+        <div class="header-row">
+          <div>
+            <h2>Pair extension</h2>
+            <p>Open this page from the extension to approve a pending pairing request.</p>
           </div>
-          <div class="status-line">
-            <div id="auth-status" class="muted">Checking session…</div>
-            <div class="controls">
-              <button id="login-btn" class="btn primary">Sign in with Auth0</button>
-              <button id="logout-btn" class="btn secondary">Log out</button>
-            </div>
-          </div>
-        </section>
+        </div>
+        <div id="pair-box" class="panel-note">
+          Start pairing from the extension, then open the link it gives you here.
+        </div>
+      </section>
 
-        <section class="block">
-          <div class="eyebrow">Pairing</div>
-          <div class="header-row">
-            <div>
-              <h2>Local runtime binding</h2>
-              <p>Approve a pending pair request to attach the current hosted actor to a local Phantom browser session.</p>
-            </div>
+      <section class="section">
+        <div class="eyebrow">Accounts</div>
+        <div class="header-row">
+          <div>
+            <h2>Connected accounts</h2>
+            <p>Connect the services Phantom is allowed to use.</p>
           </div>
-          <div id="pair-box" class="panel-note">
-            Open this page from the extension pairing link to approve a pending request and bind the local runtime to the authenticated actor.
+          <div class="inline-actions">
+            <button id="refresh-accounts" class="btn">Refresh</button>
           </div>
-        </section>
-
-        <section class="block">
-          <div class="eyebrow">Connected accounts</div>
-          <div class="header-row">
-            <div>
-              <h2>Delegated providers</h2>
-              <p>Attach external systems through Auth0 and expose which delegated paths are available to the local agent.</p>
-            </div>
-            <div class="inline-actions">
-              <button id="refresh-accounts" class="btn secondary">Refresh</button>
-            </div>
-          </div>
+        </div>
+        <div class="accounts-toolbar">
+          <div class="toolbar-label">Connect provider</div>
           <div class="connect-row">
-            <button data-provider="google" class="btn connect-btn">Connect Google</button>
-            <button data-provider="github" class="btn secondary connect-btn">Connect GitHub</button>
-            <button data-provider="slack" class="btn secondary connect-btn">Connect Slack</button>
+            <button data-provider="google" class="btn primary connect-btn provider-btn auth-required" disabled>Google</button>
+            <button data-provider="github" class="btn connect-btn provider-btn auth-required" disabled>GitHub</button>
+            <button data-provider="slack" class="btn connect-btn provider-btn auth-required" disabled>Slack</button>
           </div>
-          <div id="accounts-list" class="list"></div>
-        </section>
-      </div>
+        </div>
+        <div id="accounts-list" class="list accounts-list"></div>
+      </section>
 
-      <div class="pane">
-        <section class="block">
-          <div class="eyebrow">Action history</div>
-          <div class="header-row">
-            <div>
-              <h2>Approval and execution trail</h2>
-              <p>Review what the extension requested, whether approval was required, and how the action resolved after the delegated path executed.</p>
-            </div>
-            <div class="inline-actions">
-              <button id="refresh-actions" class="btn secondary">Refresh</button>
-            </div>
+      <section class="section">
+        <div class="eyebrow">Actions</div>
+        <div class="header-row">
+          <div>
+            <h2>Recent activity</h2>
+            <p>Recent approvals and delegated actions from the extension.</p>
           </div>
-          <div id="actions-list" class="list"></div>
-        </section>
-      </div>
+          <div class="inline-actions">
+            <button id="refresh-actions" class="btn">Refresh</button>
+          </div>
+        </div>
+        <div id="actions-list" class="list"></div>
+      </section>
     </div>
   </div>
 
@@ -424,6 +625,27 @@
     const params = new URLSearchParams(window.location.search);
     const pairCode = params.get("pair_code");
     const errorParam = params.get("error");
+    const guardianReady = params.get("guardian_ready");
+    let isAuthenticated = false;
+
+    function setSummary(id, value) {
+      const element = document.getElementById(id);
+      if (element) element.textContent = value;
+    }
+
+    function setSummaryTone(id, tone) {
+      const element = document.getElementById(id);
+      const cell = element?.closest(".summary-cell");
+      if (!cell) return;
+      cell.classList.remove("is-positive", "is-warning", "is-error");
+      if (tone) cell.classList.add(`is-${tone}`);
+    }
+
+    function setAuthRequiredEnabled(enabled) {
+      document.querySelectorAll(".auth-required").forEach((element) => {
+        element.disabled = !enabled;
+      });
+    }
 
     async function getJson(url, init) {
       const response = await fetch(url, { credentials: "include", ...init });
@@ -432,29 +654,102 @@
       return json;
     }
 
+    function renderStateBox({ tone = "muted", title, body }) {
+      return `
+        <div class="state-box ${tone}">
+          <span class="state-box-title">${title}</span>
+          <p>${body}</p>
+        </div>
+      `;
+    }
+
+    function formatProviderName(name) {
+      const map = {
+        "google-oauth2": "Google",
+        github: "GitHub",
+        slack: "Slack",
+      };
+      return map[name] || name;
+    }
+
+    function formatScopeLabel(scope) {
+      const map = {
+        email: "Email",
+        profile: "Profile",
+        "https://www.googleapis.com/auth/calendar": "Calendar",
+        "https://www.googleapis.com/auth/gmail.send": "Send Gmail",
+        "https://www.googleapis.com/auth/gmail.compose": "Compose Gmail",
+      };
+      if (map[scope]) return map[scope];
+      if (scope.startsWith("https://")) {
+        const tail = scope.split("/").pop() || scope;
+        return tail.replace(/[._-]+/g, " ");
+      }
+      return scope.replace(/[._-]+/g, " ");
+    }
+
+    function accountConnectionName(connection) {
+      return connection.connection || connection.name || connection.provider || "unknown";
+    }
+
     function renderAccounts(connections) {
       const list = document.getElementById("accounts-list");
       if (!connections.length) {
-        list.innerHTML = '<div class="item muted">No connected accounts yet.</div>';
+        setSummary("provider-chip", "No connected accounts");
+        setSummaryTone("provider-chip", null);
+        list.innerHTML = renderStateBox({
+          title: "No accounts yet",
+          body: "Connect a provider to let Phantom use it.",
+        });
         return;
       }
+      setSummary("provider-chip", `${connections.length} connected account${connections.length === 1 ? "" : "s"}`);
+      setSummaryTone("provider-chip", "positive");
       list.innerHTML = connections.map((connection) => `
-        <div class="item">
-          <div class="item-head">
-            <div>
-              <strong>${connection.name}</strong>
-              <div class="item-body">${(connection.scopes || []).join(", ") || "No scopes returned"}</div>
+        <div class="account-card">
+          <div class="account-head">
+            <div class="account-title">
+              <strong>${formatProviderName(accountConnectionName(connection))}</strong>
+              <div class="account-subtitle">${accountConnectionName(connection)}</div>
             </div>
-            <span class="pill success">Connected</span>
+            <div class="inline-actions">
+              ${connection.id ? `<button class="btn danger disconnect-account" data-account-id="${connection.id}" data-account-name="${accountConnectionName(connection)}">Disconnect</button>` : ""}
+            </div>
+          </div>
+          <div class="scope-list">
+            ${((connection.scopes || []).length ? connection.scopes : ["No scopes returned"]).map((scope) => `
+              <span class="scope-chip">${formatScopeLabel(scope)}</span>
+            `).join("")}
           </div>
         </div>
       `).join("");
+
+      list.querySelectorAll(".disconnect-account").forEach((button) => {
+        button.addEventListener("click", async () => {
+          const accountId = button.getAttribute("data-account-id");
+          const accountName = button.getAttribute("data-account-name") || "this account";
+          if (!accountId) return;
+          const confirmed = window.confirm(`Disconnect ${accountName}? This removes the connected account from Auth0 Token Vault.`);
+          if (!confirmed) return;
+          button.disabled = true;
+          try {
+            await getJson(`/api/accounts/${encodeURIComponent(accountId)}`, { method: "DELETE" });
+            await refreshAccounts();
+          } catch (error) {
+            alert(error.message);
+            button.disabled = false;
+          }
+        });
+      });
     }
 
     function renderActions(actions) {
       const list = document.getElementById("actions-list");
       if (!actions.length) {
-        list.innerHTML = '<div class="item muted">No actions yet. Trigger one from the extension to inspect approval state here.</div>';
+        list.innerHTML = renderStateBox({
+          title: "No activity yet",
+          body: "Recent approvals and delegated actions will show up here.",
+        });
         return;
       }
       list.innerHTML = actions.map((action) => `
@@ -476,12 +771,25 @@
       try {
         const me = await getJson("/api/me");
         if (me.authenticated) {
-          status.innerHTML = `Signed in as <strong>${me.profile?.email || me.profile?.sub || "unknown user"}</strong>`;
+          const actor = me.profile?.email || me.profile?.sub || "unknown user";
+          isAuthenticated = true;
+          status.innerHTML = `Signed in as <strong>${actor}</strong>`;
+          setSummary("actor-chip", actor);
+          setSummaryTone("actor-chip", "positive");
+          setAuthRequiredEnabled(true);
         } else {
-          status.textContent = "Not signed in. Authenticate to connect accounts or approve actions.";
+          isAuthenticated = false;
+          status.textContent = "Not signed in";
+          setSummary("actor-chip", "Signed out");
+          setSummaryTone("actor-chip", null);
+          setAuthRequiredEnabled(false);
         }
       } catch (error) {
+        isAuthenticated = false;
         status.innerHTML = `<span class="error">${error.message}</span>`;
+        setSummary("actor-chip", "Unavailable");
+        setSummaryTone("actor-chip", "error");
+        setAuthRequiredEnabled(false);
       }
       if (errorParam) {
         status.innerHTML += ` <span class="error">(${errorParam})</span>`;
@@ -493,8 +801,44 @@
         const data = await getJson("/api/accounts/status");
         renderAccounts(data.connections || []);
       } catch (error) {
+        if (error.message === "Authentication required") {
+          setSummary("provider-chip", "Sign in required");
+          setSummaryTone("provider-chip", "warning");
+          document.getElementById("accounts-list").innerHTML = renderStateBox({
+            tone: "auth",
+            title: "Sign in required",
+            body: "Sign in to view or connect accounts.",
+          });
+          return;
+        }
+
         renderAccounts([]);
-        document.getElementById("accounts-list").innerHTML = `<div class="item error">${error.message}</div>`;
+        setSummaryTone("provider-chip", "error");
+        document.getElementById("accounts-list").innerHTML = renderStateBox({
+          tone: "error",
+          title: "Could not load accounts",
+          body: error.message,
+        });
+      }
+    }
+
+    async function refreshMfaStatus() {
+      try {
+        const data = await getJson("/api/mfa/status");
+        setSummary("mfa-chip", data.summary || "Unknown");
+        setSummaryTone(
+          "mfa-chip",
+          data.pushEnrolled ? "positive" : data.enrolled ? "warning" : "warning"
+        );
+      } catch (error) {
+        if (error.message === "Authentication required") {
+          setSummary("mfa-chip", "Sign in required");
+          setSummaryTone("mfa-chip", "warning");
+          return;
+        }
+
+        setSummary("mfa-chip", "Unavailable");
+        setSummaryTone("mfa-chip", "error");
       }
     }
 
@@ -503,38 +847,71 @@
         const data = await getJson("/api/actions/history");
         renderActions(data.actions || []);
       } catch (error) {
-        document.getElementById("actions-list").innerHTML = `<div class="item error">${error.message}</div>`;
+        if (error.message === "Authentication required") {
+          document.getElementById("actions-list").innerHTML = renderStateBox({
+            tone: "auth",
+            title: "Sign in required",
+            body: "Sign in to view recent activity.",
+          });
+          return;
+        }
+
+        document.getElementById("actions-list").innerHTML = renderStateBox({
+          tone: "error",
+          title: "Could not load activity",
+          body: error.message,
+        });
       }
     }
 
     async function refreshPairing() {
       const box = document.getElementById("pair-box");
       if (!pairCode) {
-        box.innerHTML = '<div class="muted">No pair code was provided. Start pairing from the extension settings or tool flow.</div>';
+        setSummary("pair-chip", "No request");
+        setSummaryTone("pair-chip", null);
+        box.innerHTML = '<div class="muted">No pair request yet. Start from the extension.</div>';
         return;
       }
 
       try {
         const status = await getJson(`/api/pair/status/${encodeURIComponent(pairCode)}`);
         if (status.status === "paired") {
-          box.innerHTML = `<div class="success">Extension pair request <code>${pairCode}</code> is already approved.</div>`;
+          setSummary("pair-chip", "Approved");
+          setSummaryTone("pair-chip", "positive");
+          box.innerHTML = `<div class="success">Pair request <code>${pairCode}</code> is approved.</div>`;
           return;
         }
       } catch (error) {
+        setSummary("pair-chip", "Lookup failed");
+        setSummaryTone("pair-chip", "error");
         box.innerHTML = `<div class="error">${error.message}</div>`;
         return;
       }
 
+      if (!isAuthenticated) {
+        setSummary("pair-chip", "Sign in required");
+        setSummaryTone("pair-chip", "warning");
+        box.innerHTML = renderStateBox({
+          tone: "auth",
+          title: "Sign in required",
+          body: "Sign in before approving this pairing request.",
+        });
+        return;
+      }
+
+      setSummary("pair-chip", "Pending");
+      setSummaryTone("pair-chip", "warning");
       box.innerHTML = `
         <div class="stack">
           <div><span class="eyebrow" style="margin-bottom:10px">Pending code</span><div class="mono" style="font-size:28px">${pairCode}</div></div>
-          <div class="muted">Approve this request to bind your authenticated Auth0 actor to the local Phantom extension.</div>
+          <div class="muted">Approve this to pair the current browser extension.</div>
           <div class="controls"><button id="approve-pair" class="btn primary">Approve pairing</button></div>
         </div>
       `;
 
       document.getElementById("approve-pair").addEventListener("click", async () => {
         try {
+          if (!isAuthenticated) return;
           await getJson("/api/pair/approve", {
             method: "POST",
             headers: { "content-type": "application/json" },
@@ -558,6 +935,7 @@
     document.querySelectorAll(".connect-btn").forEach((button) => {
       button.addEventListener("click", async () => {
         try {
+          if (!isAuthenticated) return;
           const provider = button.getAttribute("data-provider");
           const result = await getJson(`/api/accounts/${provider}/connect`, { method: "POST" });
           sessionStorage.setItem("phantom-auth0-connected-flow-id", result.flowId || "");
@@ -569,10 +947,22 @@
       });
     });
 
-    refreshSession();
-    refreshPairing();
-    refreshAccounts();
-    refreshActions();
+    async function initialize() {
+      await refreshSession();
+      if (guardianReady) {
+        const authBar = document.querySelector(".auth-bar");
+        authBar?.insertAdjacentHTML(
+          "afterend",
+          `<div class="state-box auth" style="margin-bottom:16px;"><span class="state-box-title">Guardian Ready</span><p>Guardian enrollment should now be complete. Return to Phantom and retry the last Auth0 action.</p></div>`
+        );
+      }
+      await refreshPairing();
+      await refreshMfaStatus();
+      await refreshAccounts();
+      await refreshActions();
+    }
+
+    initialize();
   </script>
 </body>
 </html>

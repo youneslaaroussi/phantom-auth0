@@ -91,32 +91,6 @@ const Popup = () => {
           }}>
             Click to get started
           </div>
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              marginTop: 10,
-              padding: "6px 10px",
-              borderRadius: 999,
-              background: "#fff7f2",
-              color: "#b43d16",
-              fontSize: 11,
-              fontWeight: 600,
-              border: "1px solid rgba(235,84,36,0.2)",
-            }}
-          >
-            <span
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: 999,
-                background: "#eb5424",
-                display: "inline-block",
-              }}
-            />
-            Auth0 Token Vault Demo
-          </div>
         </div>
       </div>
 

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Google+Sans+Text:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -11,42 +11,59 @@
 }
 
 :root {
-  --g-blue: #4285F4;
-  --g-blue-hover: #3367d6;
-  --g-blue-bg: #e8f0fe;
-  --g-blue-light: #d2e3fc;
-  --g-red: #EA4335;
-  --g-red-bg: #fce8e6;
-  --g-yellow: #FBBC05;
-  --g-yellow-bg: #fef7e0;
-  --g-green: #34A853;
-  --g-green-bg: #e6f4ea;
-  --g-surface: #ffffff;
-  --g-surface-dim: #f8f9fa;
-  --g-surface-container: #f1f3f4;
-  --g-surface-container-high: #e8eaed;
-  --g-on-surface: #1f1f1f;
-  --g-on-surface-variant: #444746;
-  --g-outline: #747775;
-  --g-outline-variant: #c4c7c5;
-  --g-font: 'Google Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
-  --g-font-text: 'Google Sans Text', 'Google Sans', 'Segoe UI', system-ui, sans-serif;
+  --g-blue: #68e5ff;
+  --g-blue-hover: #98f0ff;
+  --g-blue-bg: rgba(104, 229, 255, 0.14);
+  --g-blue-light: rgba(104, 229, 255, 0.24);
+  --g-red: #ff7b8e;
+  --g-red-bg: rgba(255, 123, 142, 0.14);
+  --g-yellow: #f5cd6a;
+  --g-yellow-bg: rgba(245, 205, 106, 0.14);
+  --g-green: #72f3c0;
+  --g-green-bg: rgba(114, 243, 192, 0.14);
+  --g-surface: #071015;
+  --g-surface-dim: #0b151d;
+  --g-surface-container: #101b24;
+  --g-surface-container-high: #16242f;
+  --g-on-surface: #edf6fb;
+  --g-on-surface-variant: #96a9b7;
+  --g-outline: #5b7385;
+  --g-outline-variant: #223441;
+  --g-font: 'Space Grotesk', 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --g-font-text: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --g-font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   --g-radius-sm: 8px;
   --g-radius-md: 16px;
   --g-radius-lg: 28px;
   --g-radius-full: 100px;
-  --g-shadow-1: 0 1px 2px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.06);
-  --g-shadow-2: 0 1px 3px rgba(0,0,0,0.08), 0 4px 8px rgba(0,0,0,0.06);
-  --g-shadow-3: 0 2px 6px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.08);
+  --g-shadow-1: 0 10px 30px rgba(0, 0, 0, 0.22);
+  --g-shadow-2: 0 20px 50px rgba(0, 0, 0, 0.3);
+  --g-shadow-3: 0 28px 70px rgba(0, 0, 0, 0.38);
 }
 
 body {
-  background: var(--g-surface);
+  background:
+    radial-gradient(circle at top, rgba(104, 229, 255, 0.12), transparent 22%),
+    radial-gradient(circle at bottom left, rgba(114, 243, 192, 0.08), transparent 18%),
+    linear-gradient(180deg, #04090d 0%, #071015 48%, #050b10 100%);
   color: var(--g-on-surface);
   font-family: var(--g-font-text);
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
   line-height: 1.5;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(104, 229, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(104, 229, 255, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(180deg, rgba(0,0,0,0.5), transparent 88%);
+  opacity: 0.28;
 }
 
 @keyframes float {
@@ -62,4 +79,47 @@ body {
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.security-shell {
+  position: relative;
+  isolation: isolate;
+}
+
+.security-shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% -10%, rgba(104, 229, 255, 0.16), transparent 30%),
+    radial-gradient(circle at 100% 0%, rgba(114, 243, 192, 0.08), transparent 20%);
+  opacity: 0.9;
+}
+
+.security-panel {
+  background: linear-gradient(180deg, rgba(16, 27, 36, 0.84), rgba(11, 21, 29, 0.94));
+  border: 1px solid rgba(104, 229, 255, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), var(--g-shadow-1);
+  backdrop-filter: blur(18px);
+}
+
+.security-label {
+  font-family: var(--g-font-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--g-blue);
+}
+
+.security-divider {
+  border-top: 1px solid rgba(104, 229, 255, 0.08);
+}
+
+.reveal-up {
+  animation: reveal-up 320ms ease-out;
 }

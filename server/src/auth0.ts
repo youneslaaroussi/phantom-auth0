@@ -36,6 +36,14 @@ function randomSecret(bytes = 32): string {
   return base64Url(crypto.randomBytes(bytes));
 }
 
+function sanitizeBindingMessage(input: string): string {
+  const normalized = input
+    .replace(/[^A-Za-z0-9\s+\-_,.:#]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return (normalized || "Approval required").slice(0, 255);
+}
+
 async function sha256Base64Url(value: string): Promise<string> {
   return base64Url(crypto.createHash("sha256").update(value).digest());
 }
@@ -346,6 +354,51 @@ export async function exchangeRefreshToken(params: {
   };
 }
 
+export function getManagementApiAudience(): string {
+  return `${getAuth0Issuer()}/api/v2/`;
+}
+
+async function getManagementApiAccessToken(): Promise<string> {
+  const response = await auth0TokenRequest({
+    grant_type: "client_credentials",
+    client_id: appConfig.auth0.tokenVaultClientId,
+    client_secret: appConfig.auth0.tokenVaultClientSecret,
+    audience: getManagementApiAudience(),
+  });
+
+  return String(response.access_token || "");
+}
+
+export async function getUserAuthenticationMethods(userSub: string): Promise<
+  Array<Record<string, unknown>>
+> {
+  const accessToken = await getManagementApiAccessToken();
+  const response = await fetch(
+    `${getManagementApiAudience()}users/${encodeURIComponent(userSub)}/authentication-methods`,
+    {
+      headers: {
+        authorization: `Bearer ${accessToken}`,
+        "content-type": "application/json",
+      },
+    }
+  );
+
+  const json = (await response.json()) as Record<string, unknown> | Array<Record<string, unknown>>;
+  if (!response.ok) {
+    const detail =
+      !Array.isArray(json) && typeof json.error_description === "string"
+        ? json.error_description
+        : !Array.isArray(json) && typeof json.message === "string"
+          ? json.message
+          : !Array.isArray(json) && typeof json.error === "string"
+            ? json.error
+            : "Failed to query user authentication methods";
+    throw new Error(detail);
+  }
+
+  return Array.isArray(json) ? json : [];
+}
+
 export async function getMyAccountAccessToken(
   refreshToken: string
 ): Promise<{ accessToken: string; refreshToken?: string }> {
@@ -363,20 +416,87 @@ export async function getMyAccountAccessToken(
 }
 
 export async function exchangeTokenVaultAccessToken(params: {
-  refreshToken: string;
+  accessToken?: string;
+  refreshToken?: string;
   connection: string;
 }): Promise<string> {
+  let auth0AccessToken = params.accessToken;
+
+  if (!auth0AccessToken && params.refreshToken) {
+    if (!appConfig.auth0.apiAudience) {
+      throw new Error("AUTH0_API_AUDIENCE is required for Token Vault exchange");
+    }
+    const refreshed = await exchangeRefreshToken({
+      refreshToken: params.refreshToken,
+      audience: appConfig.auth0.apiAudience,
+    });
+    auth0AccessToken = refreshed.accessToken;
+  }
+
+  if (!auth0AccessToken) {
+    throw new Error("Missing Auth0 access token for Token Vault exchange");
+  }
+
   const response = await auth0TokenRequest({
     grant_type:
       "urn:auth0:params:oauth:grant-type:token-exchange:federated-connection-access-token",
-    client_id: appConfig.auth0.clientId,
-    client_secret: appConfig.auth0.clientSecret,
-    subject_token: params.refreshToken,
-    subject_token_type: "urn:ietf:params:oauth:token-type:refresh_token",
+    client_id: appConfig.auth0.tokenVaultClientId,
+    client_secret: appConfig.auth0.tokenVaultClientSecret,
+    subject_token: auth0AccessToken,
+    subject_token_type: "urn:ietf:params:oauth:token-type:access_token",
+    requested_token_type: "http://auth0.com/oauth/token-type/federated-connection-access-token",
     connection: params.connection,
   });
 
   return String(response.access_token || "");
+}
+
+export async function createGuardianEnrollmentTicket(params: {
+  userSub: string;
+  email?: string;
+}): Promise<{ ticketId: string; ticketUrl: string }> {
+  const accessToken = await getManagementApiAccessToken();
+  const body = JSON.stringify({
+    user_id: params.userSub,
+    email: params.email,
+    allow_multiple_enrollments: true,
+  });
+
+  const requestTicket = async (path: string) =>
+    fetch(`${getManagementApiAudience()}${path}`, {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${accessToken}`,
+        "content-type": "application/json",
+      },
+      body,
+    });
+
+  let response = await requestTicket("guardian/enrollments/ticket");
+  if (response.status === 404) response = await requestTicket("guardian/post-ticket");
+  if (response.status === 404) response = await requestTicket("guardian/post_ticket");
+
+  const json = (await response.json()) as Record<string, unknown>;
+  if (!response.ok) {
+    const detail =
+      typeof json.error_description === "string"
+        ? json.error_description
+        : typeof json.message === "string"
+          ? json.message
+          : typeof json.error === "string"
+            ? json.error
+            : typeof json.errorCode === "string"
+              ? json.errorCode
+            : response.status === 404
+              ? "Guardian enrollment tickets are not available on this tenant."
+              : "Failed to create Guardian enrollment ticket";
+    throw new Error(detail);
+  }
+
+  return {
+    ticketId: String(json.ticket_id || ""),
+    ticketUrl: String(json.ticket_url || ""),
+  };
 }
 
 export async function createAuthorizationRequest(params: {
@@ -405,7 +525,7 @@ export async function createAuthorizationRequest(params: {
       login_hint: loginHint,
       scope: params.scope || appConfig.auth0.cibaScopes,
       audience: appConfig.auth0.apiAudience,
-      binding_message: params.bindingMessage.slice(0, 255),
+      binding_message: sanitizeBindingMessage(params.bindingMessage),
     }).toString(),
   });
 

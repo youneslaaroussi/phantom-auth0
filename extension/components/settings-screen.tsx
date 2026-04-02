@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { ArrowLeft, ChevronLeft, ChevronRight, ExternalLink, Mic, Brain, CheckCircle, Loader2, Volume2, Shield, RefreshCw } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, ExternalLink, Mic, Brain, CheckCircle, Loader2, Volume2 } from "lucide-react";
 import { useSession } from "../lib/session";
 import { MicSelector } from "./mic-selector";
 import { PERSONAS, type Persona } from "../lib/personas";
 import { playPersona, playSuccess } from "../lib/sounds";
 import { loadEmbeddingModel, isModelReady, type ProgressCallback } from "../lib/memory";
-import { getCompanionUrl } from "../lib/connection-mode";
-import { getConnectedAccountsStatus, getPairStatus, startPairing } from "../lib/auth0-actions";
+import { CompanionSetupCard } from "./companion-setup-card";
+import { useAuth0CompanionStatus } from "../lib/use-auth0-companion-status";
 
 const PERSONA_COLORS: Record<string, { accent: string; bg: string }> = {
   default:   { accent: "#4285F4", bg: "#e8f0fe" },
@@ -36,9 +36,6 @@ export const SettingsScreen = ({ onBack }: SettingsScreenProps) => {
   const [embeddingReady, setEmbeddingReady] = useState(false);
   const [embeddingLoading, setEmbeddingLoading] = useState(false);
   const [embeddingProgress, setEmbeddingProgress] = useState(0);
-  const [pairStatus, setPairStatus] = useState("unpaired");
-  const [connectedAccounts, setConnectedAccounts] = useState<string[]>([]);
-  const [auth0StatusError, setAuth0StatusError] = useState("");
   const soundAllowed = true;
   const idx = PERSONAS.findIndex((p) => p.id === selected.id);
   const color = getColor(selected.id);
@@ -46,6 +43,23 @@ export const SettingsScreen = ({ onBack }: SettingsScreenProps) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const touchStartX = useRef(0);
   const touchDelta = useRef(0);
+  const {
+    pairStatus,
+    pairCode,
+    pairedActor,
+    webAuthenticated,
+    webActor,
+    connectedAccounts,
+    recentActions,
+    auth0StatusError,
+    refreshAuth0Status,
+    handleOpenCompanion,
+    handleSignIn,
+    handleSignOut,
+    handlePairExtension,
+    handleApprovePairing,
+    handleConnectProvider,
+  } = useAuth0CompanionStatus();
 
   useEffect(() => {
     setVersion(chrome.runtime.getManifest().version);
@@ -55,8 +69,6 @@ export const SettingsScreen = ({ onBack }: SettingsScreenProps) => {
         if (status.state === "granted") setMicGranted(true);
         status.onchange = () => { if (status.state === "granted") setMicGranted(true); };
       } catch {}
-
-      await refreshAuth0Status();
 
       if (isModelReady()) {
         setEmbeddingReady(true);
@@ -74,33 +86,6 @@ export const SettingsScreen = ({ onBack }: SettingsScreenProps) => {
         }
       }
     })();
-  }, []);
-
-  const refreshAuth0Status = useCallback(async () => {
-    try {
-      const pairing = await getPairStatus();
-      if (typeof pairing.status === "string") {
-        setPairStatus(pairing.status);
-      }
-    } catch {}
-
-    try {
-      const status = await getConnectedAccountsStatus();
-      const connections = Array.isArray(status.connections)
-        ? status.connections
-            .map((connection) =>
-              connection && typeof connection === "object" && "name" in connection
-                ? String((connection as { name?: unknown }).name || "")
-                : ""
-            )
-            .filter(Boolean)
-        : [];
-      setConnectedAccounts(connections);
-      setAuth0StatusError("");
-    } catch (error) {
-      setConnectedAccounts([]);
-      setAuth0StatusError(error instanceof Error ? error.message : "Status unavailable");
-    }
   }, []);
 
   const handleRequestMic = async () => {
@@ -131,24 +116,6 @@ export const SettingsScreen = ({ onBack }: SettingsScreenProps) => {
       setEmbeddingLoading(false);
     }
   };
-
-  const handleOpenCompanion = async () => {
-    chrome.tabs.create({ url: await getCompanionUrl() });
-  };
-
-  const handlePairExtension = async () => {
-    try {
-      const pairing = await startPairing();
-      setPairStatus("pending");
-      chrome.tabs.create({ url: pairing.companionUrl });
-    } catch (error) {
-      console.error("Failed to start pairing:", error);
-    }
-  };
-
-  const auth0Active = pairStatus === "paired" || connectedAccounts.length > 0;
-  const googleConnected = connectedAccounts.some((name) => name.includes("google"));
-  const githubConnected = connectedAccounts.some((name) => name.includes("github"));
 
   const goTo = useCallback((i: number) => {
     const clamped = Math.max(0, Math.min(PERSONAS.length - 1, i));
@@ -199,12 +166,15 @@ export const SettingsScreen = ({ onBack }: SettingsScreenProps) => {
   }, [isAnimating, goNext, goPrev]);
 
   return (
-    <div className="w-full h-full flex flex-col" style={{ background: "var(--g-surface)", color: "var(--g-on-surface)" }}>
-      <div className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: "1px solid var(--g-outline-variant)" }}>
+    <div className="security-shell w-full h-full flex flex-col" style={{ background: "var(--g-surface)", color: "var(--g-on-surface)" }}>
+      <div className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: "1px solid rgba(104,229,255,0.08)" }}>
         <button onClick={onBack} className="p-1.5 rounded-full hover:bg-g-surface-container transition-colors">
           <ArrowLeft className="w-5 h-5" style={{ color: "var(--g-on-surface)" }} />
         </button>
-        <span className="font-google text-base font-medium">Settings</span>
+        <div>
+          <div className="text-[10px] security-label">Control Surface</div>
+          <span className="font-google text-base font-medium">Settings</span>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -290,13 +260,13 @@ export const SettingsScreen = ({ onBack }: SettingsScreenProps) => {
 
         <div className="px-5 pb-5 space-y-6">
           <div className="space-y-3">
-            <div className="text-xs font-google font-medium uppercase tracking-wider" style={{ color: "var(--g-blue)" }}>Microphone</div>
+            <div className="text-xs font-google font-medium uppercase tracking-wider" style={{ color: "var(--g-blue)" }}>Input Channel</div>
             <MicSelector />
           </div>
 
           <div className="space-y-3">
-            <div className="text-xs font-google font-medium uppercase tracking-wider" style={{ color: "var(--g-blue)" }}>Permissions</div>
-            <div className="rounded-g-md overflow-hidden" style={{ background: "var(--g-surface-dim)", border: "1px solid var(--g-outline-variant)" }}>
+            <div className="text-xs font-google font-medium uppercase tracking-wider" style={{ color: "var(--g-blue)" }}>Local Runtime</div>
+            <div className="security-panel rounded-g-md overflow-hidden">
               <div className="flex items-center justify-between px-4 py-3">
                 <div className="flex items-center gap-3">
                   <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: micGranted ? "var(--g-green-bg)" : micDenied ? "var(--g-red-bg)" : "var(--g-surface-container)" }}>
@@ -305,7 +275,7 @@ export const SettingsScreen = ({ onBack }: SettingsScreenProps) => {
                   <div className="text-left">
                     <div className="text-sm font-google font-medium">Microphone</div>
                     <div className="text-[11px] font-google-text" style={{ color: "var(--g-on-surface-variant)" }}>
-                      {micGranted ? "Access granted" : micDenied ? "Access denied" : "For voice conversations"}
+                      {micGranted ? "Access granted" : micDenied ? "Access denied" : "Required for live command capture"}
                     </div>
                   </div>
                 </div>
@@ -330,7 +300,7 @@ export const SettingsScreen = ({ onBack }: SettingsScreenProps) => {
                     <div className="text-left">
                       <div className="text-sm font-google font-medium">Memory Model</div>
                       <div className="text-[11px] font-google-text" style={{ color: "var(--g-on-surface-variant)" }}>
-                        {embeddingReady ? "Ready" : embeddingLoading ? "Downloading..." : "~30MB local model"}
+                        {embeddingReady ? "Ready" : embeddingLoading ? "Downloading..." : "~30MB local recall model"}
                       </div>
                     </div>
                   </div>
@@ -386,88 +356,29 @@ export const SettingsScreen = ({ onBack }: SettingsScreenProps) => {
           </div>
 
           <div className="space-y-3">
-            <div className="text-xs font-google font-medium uppercase tracking-wider" style={{ color: "var(--g-blue)" }}>Companion</div>
-            <div className="rounded-g-md p-4 space-y-3" style={{ background: "var(--g-surface-dim)", border: "1px solid var(--g-outline-variant)" }}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: auth0Active ? "#fff0e8" : "var(--g-surface-container)" }}>
-                      <Shield className="w-3.5 h-3.5" style={{ color: auth0Active ? "#eb5424" : "var(--g-outline)" }} />
-                    </div>
-                    <div>
-                      <div className="text-sm font-google font-medium">Phantom Auth0 Companion</div>
-                      <div className="text-[11px] font-google-text" style={{ color: "var(--g-on-surface-variant)" }}>
-                        Auth0 Token Vault security layer
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <CheckCircle className="w-4.5 h-4.5" style={{ color: auth0Active ? "var(--g-green)" : "var(--g-outline)" }} />
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                <div className="rounded-g-md px-3 py-2" style={{ background: "var(--g-surface-container)" }}>
-                  <div className="text-[10px] font-google font-medium uppercase tracking-wider" style={{ color: "var(--g-on-surface-variant)" }}>Pairing</div>
-                  <div className="text-sm font-google font-medium mt-1" style={{ color: pairStatus === "paired" ? "var(--g-green)" : "var(--g-on-surface)" }}>
-                    {pairStatus}
-                  </div>
-                </div>
-                <div className="rounded-g-md px-3 py-2" style={{ background: "var(--g-surface-container)" }}>
-                  <div className="text-[10px] font-google font-medium uppercase tracking-wider" style={{ color: "var(--g-on-surface-variant)" }}>Google</div>
-                  <div className="text-sm font-google font-medium mt-1" style={{ color: googleConnected ? "var(--g-green)" : "var(--g-on-surface)" }}>
-                    {googleConnected ? "Connected" : "Not connected"}
-                  </div>
-                </div>
-                <div className="rounded-g-md px-3 py-2" style={{ background: "var(--g-surface-container)" }}>
-                  <div className="text-[10px] font-google font-medium uppercase tracking-wider" style={{ color: "var(--g-on-surface-variant)" }}>GitHub</div>
-                  <div className="text-sm font-google font-medium mt-1" style={{ color: githubConnected ? "var(--g-green)" : "var(--g-on-surface)" }}>
-                    {githubConnected ? "Connected" : "Not connected"}
-                  </div>
-                </div>
-              </div>
-              <div className="rounded-g-md px-3 py-2" style={{ background: auth0Active ? "#fff7f2" : "var(--g-surface-container)" }}>
-                <div className="text-[10px] font-google font-medium uppercase tracking-wider" style={{ color: auth0Active ? "#eb5424" : "var(--g-on-surface-variant)" }}>
-                  Auth0 Signal
-                </div>
-                <div className="text-[11px] font-google-text mt-1" style={{ color: "var(--g-on-surface-variant)" }}>
-                  {auth0StatusError
-                    ? auth0StatusError
-                    : connectedAccounts.length > 0
-                      ? `Connected accounts: ${connectedAccounts.join(", ")}`
-                      : "No connected accounts yet."}
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={handleOpenCompanion}
-                  className="px-3 py-2 rounded-g-full text-[11px] font-google font-medium text-white"
-                  style={{ background: "var(--g-blue)" }}
-                >
-                  Open Companion
-                </button>
-                <button
-                  onClick={handlePairExtension}
-                  className="px-3 py-2 rounded-g-full text-[11px] font-google font-medium"
-                  style={{ border: "1px solid var(--g-outline-variant)", color: "var(--g-on-surface)" }}
-                >
-                  Pair Extension
-                </button>
-                <button
-                  onClick={refreshAuth0Status}
-                  className="px-3 py-2 rounded-g-full text-[11px] font-google font-medium"
-                  style={{ border: "1px solid var(--g-outline-variant)", color: "var(--g-on-surface)" }}
-                >
-                  <span className="inline-flex items-center gap-1.5">
-                    <RefreshCw className="w-3.5 h-3.5" />
-                    Refresh
-                  </span>
-                </button>
-              </div>
-            </div>
+            <div className="text-xs font-google font-medium uppercase tracking-wider" style={{ color: "var(--g-blue)" }}>Hosted Authority</div>
+            <CompanionSetupCard
+              pairStatus={pairStatus}
+              pairCode={pairCode}
+              pairedActor={pairedActor}
+              webAuthenticated={webAuthenticated}
+              webActor={webActor}
+              connectedAccounts={connectedAccounts}
+              recentActions={recentActions}
+              auth0StatusError={auth0StatusError}
+              onOpenCompanion={handleOpenCompanion}
+              onSignIn={handleSignIn}
+              onSignOut={handleSignOut}
+              onPairExtension={handlePairExtension}
+              onApprovePairing={handleApprovePairing}
+              onConnectProvider={handleConnectProvider}
+              onRefresh={refreshAuth0Status}
+            />
           </div>
 
           <div className="space-y-3">
-            <div className="text-xs font-google font-medium uppercase tracking-wider" style={{ color: "var(--g-blue)" }}>Links</div>
-            <div className="rounded-g-md overflow-hidden" style={{ background: "var(--g-surface-dim)", border: "1px solid var(--g-outline-variant)" }}>
+            <div className="text-xs font-google font-medium uppercase tracking-wider" style={{ color: "var(--g-blue)" }}>Operational Links</div>
+            <div className="security-panel rounded-g-md overflow-hidden">
               {[
                 { label: "Permissions", url: "" },
                 { label: "GitHub", url: "https://github.com/youneslaaroussi/phantom-auth0" },
@@ -500,8 +411,8 @@ export const SettingsScreen = ({ onBack }: SettingsScreenProps) => {
           </div>
 
           <div className="space-y-3">
-            <div className="text-xs font-google font-medium uppercase tracking-wider" style={{ color: "var(--g-blue)" }}>About</div>
-            <div className="rounded-g-md p-4 space-y-3" style={{ background: "var(--g-surface-dim)", border: "1px solid var(--g-outline-variant)" }}>
+            <div className="text-xs font-google font-medium uppercase tracking-wider" style={{ color: "var(--g-blue)" }}>Build</div>
+            <div className="security-panel rounded-g-md p-4 space-y-3">
               <div className="flex justify-between text-sm font-google-text">
                 <span style={{ color: "var(--g-on-surface-variant)" }}>Version</span>
                 <span style={{ color: "var(--g-on-surface)" }}>{version}</span>

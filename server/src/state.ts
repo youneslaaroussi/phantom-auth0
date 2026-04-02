@@ -35,6 +35,7 @@ export type ConnectedAccountFlow = {
   authSession: string;
   provider: "google" | "github" | "slack";
   redirectUri: string;
+  myAccountAccessToken: string;
   createdAt: number;
 };
 
