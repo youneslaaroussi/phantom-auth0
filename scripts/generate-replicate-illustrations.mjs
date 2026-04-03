@@ -8,7 +8,7 @@ if (!apiToken) {
 }
 
 const modelPath = "google/imagen-4";
-const outputDir = path.resolve(process.cwd(), "devpost-covers/replicate");
+const outputDir = path.resolve(process.cwd(), "generated-covers/replicate");
 const concurrency = 1;
 const minCreateGapMs = 11000;
 let lastCreateAt = 0;
@@ -18,7 +18,7 @@ const prompts = [
     slug: "clean-hero",
     title: "Clean Hero",
     prompt:
-      "Premium editorial product illustration for a hackathon project called Phantom Auth0. A restricted local browser agent is shown as a sleek glowing sidepanel on a laptop, while a dark cloud identity layer sits behind it like a secure control plane. Visual language inspired by modern Auth0 docs: matte black background, warm orange highlights, white interface chrome, restrained gradients, clean geometry, cinematic depth, premium SaaS hero image, no readable text, no logos, no watermark, highly polished, sharp, elegant, 16:9."
+      "Premium editorial product illustration for Phantom Auth0. A restricted local browser agent is shown as a sleek glowing sidepanel on a laptop, while a dark cloud identity layer sits behind it like a secure control plane. Visual language inspired by modern Auth0 docs: matte black background, warm orange highlights, white interface chrome, restrained gradients, clean geometry, cinematic depth, premium SaaS hero image, no readable text, no logos, no watermark, highly polished, sharp, elegant, 16:9."
   },
   {
     slug: "delegation-bridge",

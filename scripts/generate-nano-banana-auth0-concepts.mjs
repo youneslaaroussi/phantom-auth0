@@ -8,7 +8,7 @@ if (!apiToken) {
 }
 
 const modelPath = "google/nano-banana-2";
-const outputDir = path.resolve(process.cwd(), "devpost-covers/nano-banana-auth0");
+const outputDir = path.resolve(process.cwd(), "generated-covers/nano-banana-auth0");
 const minCreateGapMs = 11000;
 let lastCreateAt = 0;
 

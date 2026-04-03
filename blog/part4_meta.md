@@ -30,4 +30,4 @@ Phantom is open source. Install the Chrome extension, pick a persona, and start 
 
 ---
 
-*Built for the Gemini Live Agent Challenge. #GeminiLiveAgentChallenge*
+*Built as an exploration of real-time agent UX, identity, and delegated execution.*

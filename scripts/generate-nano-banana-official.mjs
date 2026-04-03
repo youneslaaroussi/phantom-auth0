@@ -9,7 +9,7 @@ if (!apiToken) {
 }
 
 const replicate = new Replicate({ auth: apiToken });
-const outputDir = path.resolve(process.cwd(), "../devpost-covers/nano-banana-official");
+const outputDir = path.resolve(process.cwd(), "../generated-covers/nano-banana-official");
 
 const prompts = [
   {

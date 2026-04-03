@@ -23,4 +23,4 @@ These became **personas** — not just cosmetic skins, but full personality pack
 
 Each persona has its own Gemini voice, mascot image, and system prompt that shapes how the agent talks. When you pick "Captain," the agent calls websites "islands" and says "aye aye!" When you pick "Gremlin," it's gleefully chaotic but still gets the job done.
 
-Users pick their persona during onboarding. It's the second screen they see, right after "Hey, I'm Phantom." Judges remember characters. They forget features.
+Users pick their persona during onboarding. It's the second screen they see, right after "Hey, I'm Phantom." Character lands faster than a feature list.

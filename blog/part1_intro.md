@@ -1,6 +1,6 @@
 # I Built a Browser AI Agent in One Session — Here's What Happened
 
-*This article was created for the Gemini Live Agent Challenge hackathon. #GeminiLiveAgentChallenge*
+*This article documents the build process behind Phantom.*
 
 ---
 

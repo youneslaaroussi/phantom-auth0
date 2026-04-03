@@ -1,6 +1,6 @@
 # Phantom Auth0
 
-Phantom Auth0 is an Auth0-first hackathon build for [`Authorized to Act: Auth0 for AI Agents`](https://authorizedtoact.devpost.com/).
+Phantom Auth0 is an Auth0-first browser agent build centered on delegated identity, connected accounts, and approval-aware actions.
 
 It reframes Phantom as a restricted local browser agent that can operate across external apps through a hosted Auth0 companion surface instead of raw third-party credentials embedded in the client. The core idea is simple:
 
@@ -9,7 +9,7 @@ It reframes Phantom as a restricted local browser agent that can operate across 
 - make high-risk actions explicit
 - show the user what the agent is allowed to do
 
-This repo is intentionally isolated from the original Phantom repo, deployment identity, and judging flow.
+This repo is intentionally isolated from the original Phantom repo and deployment identity.
 
 ![Guardian QR Approval Lanes](docs/diagrams/ai-experiments/guardian-qr-approval-lanes.jpeg)
 
@@ -92,7 +92,7 @@ flowchart LR
 - CIBA-oriented async authorization for approval-required actions
 - visible account state and action history in product UI
 
-Official references used while building the hackathon version:
+Official references used while building this version:
 
 - [Token Vault](https://auth0.com/docs/secure/tokens/token-vault)
 - [Connected Accounts for Token Vault](https://auth0.com/docs/secure/tokens/token-vault/connected-accounts-for-token-vault)
@@ -132,7 +132,7 @@ The repo distinguishes between low-risk and high-risk actions.
 - Low-risk actions such as reads, drafts, and previews can execute immediately.
 - High-risk actions such as sending, posting, creating, or mutating external state can require Auth0 approval.
 
-This is the part of the project that matters most for the hackathon judging criteria around security model, user control, and production-aware implementation.
+This is the part of the project that matters most for the repo's security model, user control, and production-aware implementation.
 
 ![Approval boundary concept](docs/diagrams/ai-experiments/delegated-action-lanes.jpeg)
 
@@ -179,7 +179,7 @@ The project deliberately separates local execution from delegated authority.
 - Auth0 becomes the authority layer for identity, delegation, token exchange, and optional step-up approval.
 - External providers only see delegated calls from the gateway after Auth0 has established the right context.
 
-That separation is the primary significant update in this hackathon repo.
+That separation is the primary significant update in this repo.
 
 ![Local runtime vs hosted authority](docs/diagrams/ai-experiments/extension-auth0-provider-lanes.jpeg)
 

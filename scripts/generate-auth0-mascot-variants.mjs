@@ -8,7 +8,7 @@ if (!apiToken) {
 }
 
 const modelPath = "google/imagen-4";
-const outputDir = path.resolve(process.cwd(), "devpost-covers/replicate-auth0-mascot");
+const outputDir = path.resolve(process.cwd(), "generated-covers/replicate-auth0-mascot");
 const minCreateGapMs = 11000;
 let lastCreateAt = 0;
 
