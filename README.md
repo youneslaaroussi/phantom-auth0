@@ -11,6 +11,8 @@ It reframes Phantom as a restricted local browser agent that can operate across 
 
 This repo is intentionally isolated from the original Phantom repo, deployment identity, and judging flow.
 
+![Guardian QR Approval Lanes](docs/diagrams/ai-experiments/guardian-qr-approval-lanes.jpeg)
+
 ## Auth0 Setup
 
 For a full end-to-end tenant rebuild guide, use:
@@ -31,6 +33,8 @@ The local extension does not directly own provider secrets. Instead:
 
 That makes the project about authorization architecture, delegated consent, and control boundaries for agents.
 
+![Connected account delegation concept](docs/diagrams/readme-concepts/connected-account-light.jpeg)
+
 ## What The Project Does
 
 Phantom Auth0 is a two-part system:
@@ -42,11 +46,42 @@ Current user-visible capabilities:
 
 - pair a local browser extension to a hosted companion app
 - sign in with Auth0 Universal Login
-- connect Google, GitHub, and optionally Slack through Auth0 Connected Accounts
+- connect Google and Linear through Auth0 Connected Accounts
 - check connected account state from inside the extension
-- execute delegated Google and GitHub actions through Token Vault
+- execute delegated Google and Linear actions through Token Vault
 - track delegated action history in the companion app
 - request approval for high-risk actions through Auth0 async authorization
+
+```mermaid
+flowchart LR
+  subgraph local["Local browser runtime"]
+    ext["Chrome extension"]
+  end
+
+  subgraph hosted["Hosted surface"]
+    companion["Companion app"]
+    gateway["Action gateway"]
+  end
+
+  subgraph auth0["Auth0"]
+    connected["Connected Accounts"]
+    token["Token Vault"]
+    ciba["CIBA approval"]
+  end
+
+  subgraph external["External apps"]
+    google["Google"]
+    linear["Linear"]
+  end
+
+  ext --> gateway
+  companion --> gateway
+  gateway --> connected
+  gateway --> token
+  gateway --> ciba
+  token --> google
+  token --> linear
+```
 
 ## Auth0 Surfaces In This Repo
 
@@ -70,10 +105,25 @@ Official references used while building the hackathon version:
 
 The extension is tied directly into the delegated action path. Auth0 is not a separate marketing layer.
 
-- The runtime agent session exposes Auth0-backed tools such as account status, calendar availability, Gmail draft creation, repo listing, and issue creation.
+- The runtime agent session exposes Auth0-backed tools such as account status, calendar availability, Gmail draft creation, Google Docs creation, Linear team listing, and Linear issue creation.
 - Those tools resolve through the companion gateway.
 - The gateway uses Auth0 refresh-token exchange and Token Vault to mint provider access on demand.
 - High-risk actions enter an approval state before execution.
+
+```mermaid
+sequenceDiagram
+  participant E as Extension
+  participant G as Gateway
+  participant A as Auth0
+  participant P as Provider API
+
+  E->>G: tool call
+  G->>A: refresh-token exchange
+  A-->>G: delegated provider access
+  G->>P: read / draft / create
+  P-->>G: result
+  G-->>E: user-visible outcome
+```
 
 ## Approval Boundaries
 
@@ -83,6 +133,8 @@ The repo distinguishes between low-risk and high-risk actions.
 - High-risk actions such as sending, posting, creating, or mutating external state can require Auth0 approval.
 
 This is the part of the project that matters most for the hackathon judging criteria around security model, user control, and production-aware implementation.
+
+![Approval boundary concept](docs/diagrams/ai-experiments/delegated-action-lanes.jpeg)
 
 ## Current Status
 
@@ -101,19 +153,21 @@ Validated in the repo and called out in product/docs:
 Implemented in code, but still dependent on tenant-side setup before claiming complete end-to-end coverage:
 
 - Auth0 async authorization for high-risk actions
-- GitHub Connected Account flow
-- GitHub repo listing and GitHub issue creation
+- Google Docs scopes and reconnect flow
+- Linear custom OAuth2 connection and Linear issue creation
 
 Explored but not part of the recommended v1 path:
 
+- GitHub
 - Slack
 
 ## Provider Matrix
 
 | Provider | Connected Account | Read Path | Draft / Preview Path | Approval-Required Path | Status |
 | --- | --- | --- | --- | --- | --- |
-| Google | Yes | Calendar availability | Gmail draft | Gmail send, Calendar create | Recommended |
-| GitHub | Implemented | Repo listing | Issue draft | Issue creation | Needs tenant validation |
+| Google | Yes | Calendar availability, Docs list | Gmail draft, Doc draft | Gmail send, Calendar create, Doc create | Recommended |
+| Linear | Implemented | Team listing | Issue draft | Issue creation | Needs tenant validation |
+| GitHub | Experimental | Repo listing | Issue draft | Issue creation | Not part of v1 |
 | Slack | Partial | N/A | Preview only | Post message | Not part of v1 |
 
 ## Architecture Notes
@@ -127,6 +181,8 @@ The project deliberately separates local execution from delegated authority.
 
 That separation is the primary significant update in this hackathon repo.
 
+![Local runtime vs hosted authority](docs/diagrams/ai-experiments/extension-auth0-provider-lanes.jpeg)
+
 ## Recommended Judge Story
 
 The shortest reliable evaluation path is still the Google path:
@@ -136,8 +192,20 @@ The shortest reliable evaluation path is still the Google path:
 3. show Google connected in the companion app
 4. ask Phantom to check calendar availability
 5. ask Phantom to create a Gmail draft
-6. show delegated action history
-7. if CIBA is configured, trigger one approval-required action
+6. ask Phantom to create a Google Doc
+7. show delegated action history
+8. if CIBA is configured, trigger one approval-required action
+
+```mermaid
+flowchart LR
+  pair["Pair extension"] --> signin["Sign in with Auth0"]
+  signin --> connect["Connect Google"]
+  connect --> read["Calendar availability"]
+  read --> draft["Gmail draft"]
+  draft --> doc["Google Doc create"]
+  doc --> history["Show action history"]
+  history --> approve["Trigger approval-required action"]
+```
 
 ## Local Development
 
@@ -175,9 +243,11 @@ PUBLIC_BASE_URL=http://localhost:8080
 AUTH0_DOMAIN=your-tenant.us.auth0.com
 AUTH0_CLIENT_ID=your_client_id
 AUTH0_CLIENT_SECRET=your_client_secret
+AUTH0_TOKEN_VAULT_CLIENT_ID=your_token_vault_client_id
+AUTH0_TOKEN_VAULT_CLIENT_SECRET=your_token_vault_client_secret
 AUTH0_API_AUDIENCE=https://phantom-auth0-api
 AUTH0_MY_ACCOUNT_AUDIENCE=https://your-tenant.us.auth0.com/me/
 AUTH0_GOOGLE_CONNECTION=google-oauth2
-AUTH0_GITHUB_CONNECTION=github
+AUTH0_LINEAR_CONNECTION=linear
 AUTH0_SLACK_CONNECTION=slack-oauth-2
 ```
