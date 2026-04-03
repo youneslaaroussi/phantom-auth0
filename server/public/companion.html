@@ -599,6 +599,7 @@
           <div class="connect-row">
             <button data-provider="google" class="btn primary connect-btn provider-btn auth-required" disabled>Google</button>
             <button data-provider="github" class="btn connect-btn provider-btn auth-required" disabled>GitHub</button>
+            <button data-provider="linear" class="btn connect-btn provider-btn auth-required" disabled>Linear</button>
             <button data-provider="slack" class="btn connect-btn provider-btn auth-required" disabled>Slack</button>
           </div>
         </div>
@@ -663,22 +664,29 @@
       `;
     }
 
-    function formatProviderName(name) {
-      const map = {
-        "google-oauth2": "Google",
-        github: "GitHub",
-        slack: "Slack",
-      };
-      return map[name] || name;
-    }
+      function formatProviderName(name) {
+        const map = {
+          "google-oauth2": "Google",
+          github: "GitHub",
+          linear: "Linear",
+          slack: "Slack",
+        };
+        if (map[name]) return map[name];
+        if ((name || "").toLowerCase().includes("linear")) return "Linear";
+        return name;
+      }
 
     function formatScopeLabel(scope) {
       const map = {
         email: "Email",
         profile: "Profile",
         "https://www.googleapis.com/auth/calendar": "Calendar",
+        "https://www.googleapis.com/auth/documents": "Google Docs",
+        "https://www.googleapis.com/auth/drive.metadata.readonly": "Docs metadata",
         "https://www.googleapis.com/auth/gmail.send": "Send Gmail",
         "https://www.googleapis.com/auth/gmail.compose": "Compose Gmail",
+        read: "Read Linear",
+        "issues:create": "Create Linear issues",
       };
       if (map[scope]) return map[scope];
       if (scope.startsWith("https://")) {

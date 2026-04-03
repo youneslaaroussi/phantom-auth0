@@ -10,6 +10,7 @@ It covers:
 - Token Vault client setup
 - My Account API setup
 - Google Cloud OAuth setup
+- Linear OAuth setup
 - local `.env` wiring
 - MRRT patching
 - local verification
@@ -229,10 +230,14 @@ Required profile scopes:
 Product scopes:
 
 - `.../auth/calendar`
+- `.../auth/documents`
+- `.../auth/drive.metadata.readonly`
 - `.../auth/gmail.compose`
 - `.../auth/gmail.send`
 
 For testing, your own Google account as a test user is enough. Full public verification can come later.
+
+If Google was already connected before you added Docs scopes, disconnect it in the companion and reconnect it so Auth0 stores a fresh grant with the updated scopes.
 
 ## 9. Configure the Auth0 Google Connection
 
@@ -256,6 +261,8 @@ Enable only the scopes this repo actually uses:
 - `Basic Profile`
 - `Extended Profile`
 - `Calendar`
+- `https://www.googleapis.com/auth/documents`
+- `https://www.googleapis.com/auth/drive.metadata.readonly`
 - `Gmail.Send`
 - `Gmail.Compose`
 
@@ -263,7 +270,82 @@ Then open the connection’s `Applications` tab and enable it for:
 
 - `Phantom App`
 
-## 10. Update `server/.env`
+## 10. Configure Linear as a Custom OAuth2 Connection
+
+Create a Linear OAuth 2.0 app first:
+
+- [Linear OAuth 2.0 authentication](https://linear.app/developers/oauth-2-0-authentication)
+- callback URL: `https://YOUR_AUTH0_DOMAIN/login/callback`
+
+Example:
+
+- `https://phantomapp.us.auth0.com/login/callback`
+
+Then in Auth0:
+
+- Go to `Authentication -> Social`
+- Click `Create Connection`
+- Choose `Create Custom`
+
+Use:
+
+- Connection name: `linear`
+- Authorization URL: `https://linear.app/oauth/authorize`
+- Token URL: `https://api.linear.app/oauth/token`
+- Scope: `read issues:create`
+- `Separate scopes using a space`: `On`
+- Purpose: `Connected Accounts for Token Vault`
+
+For the fetch user profile script, use:
+
+```js
+function fetchUserProfile(accessToken, context, callback) {
+  request.post(
+    {
+      url: "https://api.linear.app/graphql",
+      headers: {
+        Authorization: "Bearer " + accessToken,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: "{ viewer { id name email } }",
+      }),
+    },
+    function (err, resp, body) {
+      if (err) return callback(err);
+      if (resp.statusCode !== 200) return callback(new Error(body));
+
+      var parsed;
+      try {
+        parsed = JSON.parse(body);
+      } catch (jsonError) {
+        return callback(jsonError);
+      }
+
+      if (parsed.errors && parsed.errors.length) {
+        return callback(new Error(JSON.stringify(parsed.errors)));
+      }
+
+      var viewer = parsed.data && parsed.data.viewer;
+      if (!viewer || !viewer.id) {
+        return callback(new Error("Missing Linear viewer profile"));
+      }
+
+      callback(null, {
+        user_id: viewer.id,
+        email: viewer.email,
+        name: viewer.name,
+      });
+    }
+  );
+}
+```
+
+Then enable the Linear connection for:
+
+- `Phantom App`
+
+## 11. Update `server/.env`
 
 Set your local env in [server/.env](/Users/mac/dev/phantom-auth0/server/.env):
 
@@ -283,6 +365,7 @@ AUTH0_MY_ACCOUNT_AUDIENCE=https://phantomapp.us.auth0.com/me/
 
 AUTH0_GOOGLE_CONNECTION=google-oauth2
 AUTH0_GITHUB_CONNECTION=github
+AUTH0_LINEAR_CONNECTION=linear
 AUTH0_SLACK_CONNECTION=slack-oauth-2
 ```
 
@@ -292,7 +375,7 @@ Also keep:
 AUTH0_SCOPES=openid profile email offline_access
 ```
 
-## 11. Patch MRRT Policy
+## 12. Patch MRRT Policy
 
 This step is required for this repo because the server exchanges the login refresh token for:
 
@@ -342,7 +425,7 @@ curl --request PATCH 'https://YOUR_AUTH0_DOMAIN/api/v2/clients/LOGIN_APP_CLIENT_
 
 You can verify the patch by fetching the client document and checking that `refresh_token.policies` contains both audiences.
 
-## 12. Start the Repo
+## 13. Start the Repo
 
 Server:
 
@@ -370,7 +453,7 @@ Open:
 
 - [http://localhost:8080/companion](http://localhost:8080/companion)
 
-## 13. First Login and Pairing
+## 14. First Login and Pairing
 
 After tenant changes, always use a fresh session:
 
@@ -388,7 +471,7 @@ Then:
 2. Start pairing
 3. Approve pairing in the companion
 
-## 14. Connect Google
+## 15. Connect Google and Linear
 
 In the companion:
 
@@ -398,12 +481,22 @@ In the companion:
 
 If connected-account status was previously failing, re-login after MRRT patching before you try again.
 
-## 15. Test Prompts
+For Linear:
+
+1. Click `Linear`
+2. Complete the Auth0-connected Linear flow
+3. Return to the companion
+
+## 16. Test Prompts
 
 Start with:
 
 - `Check my connected accounts.`
 - `Check my Google Calendar availability tomorrow from 2 PM to 4 PM Atlantic time.`
+- `List my Google Docs.`
+- `Create a Google Doc titled "Phantom meeting brief" with content "Agenda\n\n- Demo Auth0\n- Review approvals\n- Capture next steps".`
+- `List my Linear teams.`
+- `Create a Linear issue for team TEAM_ID titled "Phantom Auth0 follow-up" with description "Capture next steps from the delegated workflow demo."`
 - `Draft an email to hello@youneslaaroussi.ca with subject "Phantom Auth0 test" and body "This is a delegated draft created through Auth0."`
 - `Show my delegated action history.`
 
@@ -412,7 +505,7 @@ If those pass, try:
 - `Send an email to hello@youneslaaroussi.ca with subject "Phantom Auth0 send test" and body "Testing the approval flow."`
 - `Create a calendar event tomorrow at 3 PM Atlantic called "Phantom Auth0 test event" for 30 minutes.`
 
-## 16. Common Failure Map
+## 17. Common Failure Map
 
 `Client is not authorized to access resource server https://phantom-auth0-api`
 
@@ -442,17 +535,25 @@ Google does not appear as connected or connect flow fails:
 - wrong Google OAuth redirect URI
 - Google client still points at the old tenant
 
-## 17. Security Cleanup
+Linear does not connect or issue creation fails:
+
+- Linear custom social connection is missing refresh-token support
+- Auth0 Linear connection is not enabled for `Phantom App`
+- Auth0 custom connection is using the wrong scope separator
+- `AUTH0_LINEAR_CONNECTION` does not match the Auth0 connection name
+
+## 18. Security Cleanup
 
 After setup is stable:
 
 - rotate the Auth0 login app secret
 - rotate the Token Vault client secret
 - rotate the Google OAuth client secret if it was shared during setup
+- rotate the Linear OAuth client secret if it was shared during setup
 
 Do not commit real secrets into git.
 
-## 18. Official References
+## 19. Official References
 
 - [Configure Token Vault](https://auth0.com/docs/secure/call-apis-on-users-behalf/token-vault/configure-token-vault)
 - [Connected Accounts for Token Vault](https://auth0.com/docs/secure/tokens/token-vault/connected-accounts-for-token-vault)
@@ -461,3 +562,4 @@ Do not commit real secrets into git.
 - [Configure CIBA](https://auth0.com/docs/get-started/applications/configure-client-initiated-backchannel-authentication)
 - [Google for Auth0 AI Agents](https://auth0.com/ai/docs/google-sign-in-and-auth)
 - [Auth0 Dev Keys Limitations](https://auth0.com/docs/authenticate/identity-providers/social-identity-providers/devkeys)
+- [Linear OAuth 2.0 authentication](https://linear.app/developers/oauth-2-0-authentication)

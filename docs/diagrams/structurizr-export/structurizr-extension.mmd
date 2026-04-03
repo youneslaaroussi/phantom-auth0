@@ -1,0 +1,30 @@
+graph LR
+  linkStyle default fill:#ffffff
+
+  subgraph diagram ["Container View: Chrome extension"]
+    style diagram fill:#ffffff,stroke:#ffffff
+
+    1["<div style='font-weight: bold'>User</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Uses the browser extension<br />and hosted companion.</div>"]
+    style 1 fill:#08427b,stroke:#052e56,color:#ffffff
+    6("<div style='font-weight: bold'>Hosted server / companion</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Companion UI, pairing,<br />delegated action gateway,<br />Gemini relay, and helper<br />endpoints.</div>")
+    style 6 fill:#1168bd,stroke:#0b4884,color:#ffffff
+
+    subgraph 2 ["Chrome extension"]
+      style 2 fill:#ffffff,stroke:#0b4884,color:#0b4884
+
+      3("<div style='font-weight: bold'>Voice UI + sidepanel</div><div style='font-size: 70%; margin-top: 0px'>[Container: Runs the local agent UX.]</div><div style='font-size: 80%; margin-top:10px'>React/Plasmo</div>")
+      style 3 fill:#438dd5,stroke:#2e6295,color:#ffffff
+      4("<div style='font-weight: bold'>Browser tools</div><div style='font-size: 70%; margin-top: 0px'>[Container: DOM, tabs, CDP, storage, and tab audio capabilities.]</div><div style='font-size: 80%; margin-top:10px'>Chrome APIs</div>")
+      style 4 fill:#438dd5,stroke:#2e6295,color:#ffffff
+      5("<div style='font-weight: bold'>Pair token storage</div><div style='font-size: 70%; margin-top: 0px'>[Container: Stores the pairing token used for delegated gateway requests.]</div><div style='font-size: 80%; margin-top:10px'>chrome.storage</div>")
+      style 5 fill:#438dd5,stroke:#2e6295,color:#ffffff
+    end
+
+    1-. "<div>Uses</div><div style='font-size: 70%'></div>" .->3
+    1-. "<div>Uses</div><div style='font-size: 70%'></div>" .->6
+    3-. "<div>Triggers local browser<br />actions</div><div style='font-size: 70%'></div>" .->4
+    3-. "<div>Reads and writes pair token</div><div style='font-size: 70%'></div>" .->5
+    3-. "<div>Starts pairing and polls<br />status</div><div style='font-size: 70%'></div>" .->6
+    5-. "<div>Authenticates paired gateway<br />requests</div><div style='font-size: 70%'></div>" .->6
+
+  end

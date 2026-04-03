@@ -1,0 +1,40 @@
+graph LR
+  linkStyle default fill:#ffffff
+
+  subgraph diagram ["Container View: Hosted companion"]
+    style diagram fill:#ffffff,stroke:#ffffff
+
+    1["<div style='font-weight: bold'>User</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Starts conversations, pairs<br />the extension, and approves<br />high-risk actions.</div>"]
+    style 1 fill:#020617,stroke:#94a3b8,color:#f8fafc
+    2("<div style='font-weight: bold'>Chrome extension</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Local browser agent that owns<br />voice UX, page context,<br />browser tools, and the paired<br />session.</div>")
+    style 2 fill:#0f172a,stroke:#38bdf8,color:#e0f2fe
+    7("<div style='font-weight: bold'>Auth0</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Authority layer for identity,<br />connected accounts, Token<br />Vault, and CIBA approval.</div>")
+    style 7 fill:#3b2f0b,stroke:#f59e0b,color:#fef3c7
+    8("<div style='font-weight: bold'>Delegated providers</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Google, GitHub, Linear, and<br />Slack APIs reached only after<br />Auth0 delegation.</div>")
+    style 8 fill:#3f1d2e,stroke:#f472b6,color:#fce7f3
+    9("<div style='font-weight: bold'>Google GenAI</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Gemini Live and helper models<br />used by the local agent.</div>")
+    style 9 fill:#312e81,stroke:#818cf8,color:#e0e7ff
+
+    subgraph 3 ["Hosted companion"]
+      style 3 fill:#ffffff,stroke:#475569,color:#475569
+
+      4("<div style='font-weight: bold'>Companion UI</div><div style='font-size: 70%; margin-top: 0px'>[Container: Hosted surface for sign-in, pairing, provider state, and approval visibility.]</div><div style='font-size: 80%; margin-top:10px'>Hono</div>")
+      style 4 fill:#172554,stroke:#60a5fa,color:#dbeafe
+      5("<div style='font-weight: bold'>Delegated gateway</div><div style='font-size: 70%; margin-top: 0px'>[Container: Connected accounts, Token Vault exchange, action history, and approval-aware execution.]</div><div style='font-size: 80%; margin-top:10px'>Hono</div>")
+      style 5 fill:#052e2b,stroke:#34d399,color:#d1fae5
+      6("<div style='font-weight: bold'>Realtime relay</div><div style='font-size: 70%; margin-top: 0px'>[Container: Streams audio and tool traffic to Gemini Live without exposing provider secrets in the extension.]</div><div style='font-size: 80%; margin-top:10px'>WebSocket relay</div>")
+      style 6 fill:#2e1065,stroke:#a78bfa,color:#f3e8ff
+    end
+
+    1-. "<div>Uses the local agent</div><div style='font-size: 70%'>[Voice + browser control]</div>" .->2
+    1-. "<div>Uses the hosted control<br />surface</div><div style='font-size: 70%'>[Pairing + status]</div>" .->4
+    2-. "<div>Delegated tools + paired<br />requests</div><div style='font-size: 70%'>[HTTP]</div>" .->5
+    2-. "<div>Audio stream + tool responses</div><div style='font-size: 70%'>[WebSocket]</div>" .->6
+    2-. "<div>Open companion during setup</div><div style='font-size: 70%'>[Browser tab]</div>" .->4
+    4-. "<div>Login, session state,<br />Guardian readiness</div><div style='font-size: 70%'>[OIDC / Management API]</div>" .->7
+    4-. "<div>Pair approval, account<br />status, action history</div><div style='font-size: 70%'>[HTTP]</div>" .->5
+    5-. "<div>Connected Accounts, Token<br />Vault, CIBA approval</div><div style='font-size: 70%'>[My Account API + Token Vault + CIBA]</div>" .->7
+    5-. "<div>Read, draft, and approved<br />write actions</div><div style='font-size: 70%'>[Provider APIs]</div>" .->8
+    6-. "<div>Realtime voice session</div><div style='font-size: 70%'>[Gemini Live]</div>" .->9
+
+  end

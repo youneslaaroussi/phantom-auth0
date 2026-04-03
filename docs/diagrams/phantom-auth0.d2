@@ -1,0 +1,126 @@
+direction: right
+
+User: {
+  shape: person
+}
+
+"User Browser": {
+  style: {
+    fill: "#F8FAFC"
+    stroke: "#CBD5E1"
+  }
+
+  "Hosted companion tab"
+
+  "Chrome extension": {
+    style: {
+      fill: "#EFF6FF"
+      stroke: "#60A5FA"
+    }
+    "Voice UI + sidepanel"
+    "Browser tools\nDOM, tabs, CDP,\nstorage, tab audio"
+    "Pair token in chrome.storage"
+  }
+}
+
+"Phantom Auth0 server / companion": {
+  style: {
+    fill: "#ECFDF5"
+    stroke: "#34D399"
+  }
+  "Hono app routes"
+  "Companion UI\n/companion"
+  "Pairing state\n/api/pair/*"
+  "Delegated action gateway\n/api/accounts/*\n/api/actions/*"
+  "Gemini Live relay\n/ws/live"
+  "AI helper endpoints\n/api/computer-use\n/api/summarize\n/api/content-action"
+  "In-memory state\nsessions, pair codes,\nflows, action history"
+}
+
+"Auth0 tenant": {
+  style: {
+    fill: "#FFFBEB"
+    stroke: "#F59E0B"
+  }
+  "Universal Login"
+  "Web session\naccess token + refresh token"
+  "My Account API"
+  "Token Vault"
+  "Async auth / CIBA"
+  "Guardian enrollment ticket"
+}
+
+"Delegated providers": {
+  style: {
+    fill: "#FAF5FF"
+    stroke: "#A855F7"
+  }
+  "Google APIs\nCalendar, Gmail, Docs, Drive"
+  "GitHub REST API"
+  "Linear GraphQL API"
+  "Slack Web API"
+}
+
+"Google GenAI": {
+  style: {
+    fill: "#F5F3FF"
+    stroke: "#8B5CF6"
+  }
+  "Gemini Live API"
+  "Gemini models\ncomputer use, summarize,\ncontent actions"
+}
+
+User -> "Voice UI + sidepanel": "uses"
+User -> "Hosted companion tab": "uses"
+
+"Voice UI + sidepanel" -> "Browser tools\nDOM, tabs, CDP,\nstorage, tab audio": "local actions"
+"Voice UI + sidepanel" -> "Pair token in chrome.storage": "stores pair token"
+
+"Hosted companion tab" -> "Companion UI\n/companion": "open"
+"Companion UI\n/companion" -> "Hono app routes": "served by"
+
+"Voice UI + sidepanel" -> "Pairing state\n/api/pair/*": "pair start / status"
+"Hosted companion tab" -> "Pairing state\n/api/pair/*": "approve pair"
+"Pairing state\n/api/pair/*" -> "In-memory state\nsessions, pair codes,\nflows, action history": "persist"
+"Pair token in chrome.storage" -> "Delegated action gateway\n/api/accounts/*\n/api/actions/*": "x-phantom-pair-token"
+
+"Hosted companion tab" -> "Universal Login": "/auth/login"
+"Universal Login" -> "Web session\naccess token + refresh token": "issues session"
+"Web session\naccess token + refresh token" -> "Companion UI\n/companion": "browser session"
+"Web session\naccess token + refresh token" -> "Delegated action gateway\n/api/accounts/*\n/api/actions/*": "web auth"
+
+"Companion UI\n/companion" -> "Delegated action gateway\n/api/accounts/*\n/api/actions/*": "accounts, actions, MFA state"
+"Delegated action gateway\n/api/accounts/*\n/api/actions/*" -> "In-memory state\nsessions, pair codes,\nflows, action history": "action history"
+
+"Delegated action gateway\n/api/accounts/*\n/api/actions/*" -> "My Account API": "list/connect/disconnect"
+"My Account API" -> "Google APIs\nCalendar, Gmail, Docs, Drive": "connected-account flow"
+"My Account API" -> "GitHub REST API": "connected-account flow"
+"My Account API" -> "Linear GraphQL API": "connected-account flow"
+"My Account API" -> "Slack Web API": "connected-account flow"
+
+"Delegated action gateway\n/api/accounts/*\n/api/actions/*" -> "Token Vault": "exchange Auth0 token"
+"Token Vault" -> "Google APIs\nCalendar, Gmail, Docs, Drive": "provider token"
+"Token Vault" -> "GitHub REST API": "provider token"
+"Token Vault" -> "Linear GraphQL API": "provider token"
+"Token Vault" -> "Slack Web API": "provider token"
+
+"Voice UI + sidepanel" -> "Delegated action gateway\n/api/accounts/*\n/api/actions/*": "calendar, gmail, github,\nlinear, slack tools"
+"Delegated action gateway\n/api/accounts/*\n/api/actions/*" -> "Google APIs\nCalendar, Gmail, Docs, Drive": "read + draft actions"
+"Delegated action gateway\n/api/accounts/*\n/api/actions/*" -> "GitHub REST API": "read actions"
+"Delegated action gateway\n/api/accounts/*\n/api/actions/*" -> "Linear GraphQL API": "read actions"
+
+"Delegated action gateway\n/api/accounts/*\n/api/actions/*" -> "Async auth / CIBA": "state-changing actions"
+"Async auth / CIBA" -> "Delegated action gateway\n/api/accounts/*\n/api/actions/*": "approve / reject"
+"Delegated action gateway\n/api/accounts/*\n/api/actions/*" -> "Google APIs\nCalendar, Gmail, Docs, Drive": "after approval"
+"Delegated action gateway\n/api/accounts/*\n/api/actions/*" -> "GitHub REST API": "after approval"
+"Delegated action gateway\n/api/accounts/*\n/api/actions/*" -> "Linear GraphQL API": "after approval"
+"Delegated action gateway\n/api/accounts/*\n/api/actions/*" -> "Slack Web API": "after approval"
+
+"Companion UI\n/companion" -> "Guardian enrollment ticket": "Guardian setup"
+"Guardian enrollment ticket" -> "Async auth / CIBA": "approval readiness"
+
+"Voice UI + sidepanel" -> "Gemini Live relay\n/ws/live": "audio + tool responses"
+"Gemini Live relay\n/ws/live" -> "Gemini Live API": "relay websocket"
+
+"Voice UI + sidepanel" -> "AI helper endpoints\n/api/computer-use\n/api/summarize\n/api/content-action": "automation + summaries"
+"AI helper endpoints\n/api/computer-use\n/api/summarize\n/api/content-action" -> "Gemini models\ncomputer use, summarize,\ncontent actions": "model calls"

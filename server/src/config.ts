@@ -31,6 +31,7 @@ export const appConfig = {
   tokenVault: {
     googleConnection: process.env.AUTH0_GOOGLE_CONNECTION || "google-oauth2",
     githubConnection: process.env.AUTH0_GITHUB_CONNECTION || "github",
+    linearConnection: process.env.AUTH0_LINEAR_CONNECTION || "linear",
     slackConnection: process.env.AUTH0_SLACK_CONNECTION || "slack",
   },
 };

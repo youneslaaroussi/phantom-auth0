@@ -237,6 +237,35 @@ export function getToolDeclarations(): LiveToolDeclaration[] {
         },
       },
       {
+        name: "listGoogleDocs",
+        description: "List recent Google Docs using the connected Google account. Requires the companion app to be paired and Google to be connected.",
+        parameters: { type: "object", properties: {} },
+      },
+      {
+        name: "prepareGoogleDoc",
+        description: "Prepare a Google Doc draft without creating it yet.",
+        parameters: {
+          type: "object",
+          properties: {
+            title: { type: "string", description: "Document title" },
+            content: { type: "string", description: "Initial document body content" },
+          },
+          required: ["title", "content"],
+        },
+      },
+      {
+        name: "createGoogleDoc",
+        description: "Create a Google Doc with the connected Google account. This is a state-changing action and always requires approval in the companion app.",
+        parameters: {
+          type: "object",
+          properties: {
+            title: { type: "string", description: "Document title" },
+            content: { type: "string", description: "Initial document body content" },
+          },
+          required: ["title", "content"],
+        },
+      },
+      {
         name: "listGitHubRepos",
         description: "List recent GitHub repositories using the connected GitHub account. Requires the companion app to be paired and GitHub to be connected.",
         parameters: { type: "object", properties: {} },
@@ -289,6 +318,37 @@ export function getToolDeclarations(): LiveToolDeclaration[] {
             message: { type: "string", description: "Message to preview" },
           },
           required: ["channel", "message"],
+        },
+      },
+      {
+        name: "listLinearTeams",
+        description: "List Linear teams using the connected Linear account. Requires the companion app to be paired and Linear to be connected.",
+        parameters: { type: "object", properties: {} },
+      },
+      {
+        name: "prepareLinearIssue",
+        description: "Prepare a Linear issue draft without creating it yet.",
+        parameters: {
+          type: "object",
+          properties: {
+            teamId: { type: "string", description: "Linear team ID" },
+            title: { type: "string", description: "Issue title" },
+            description: { type: "string", description: "Issue description" },
+          },
+          required: ["teamId", "title", "description"],
+        },
+      },
+      {
+        name: "createLinearIssue",
+        description: "Create a Linear issue using the connected Linear account. This is a state-changing action and always requires approval in the companion app.",
+        parameters: {
+          type: "object",
+          properties: {
+            teamId: { type: "string", description: "Linear team ID" },
+            title: { type: "string", description: "Issue title" },
+            description: { type: "string", description: "Issue description" },
+          },
+          required: ["teamId", "title", "description"],
         },
       },
       {
@@ -913,20 +973,32 @@ async function executeToolInternal(
 
     case "getCalendarAvailability":
     case "draftEmailFromContext":
+    case "listGoogleDocs":
+    case "prepareGoogleDoc":
+    case "createGoogleDoc":
     case "listGitHubRepos":
     case "prepareGitHubIssue":
     case "createGitHubIssue":
     case "prepareSlackUpdate":
+    case "listLinearTeams":
+    case "prepareLinearIssue":
+    case "createLinearIssue":
     case "sendEmail":
     case "createCalendarEvent":
     case "postSlackMessage": {
       const actionMap: Record<string, GatewayActionType> = {
         getCalendarAvailability: "calendar_read",
         draftEmailFromContext: "gmail_draft",
+        listGoogleDocs: "google_doc_list",
+        prepareGoogleDoc: "google_doc_prepare",
+        createGoogleDoc: "google_doc_create",
         listGitHubRepos: "github_repo_list",
         prepareGitHubIssue: "github_issue_prepare",
         createGitHubIssue: "github_issue_create",
         prepareSlackUpdate: "slack_prepare",
+        listLinearTeams: "linear_team_list",
+        prepareLinearIssue: "linear_issue_prepare",
+        createLinearIssue: "linear_issue_create",
         sendEmail: "gmail_send",
         createCalendarEvent: "calendar_create",
         postSlackMessage: "slack_post",

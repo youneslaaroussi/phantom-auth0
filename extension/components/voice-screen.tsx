@@ -35,9 +35,15 @@ const TOOL_LABELS: Record<string, string> = {
   highlight: "Highlighting",
   computerAction: "Performing action",
   contentAction: "Processing content",
+  listGoogleDocs: "Listing Google Docs",
+  prepareGoogleDoc: "Preparing Google Doc",
+  createGoogleDoc: "Creating Google Doc",
   listGitHubRepos: "Listing GitHub repos",
   prepareGitHubIssue: "Preparing GitHub issue",
   createGitHubIssue: "Creating GitHub issue",
+  listLinearTeams: "Listing Linear teams",
+  prepareLinearIssue: "Preparing Linear issue",
+  createLinearIssue: "Creating Linear issue",
   rememberThis: "Saving to memory",
   recallMemory: "Recalling memory",
   updateUserProfile: "Updating profile",
@@ -51,6 +57,7 @@ function humanizeProviderName(name: string): string {
   const normalized = name.toLowerCase();
   if (normalized.includes("google")) return "Google";
   if (normalized.includes("github")) return "GitHub";
+  if (normalized.includes("linear")) return "Linear";
   if (normalized.includes("slack")) return "Slack";
   return name.replace(/[-_]+/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 }
@@ -209,7 +216,8 @@ export const VoiceScreen = ({ onOpenSettings, onOpenTraces, onOpenDom, onOpenMem
     : "bg-g-surface-container-high hover:bg-g-outline-variant";
   const googleConnected = connectedAccounts.some((name) => name.includes("google"));
   const githubConnected = connectedAccounts.some((name) => name.includes("github"));
-  const auth0Active = pairStatus === "paired" || googleConnected || githubConnected;
+  const linearConnected = connectedAccounts.some((name) => name.includes("linear"));
+  const auth0Active = pairStatus === "paired" || googleConnected || githubConnected || linearConnected;
   const boundaryAccent = auth0Active ? "rgba(104,229,255,0.18)" : "rgba(104,229,255,0.08)";
   const accountLabels = connectedAccounts.map(humanizeProviderName);
   const actorLabel = pairedActor || (pairStatus === "paired" ? "Actor attached" : "Not signed in");

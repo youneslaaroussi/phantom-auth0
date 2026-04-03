@@ -75,11 +75,15 @@ export function useAuth0CompanionStatus() {
       const status = await getConnectedAccountsStatus();
       const connections = Array.isArray(status.connections)
         ? status.connections
-            .map((connection) =>
-              connection && typeof connection === "object" && "name" in connection
-                ? String((connection as { name?: unknown }).name || "")
-                : ""
-            )
+            .map((connection) => {
+              if (!connection || typeof connection !== "object") return "";
+              const record = connection as {
+                name?: unknown;
+                connection?: unknown;
+                provider?: unknown;
+              };
+              return String(record.connection || record.name || record.provider || "");
+            })
             .filter(Boolean)
         : [];
       setConnectedAccounts(connections);
@@ -202,7 +206,7 @@ export function useAuth0CompanionStatus() {
   }, [refreshAuth0Status]);
 
   const handleConnectProvider = useCallback(
-    async (provider: "google" | "github" | "slack") => {
+    async (provider: "google" | "github" | "linear" | "slack") => {
       try {
         const result = await startConnectedAccountLink(provider);
         const connectUri =

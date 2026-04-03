@@ -9,9 +9,15 @@ export type GatewayActionType =
   | "gmail_draft"
   | "gmail_send"
   | "calendar_create"
+  | "google_doc_list"
+  | "google_doc_prepare"
+  | "google_doc_create"
   | "github_repo_list"
   | "github_issue_prepare"
   | "github_issue_create"
+  | "linear_team_list"
+  | "linear_issue_prepare"
+  | "linear_issue_create"
   | "slack_prepare"
   | "slack_post";
 
@@ -195,7 +201,7 @@ export async function approvePairingWithWebSession(code?: string): Promise<Recor
 }
 
 export async function startConnectedAccountLink(
-  provider: "google" | "github" | "slack"
+  provider: "google" | "github" | "linear" | "slack"
 ): Promise<Record<string, unknown>> {
   return gatewayFetch(`/api/accounts/${provider}/connect`, { method: "POST" });
 }

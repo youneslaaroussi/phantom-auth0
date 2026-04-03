@@ -1,0 +1,108 @@
+flowchart LR
+  user["User"]
+
+  subgraph browser["User Browser"]
+    web["Hosted companion tab"]
+
+    subgraph extension["Chrome extension"]
+      ui["Voice UI + sidepanel"]
+      localtools["Browser tools<br/>DOM, tabs, CDP,<br/>storage, tab audio"]
+      pairtoken["Pair token in chrome.storage"]
+    end
+  end
+
+  subgraph server["Phantom Auth0 server / companion"]
+    hono["Hono app routes"]
+    companion["Companion UI<br/>/companion"]
+    pairing["Pairing state<br/>/api/pair/*"]
+    gateway["Delegated action gateway<br/>/api/accounts/*<br/>/api/actions/*"]
+    relay["Gemini Live relay<br/>/ws/live"]
+    aihelpers["AI helper endpoints<br/>/api/computer-use<br/>/api/summarize<br/>/api/content-action"]
+    memstate["In-memory state<br/>sessions, pair codes,<br/>flows, action history"]
+  end
+
+  subgraph auth0["Auth0 tenant"]
+    login["Universal Login"]
+    session["Web session<br/>access token + refresh token"]
+    myacct["My Account API"]
+    vault["Token Vault"]
+    ciba["Async auth / CIBA"]
+    guardian["Guardian enrollment ticket"]
+  end
+
+  subgraph providers["Delegated providers"]
+    google["Google APIs<br/>Calendar, Gmail, Docs, Drive"]
+    github["GitHub REST API"]
+    linear["Linear GraphQL API"]
+    slack["Slack Web API"]
+  end
+
+  subgraph genai["Google GenAI"]
+    live["Gemini Live API"]
+    models["Gemini models<br/>computer use, summarize,<br/>content actions"]
+  end
+
+  user --> ui
+  user --> web
+
+  ui --> localtools
+  ui --> pairtoken
+
+  web --> companion
+  companion --> hono
+
+  ui -->|"pair start / status"| pairing
+  web -->|"approve pair"| pairing
+  pairing --> memstate
+  pairtoken -->|"x-phantom-pair-token"| gateway
+
+  web -->|"/auth/login"| login
+  login --> session
+  session --> companion
+  session --> gateway
+
+  companion -->|"accounts, actions, MFA state"| gateway
+  gateway --> memstate
+
+  gateway -->|"list/connect/disconnect"| myacct
+  myacct -->|"connected-account flow"| google
+  myacct -->|"connected-account flow"| github
+  myacct -->|"connected-account flow"| linear
+  myacct -->|"connected-account flow"| slack
+
+  gateway -->|"exchange Auth0 token"| vault
+  vault --> google
+  vault --> github
+  vault --> linear
+  vault --> slack
+
+  ui -->|"calendar, gmail, github,\nlinear, slack tools"| gateway
+  gateway -->|"read + draft actions"| google
+  gateway -->|"read actions"| github
+  gateway -->|"read actions"| linear
+
+  gateway -->|"state-changing actions"| ciba
+  ciba -->|"approve / reject"| gateway
+  gateway -->|"after approval"| google
+  gateway -->|"after approval"| github
+  gateway -->|"after approval"| linear
+  gateway -->|"after approval"| slack
+
+  companion -->|"Guardian setup"| guardian
+  guardian --> ciba
+
+  ui -->|"audio + tool responses"| relay
+  relay --> live
+
+  ui -->|"automation + summaries"| aihelpers
+  aihelpers --> models
+
+  classDef ext fill:#eff6ff,stroke:#60a5fa,color:#0f172a;
+  classDef service fill:#ecfdf5,stroke:#34d399,color:#052e16;
+  classDef auth fill:#fffbeb,stroke:#f59e0b,color:#451a03;
+  classDef external fill:#faf5ff,stroke:#a855f7,color:#3b0764;
+
+  class web,ui,localtools,pairtoken ext;
+  class hono,companion,pairing,gateway,relay,aihelpers,memstate service;
+  class login,session,myacct,vault,ciba,guardian auth;
+  class google,github,linear,slack,live,models external;

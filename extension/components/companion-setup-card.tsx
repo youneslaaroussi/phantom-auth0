@@ -23,7 +23,7 @@ interface CompanionSetupCardProps {
   onSignOut: () => void | Promise<void>;
   onPairExtension: () => void | Promise<void>;
   onApprovePairing: () => void | Promise<void>;
-  onConnectProvider: (provider: "google" | "github" | "slack") => void | Promise<void>;
+  onConnectProvider: (provider: "google" | "github" | "linear" | "slack") => void | Promise<void>;
   onRefresh: () => void | Promise<void>;
 }
 
@@ -31,6 +31,7 @@ function humanizeProvider(name: string): string {
   const normalized = name.toLowerCase();
   if (normalized.includes("google")) return "Google";
   if (normalized.includes("github")) return "GitHub";
+  if (normalized.includes("linear")) return "Linear";
   if (normalized.includes("slack")) return "Slack";
   return name.replace(/[-_]+/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 }
@@ -193,7 +194,7 @@ export const CompanionSetupCard = ({
         </div>
 
         <div className="flex flex-wrap gap-2 mb-3">
-          {(["google", "github", "slack"] as const).map((provider) => (
+          {(["google", "github", "linear", "slack"] as const).map((provider) => (
             <button
               key={provider}
               onClick={() => void onConnectProvider(provider)}
@@ -206,7 +207,7 @@ export const CompanionSetupCard = ({
                 opacity: pairStatus === "paired" ? 1 : 0.5,
               }}
             >
-              Connect {provider === "github" ? "GitHub" : provider === "slack" ? "Slack" : "Google"}
+              Connect {provider === "github" ? "GitHub" : provider === "linear" ? "Linear" : provider === "slack" ? "Slack" : "Google"}
             </button>
           ))}
         </div>

@@ -194,6 +194,8 @@ app.post("/api/accounts/:provider/connect", async (c) => {
     const provider =
       providerParam === "slack"
         ? "slack"
+        : providerParam === "linear"
+          ? "linear"
         : providerParam === "github"
           ? "github"
           : "google";

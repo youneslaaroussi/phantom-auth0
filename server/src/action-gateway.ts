@@ -20,12 +20,14 @@ import {
 
 type ActorIdentity = ReturnType<typeof actorIdentity>;
 
-function providerLabel(provider: "google" | "github" | "slack"): string {
+function providerLabel(provider: "google" | "github" | "linear" | "slack"): string {
   switch (provider) {
     case "google":
       return "Google";
     case "github":
       return "GitHub";
+    case "linear":
+      return "Linear";
     case "slack":
       return "Slack";
   }
@@ -33,7 +35,7 @@ function providerLabel(provider: "google" | "github" | "slack"): string {
 
 async function getDelegatedProviderAccessToken(
   identity: ActorIdentity,
-  provider: "google" | "github" | "slack"
+  provider: "google" | "github" | "linear" | "slack"
 ): Promise<string> {
   if (!identity.refreshToken) {
     throw new Error(
@@ -93,12 +95,14 @@ function findActiveMatchingAction(params: {
   );
 }
 
-function providerConnectionName(provider: "google" | "github" | "slack"): string {
+function providerConnectionName(provider: "google" | "github" | "linear" | "slack"): string {
   switch (provider) {
     case "google":
       return appConfig.tokenVault.googleConnection;
     case "github":
       return appConfig.tokenVault.githubConnection;
+    case "linear":
+      return appConfig.tokenVault.linearConnection;
     case "slack":
     default:
       return appConfig.tokenVault.slackConnection;
@@ -189,7 +193,7 @@ export async function disconnectConnectedAccount(params: {
 
 export async function startConnectedAccountFlow(params: {
   actor: Actor;
-  provider: "google" | "github" | "slack";
+  provider: "google" | "github" | "linear" | "slack";
 }) {
   const identity = actorIdentity(params.actor);
   if (!identity.refreshToken) {
@@ -209,11 +213,15 @@ export async function startConnectedAccountFlow(params: {
           "profile",
           "email",
           "https://www.googleapis.com/auth/calendar",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/drive.metadata.readonly",
           "https://www.googleapis.com/auth/gmail.compose",
           "https://www.googleapis.com/auth/gmail.send",
         ]
       : params.provider === "github"
         ? ["read:user", "user:email", "repo"]
+        : params.provider === "linear"
+          ? ["read", "issues:create"]
       : ["openid", "profile", "email", "chat:write"];
 
   const response = await fetch(`${audience.replace(/\/$/, "")}/v1/connected-accounts/connect`, {
@@ -361,6 +369,88 @@ async function executeGoogleAvailability(identity: ActorIdentity, payload: Recor
     throw new Error(typeof json.error === "object" ? JSON.stringify(json.error) : "Calendar availability lookup failed");
   }
   return json;
+}
+
+async function executeGoogleDocsList(identity: ActorIdentity) {
+  const token = await getDelegatedProviderAccessToken(identity, "google");
+  const params = new URLSearchParams({
+    q: "mimeType='application/vnd.google-apps.document' and trashed=false",
+    orderBy: "modifiedTime desc",
+    pageSize: "10",
+    fields: "files(id,name,webViewLink,modifiedTime)",
+  });
+  const response = await fetch(`https://www.googleapis.com/drive/v3/files?${params.toString()}`, {
+    headers: {
+      authorization: `Bearer ${token}`,
+    },
+  });
+  const json = (await response.json()) as Record<string, unknown>;
+  if (!response.ok) {
+    throw new Error(typeof json.error === "object" ? JSON.stringify(json.error) : "Failed to list Google Docs");
+  }
+  return {
+    files: Array.isArray(json.files) ? json.files : [],
+  };
+}
+
+async function executeGoogleDocPrepare(_identity: ActorIdentity, payload: Record<string, unknown>) {
+  return {
+    preview: {
+      title: payload.title,
+      content: payload.content,
+    },
+  };
+}
+
+async function executeGoogleDocCreate(identity: ActorIdentity, payload: Record<string, unknown>) {
+  const token = await getDelegatedProviderAccessToken(identity, "google");
+  const createResponse = await fetch("https://docs.googleapis.com/v1/documents", {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${token}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      title: String(payload.title || "Untitled document"),
+    }),
+  });
+  const createJson = (await createResponse.json()) as Record<string, unknown>;
+  if (!createResponse.ok) {
+    throw new Error(typeof createJson.error === "object" ? JSON.stringify(createJson.error) : "Failed to create Google Doc");
+  }
+
+  const documentId = String(createJson.documentId || "");
+  const content = String(payload.content || "").trim();
+
+  if (documentId && content) {
+    const updateResponse = await fetch(`https://docs.googleapis.com/v1/documents/${encodeURIComponent(documentId)}:batchUpdate`, {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${token}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        requests: [
+          {
+            insertText: {
+              location: { index: 1 },
+              text: content,
+            },
+          },
+        ],
+      }),
+    });
+    const updateJson = (await updateResponse.json()) as Record<string, unknown>;
+    if (!updateResponse.ok) {
+      throw new Error(typeof updateJson.error === "object" ? JSON.stringify(updateJson.error) : "Failed to populate Google Doc");
+    }
+  }
+
+  return {
+    documentId,
+    title: createJson.title,
+    url: documentId ? `https://docs.google.com/document/d/${documentId}/edit` : undefined,
+  };
 }
 
 async function executeGoogleDraft(identity: ActorIdentity, payload: Record<string, unknown>) {
@@ -512,6 +602,104 @@ async function executeGitHubIssueCreate(identity: ActorIdentity, payload: Record
   };
 }
 
+async function executeLinearTeamsList(identity: ActorIdentity) {
+  const token = await getDelegatedProviderAccessToken(identity, "linear");
+  const response = await fetch("https://api.linear.app/graphql", {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${token}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      query: `
+        query LinearTeamsForViewer {
+          teams {
+            nodes {
+              id
+              key
+              name
+            }
+          }
+        }
+      `,
+    }),
+  });
+  const json = (await response.json()) as Record<string, unknown>;
+  if (!response.ok) {
+    throw new Error("Failed to list Linear teams");
+  }
+  if (Array.isArray(json.errors) && json.errors.length) {
+    throw new Error(JSON.stringify(json.errors));
+  }
+  const data = (json.data && typeof json.data === "object" ? json.data : {}) as Record<string, unknown>;
+  const teams = (data.teams && typeof data.teams === "object" ? data.teams : {}) as Record<string, unknown>;
+  return {
+    teams: Array.isArray(teams.nodes) ? teams.nodes : [],
+  };
+}
+
+async function executeLinearIssuePrepare(_identity: ActorIdentity, payload: Record<string, unknown>) {
+  return {
+    preview: {
+      teamId: payload.teamId,
+      title: payload.title,
+      description: payload.description,
+    },
+  };
+}
+
+async function executeLinearIssueCreate(identity: ActorIdentity, payload: Record<string, unknown>) {
+  const teamId = String(payload.teamId || "");
+  if (!teamId) {
+    throw new Error("teamId is required to create a Linear issue");
+  }
+  const token = await getDelegatedProviderAccessToken(identity, "linear");
+  const response = await fetch("https://api.linear.app/graphql", {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${token}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      query: `
+        mutation LinearIssueCreate($input: IssueCreateInput!) {
+          issueCreate(input: $input) {
+            success
+            issue {
+              id
+              identifier
+              title
+              url
+            }
+          }
+        }
+      `,
+      variables: {
+        input: {
+          teamId,
+          title: String(payload.title || ""),
+          description: String(payload.description || ""),
+        },
+      },
+    }),
+  });
+  const json = (await response.json()) as Record<string, unknown>;
+  if (!response.ok) {
+    throw new Error("Failed to create Linear issue");
+  }
+  if (Array.isArray(json.errors) && json.errors.length) {
+    throw new Error(JSON.stringify(json.errors));
+  }
+  const data = (json.data && typeof json.data === "object" ? json.data : {}) as Record<string, unknown>;
+  const issueCreate = (data.issueCreate && typeof data.issueCreate === "object" ? data.issueCreate : {}) as Record<string, unknown>;
+  if (issueCreate.success !== true) {
+    throw new Error("Linear issue creation was not successful");
+  }
+  return issueCreate.issue && typeof issueCreate.issue === "object"
+    ? (issueCreate.issue as Record<string, unknown>)
+    : {};
+}
+
 async function executeSlackPost(identity: ActorIdentity, payload: Record<string, unknown>) {
   const token = await getDelegatedProviderAccessToken(identity, "slack");
   const response = await fetch("https://slack.com/api/chat.postMessage", {
@@ -542,12 +730,24 @@ function buildSummary(type: ExternalActionType, payload: Record<string, unknown>
       return `Send email "${payload.subject}"`;
     case "calendar_create":
       return `Create calendar event "${payload.summary}"`;
+    case "google_doc_list":
+      return "List Google Docs";
+    case "google_doc_prepare":
+      return `Prepare Google Doc "${payload.title}"`;
+    case "google_doc_create":
+      return `Create Google Doc "${payload.title}"`;
     case "github_repo_list":
       return "List GitHub repositories";
     case "github_issue_prepare":
       return `Prepare GitHub issue "${payload.title}"`;
     case "github_issue_create":
       return `Create GitHub issue "${payload.title}"`;
+    case "linear_team_list":
+      return "List Linear teams";
+    case "linear_issue_prepare":
+      return `Prepare Linear issue "${payload.title}"`;
+    case "linear_issue_create":
+      return `Create Linear issue "${payload.title}"`;
     case "slack_prepare":
       return `Prepare Slack update for ${payload.channel}`;
     case "slack_post":
@@ -561,7 +761,9 @@ function requiresApproval(type: ExternalActionType): boolean {
   return (
     type === "gmail_send" ||
     type === "calendar_create" ||
+    type === "google_doc_create" ||
     type === "github_issue_create" ||
+    type === "linear_issue_create" ||
     type === "slack_post"
   );
 }
@@ -570,6 +772,12 @@ async function executeImmediate(type: ExternalActionType, identity: ActorIdentit
   switch (type) {
     case "calendar_read":
       return executeGoogleAvailability(identity, payload);
+    case "google_doc_list":
+      return executeGoogleDocsList(identity);
+    case "google_doc_prepare":
+      return executeGoogleDocPrepare(identity, payload);
+    case "google_doc_create":
+      return executeGoogleDocCreate(identity, payload);
     case "gmail_draft":
       return executeGoogleDraft(identity, payload);
     case "gmail_send":
@@ -582,6 +790,12 @@ async function executeImmediate(type: ExternalActionType, identity: ActorIdentit
       return executeGitHubIssuePrepare(identity, payload);
     case "github_issue_create":
       return executeGitHubIssueCreate(identity, payload);
+    case "linear_team_list":
+      return executeLinearTeamsList(identity);
+    case "linear_issue_prepare":
+      return executeLinearIssuePrepare(identity, payload);
+    case "linear_issue_create":
+      return executeLinearIssueCreate(identity, payload);
     case "slack_prepare":
       return executeSlackPrepare(identity, payload);
     case "slack_post":

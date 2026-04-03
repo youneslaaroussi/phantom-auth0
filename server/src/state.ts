@@ -33,7 +33,7 @@ export type PairSession = {
 export type ConnectedAccountFlow = {
   id: string;
   authSession: string;
-  provider: "google" | "github" | "slack";
+  provider: "google" | "github" | "linear" | "slack";
   redirectUri: string;
   myAccountAccessToken: string;
   createdAt: number;
@@ -44,9 +44,15 @@ export type ExternalActionType =
   | "gmail_draft"
   | "gmail_send"
   | "calendar_create"
+  | "google_doc_list"
+  | "google_doc_prepare"
+  | "google_doc_create"
   | "github_repo_list"
   | "github_issue_prepare"
   | "github_issue_create"
+  | "linear_team_list"
+  | "linear_issue_prepare"
+  | "linear_issue_create"
   | "slack_prepare"
   | "slack_post";
 
