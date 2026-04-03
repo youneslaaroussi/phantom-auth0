@@ -1,6 +1,6 @@
 # Phantom Auth0
 
-Phantom Auth0 is an Auth0-first hackathon build for `Authorized to Act: Auth0 for AI Agents`.
+Phantom Auth0 is an Auth0-first hackathon build for [`Authorized to Act: Auth0 for AI Agents`](https://authorizedtoact.devpost.com/).
 
 It reframes Phantom as a restricted local browser agent that can operate across external apps through a hosted Auth0 companion surface instead of raw third-party credentials embedded in the client. The core idea is simple:
 
@@ -17,7 +17,7 @@ This repo is intentionally isolated from the original Phantom repo, deployment i
 
 For a full end-to-end tenant rebuild guide, use:
 
-- [docs/SETUP.md](/Users/mac/dev/phantom-auth0/docs/SETUP.md)
+- [docs/SETUP.md](https://github.com/youneslaaroussi/phantom-auth0/blob/main/docs/SETUP.md)
 
 ## Why This Is An Auth0 Project
 
@@ -182,30 +182,6 @@ The project deliberately separates local execution from delegated authority.
 That separation is the primary significant update in this hackathon repo.
 
 ![Local runtime vs hosted authority](docs/diagrams/ai-experiments/extension-auth0-provider-lanes.jpeg)
-
-## Recommended Judge Story
-
-The shortest reliable evaluation path is still the Google path:
-
-1. pair the extension
-2. show Auth0 status in the extension
-3. show Google connected in the companion app
-4. ask Phantom to check calendar availability
-5. ask Phantom to create a Gmail draft
-6. ask Phantom to create a Google Doc
-7. show delegated action history
-8. if CIBA is configured, trigger one approval-required action
-
-```mermaid
-flowchart LR
-  pair["Pair extension"] --> signin["Sign in with Auth0"]
-  signin --> connect["Connect Google"]
-  connect --> read["Calendar availability"]
-  read --> draft["Gmail draft"]
-  draft --> doc["Google Doc create"]
-  doc --> history["Show action history"]
-  history --> approve["Trigger approval-required action"]
-```
 
 ## Local Development
 
