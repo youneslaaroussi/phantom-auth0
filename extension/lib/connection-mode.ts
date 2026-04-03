@@ -9,8 +9,8 @@ const COMPANION_URL_KEY = "phantom_companion_url";
 export type ConnectionMode = "hosted" | "byok";
 
 // Default local dev URLs for the isolated Auth0 companion build.
-const DEFAULT_SERVER_URL = "ws://localhost:8080";
-const DEFAULT_COMPANION_URL = "http://localhost:8080/companion";
+const DEFAULT_SERVER_URL = "wss://phantom-auth0-server-pio3n3nsna-uc.a.run.app";
+const DEFAULT_COMPANION_URL = "https://phantom-auth0-server-pio3n3nsna-uc.a.run.app/companion";
 
 export async function getConnectionMode(): Promise<ConnectionMode> {
   return new Promise((resolve) => {

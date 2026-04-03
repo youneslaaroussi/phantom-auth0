@@ -9,6 +9,11 @@ export type GatewayActionType =
   | "gmail_draft"
   | "gmail_send"
   | "calendar_create"
+  | "google_task_list"
+  | "google_task_create"
+  | "google_sheet_list"
+  | "google_sheet_create"
+  | "google_sheet_append"
   | "google_doc_list"
   | "google_doc_prepare"
   | "google_doc_create"
@@ -31,6 +36,66 @@ export type GuardianEnrollmentTicket = {
   ticketUrl: string;
   retryPrompt: string;
 };
+
+const RECENT_ACTION_WINDOW_MS = 1000 * 60 * 10;
+const recentActionIdsByFingerprint = new Map<
+  string,
+  { actionId: string; updatedAt: number }
+>();
+
+function stableValue(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(stableValue);
+  }
+
+  if (value && typeof value === "object") {
+    return Object.keys(value as Record<string, unknown>)
+      .sort()
+      .reduce<Record<string, unknown>>((acc, key) => {
+        acc[key] = stableValue((value as Record<string, unknown>)[key]);
+        return acc;
+      }, {});
+  }
+
+  return value;
+}
+
+function actionFingerprint(
+  type: GatewayActionType,
+  payload: Record<string, unknown>
+): string {
+  return JSON.stringify({
+    type,
+    payload: stableValue(payload),
+  });
+}
+
+function rememberActionId(
+  type: GatewayActionType,
+  payload: Record<string, unknown>,
+  actionId: unknown
+): void {
+  if (typeof actionId !== "string" || !actionId) {
+    return;
+  }
+
+  recentActionIdsByFingerprint.set(actionFingerprint(type, payload), {
+    actionId,
+    updatedAt: Date.now(),
+  });
+}
+
+function forgetActionId(type: GatewayActionType, payload: Record<string, unknown>): void {
+  recentActionIdsByFingerprint.delete(actionFingerprint(type, payload));
+}
+
+function approvalRequestedResult(result: Record<string, unknown>): Record<string, unknown> {
+  return {
+    ...result,
+    result:
+      "Approval requested. Check Auth0 Guardian on your phone and the companion status, then tell me once you approve it so I can retry or check the status.",
+  };
+}
 
 function isGuardianSetupError(message: string): boolean {
   const normalized = message.toLowerCase();
@@ -210,24 +275,67 @@ export async function planGatewayAction(
   type: GatewayActionType,
   payload: Record<string, unknown>
 ): Promise<Record<string, unknown>> {
+  const fingerprint = actionFingerprint(type, payload);
+  const recent = recentActionIdsByFingerprint.get(fingerprint);
+
+  if (recent) {
+    if (Date.now() - recent.updatedAt > RECENT_ACTION_WINDOW_MS) {
+      recentActionIdsByFingerprint.delete(fingerprint);
+    } else {
+      const existing = await getGatewayActionStatus(recent.actionId).catch(() => null);
+      if (existing && typeof existing === "object") {
+        recent.updatedAt = Date.now();
+
+        if (existing.status === "pending_auth0") {
+          return approvalRequestedResult(existing);
+        }
+
+        if (
+          existing.status === "completed" ||
+          existing.status === "failed" ||
+          existing.status === "rejected"
+        ) {
+          await clearGuardianSetupState();
+          return existing;
+        }
+
+        if (existing.status === "pending_approval" && typeof existing.id === "string") {
+          const approval = await gatewayFetch(`/api/actions/${existing.id}/approve-request`, {
+            method: "POST",
+          });
+
+          await clearGuardianSetupState();
+
+          return approvalRequestedResult({
+            ...existing,
+            approval,
+          });
+        }
+      }
+    }
+  }
+
   const planned = await gatewayFetch("/api/actions/plan", {
     method: "POST",
     body: JSON.stringify({ type, payload }),
   });
 
+  rememberActionId(type, payload, planned.id);
+
   if (planned.status !== "pending_approval") {
     if (planned.status === "pending_auth0" && typeof planned.id === "string" && planned.id) {
       const refreshed = await getGatewayActionStatus(planned.id);
+      rememberActionId(type, payload, refreshed.id);
       if (refreshed.status === "completed" || refreshed.status === "failed" || refreshed.status === "rejected") {
         await clearGuardianSetupState();
         return refreshed;
       }
 
-      return {
-        ...refreshed,
-        result:
-          "Approval requested. Check Auth0 Guardian on your phone and the companion status, then tell me once you approve it so I can retry or check the status.",
-      };
+      return approvalRequestedResult(refreshed);
+    }
+
+    if (planned.status === "completed" || planned.status === "failed" || planned.status === "rejected") {
+      rememberActionId(type, payload, planned.id);
     }
 
     await clearGuardianSetupState();
@@ -241,12 +349,14 @@ export async function planGatewayAction(
 
     await clearGuardianSetupState();
 
-    return {
+    const result = {
       ...planned,
       approval,
-      result:
-        "Approval requested. Check Auth0 Guardian on your phone and the companion status, then tell me once you approve it so I can retry or check the status.",
     };
+
+    rememberActionId(type, payload, planned.id);
+
+    return approvalRequestedResult(result);
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Approval request failed";
@@ -262,6 +372,7 @@ export async function planGatewayAction(
       );
     }
 
+    forgetActionId(type, payload);
     throw error;
   }
 }

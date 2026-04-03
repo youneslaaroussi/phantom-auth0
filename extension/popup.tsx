@@ -106,7 +106,7 @@ const Popup = () => {
       }}>
         {[
           { label: "GitHub", url: "https://github.com/youneslaaroussi/phantom-auth0" },
-          { label: "Companion", url: "http://localhost:8080/companion" },
+          { label: "Companion", url: "https://phantom-auth0-server-pio3n3nsna-uc.a.run.app/companion" },
           { label: "Permissions", url: "" },
         ].map((link) => (
           <a

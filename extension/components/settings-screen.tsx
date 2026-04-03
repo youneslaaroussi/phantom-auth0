@@ -382,9 +382,9 @@ export const SettingsScreen = ({ onBack }: SettingsScreenProps) => {
               {[
                 { label: "Permissions", url: "" },
                 { label: "GitHub", url: "https://github.com/youneslaaroussi/phantom-auth0" },
-                { label: "Companion", url: "http://localhost:8080/companion" },
-                { label: "Privacy Policy", url: "http://localhost:8080/privacy" },
-                { label: "Terms of Service", url: "http://localhost:8080/terms" },
+                { label: "Companion", url: "https://phantom-auth0-server-pio3n3nsna-uc.a.run.app/companion" },
+                { label: "Privacy Policy", url: "https://phantom-auth0-server-pio3n3nsna-uc.a.run.app/privacy" },
+                { label: "Terms of Service", url: "https://phantom-auth0-server-pio3n3nsna-uc.a.run.app/terms" },
               ].map((link, i) => (
                 <a
                   key={link.label}

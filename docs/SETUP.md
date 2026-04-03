@@ -55,10 +55,20 @@ Phantom App
 
 In the app settings, set:
 
-- Allowed Callback URLs: `http://localhost:8080/auth/callback`
-- Allowed Logout URLs: `http://localhost:8080/companion`
-- Allowed Web Origins: `http://localhost:8080`
-- Allowed Origins (CORS): `http://localhost:8080`
+- Allowed Callback URLs:
+  - `http://localhost:8080/auth/callback`
+  - `http://localhost:8080/connected-accounts/callback`
+  - `https://phantom-auth0-server-pio3n3nsna-uc.a.run.app/auth/callback`
+  - `https://phantom-auth0-server-pio3n3nsna-uc.a.run.app/connected-accounts/callback`
+- Allowed Logout URLs:
+  - `http://localhost:8080/companion`
+  - `https://phantom-auth0-server-pio3n3nsna-uc.a.run.app/companion`
+- Allowed Web Origins:
+  - `http://localhost:8080`
+  - `https://phantom-auth0-server-pio3n3nsna-uc.a.run.app`
+- Allowed Origins (CORS):
+  - `http://localhost:8080`
+  - `https://phantom-auth0-server-pio3n3nsna-uc.a.run.app`
 
 In `Advanced Settings -> Grant Types`, enable:
 
@@ -218,6 +228,9 @@ In Google Cloud, enable:
 
 - `Gmail API`
 - `Google Calendar API`
+- `Google Drive API`
+- `Google Sheets API`
+- `Google Tasks API`
 
 In `Google Auth Platform -> Data Access`, add:
 
@@ -234,10 +247,12 @@ Product scopes:
 - `.../auth/drive.metadata.readonly`
 - `.../auth/gmail.compose`
 - `.../auth/gmail.send`
+- `.../auth/spreadsheets`
+- `.../auth/tasks`
 
 For testing, your own Google account as a test user is enough. Full public verification can come later.
 
-If Google was already connected before you added Docs scopes, disconnect it in the companion and reconnect it so Auth0 stores a fresh grant with the updated scopes.
+If Google was already connected before you added Docs / Sheets / Tasks scopes, disconnect it in the companion and reconnect it so Auth0 stores a fresh grant with the updated scopes.
 
 ## 9. Configure the Auth0 Google Connection
 
@@ -493,6 +508,11 @@ Start with:
 
 - `Check my connected accounts.`
 - `Check my Google Calendar availability tomorrow from 2 PM to 4 PM Atlantic time.`
+- `List my Google Tasks.`
+- `Create a Google Task titled "Phantom follow-up" with notes "Reconnect Google after adding scopes."`
+- `List my Google Sheets.`
+- `Create a Google Sheet titled "Phantom tracker" with headers "Item", "Status", "Owner".`
+- `Append a row to Google Sheet SPREADSHEET_ID with values "Auth0 setup", "done", "Younes".`
 - `List my Google Docs.`
 - `Create a Google Doc titled "Phantom meeting brief" with content "Agenda\n\n- Demo Auth0\n- Review approvals\n- Capture next steps".`
 - `List my Linear teams.`
@@ -534,6 +554,7 @@ Google does not appear as connected or connect flow fails:
 - Auth0 Google connection not enabled for `Phantom App`
 - wrong Google OAuth redirect URI
 - Google client still points at the old tenant
+- required Google APIs or scopes are still missing
 
 Linear does not connect or issue creation fails:
 

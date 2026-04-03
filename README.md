@@ -105,7 +105,7 @@ Official references used while building this version:
 
 The extension is tied directly into the delegated action path. Auth0 is not a separate marketing layer.
 
-- The runtime agent session exposes Auth0-backed tools such as account status, calendar availability, Gmail draft creation, Google Docs creation, Linear team listing, and Linear issue creation.
+- The runtime agent session exposes Auth0-backed tools such as account status, calendar availability, Gmail draft creation and send, Google Docs creation, Google Tasks listing and creation, Google Sheets listing, creation, and row append, plus Linear team listing and issue creation.
 - Those tools resolve through the companion gateway.
 - The gateway uses Auth0 refresh-token exchange and Token Vault to mint provider access on demand.
 - High-risk actions enter an approval state before execution.
@@ -153,7 +153,7 @@ Validated in the repo and called out in product/docs:
 Implemented in code, but still dependent on tenant-side setup before claiming complete end-to-end coverage:
 
 - Auth0 async authorization for high-risk actions
-- Google Docs scopes and reconnect flow
+- Google Docs / Sheets / Tasks scopes and reconnect flow
 - Linear custom OAuth2 connection and Linear issue creation
 
 Explored but not part of the recommended v1 path:
@@ -165,7 +165,7 @@ Explored but not part of the recommended v1 path:
 
 | Provider | Connected Account | Read Path | Draft / Preview Path | Approval-Required Path | Status |
 | --- | --- | --- | --- | --- | --- |
-| Google | Yes | Calendar availability, Docs list | Gmail draft, Doc draft | Gmail send, Calendar create, Doc create | Recommended |
+| Google | Yes | Calendar availability, Docs list, Tasks list, Sheets list | Gmail draft, Doc draft | Gmail send, Calendar create, Doc create, Task create, Sheet create, Sheet append | Recommended |
 | Linear | Implemented | Team listing | Issue draft | Issue creation | Needs tenant validation |
 | GitHub | Experimental | Repo listing | Issue draft | Issue creation | Not part of v1 |
 | Slack | Partial | N/A | Preview only | Post message | Not part of v1 |

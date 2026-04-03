@@ -217,6 +217,8 @@ export async function startConnectedAccountFlow(params: {
           "https://www.googleapis.com/auth/drive.metadata.readonly",
           "https://www.googleapis.com/auth/gmail.compose",
           "https://www.googleapis.com/auth/gmail.send",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/tasks",
         ]
       : params.provider === "github"
         ? ["read:user", "user:email", "repo"]
@@ -522,6 +524,197 @@ async function executeCalendarCreate(identity: ActorIdentity, payload: Record<st
   return json;
 }
 
+async function executeGoogleTasksList(identity: ActorIdentity, payload: Record<string, unknown>) {
+  const token = await getDelegatedProviderAccessToken(identity, "google");
+  const taskListId = String(payload.taskListId || "@default");
+  const params = new URLSearchParams({
+    showCompleted: String(payload.showCompleted === true),
+    maxResults: String(
+      Math.min(
+        100,
+        Math.max(
+          1,
+          Number.isFinite(Number(payload.maxResults)) ? Number(payload.maxResults) : 20
+        )
+      )
+    ),
+  });
+  const response = await fetch(
+    `https://tasks.googleapis.com/tasks/v1/lists/${encodeURIComponent(taskListId)}/tasks?${params.toString()}`,
+    {
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  const json = (await response.json()) as Record<string, unknown>;
+  if (!response.ok) {
+    throw new Error(
+      typeof json.error === "object" ? JSON.stringify(json.error) : "Failed to list Google Tasks"
+    );
+  }
+  return {
+    taskListId,
+    items: Array.isArray(json.items) ? json.items : [],
+  };
+}
+
+async function executeGoogleTaskCreate(identity: ActorIdentity, payload: Record<string, unknown>) {
+  const token = await getDelegatedProviderAccessToken(identity, "google");
+  const taskListId = String(payload.taskListId || "@default");
+  const response = await fetch(
+    `https://tasks.googleapis.com/tasks/v1/lists/${encodeURIComponent(taskListId)}/tasks`,
+    {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${token}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        title: String(payload.title || ""),
+        notes:
+          typeof payload.notes === "string" && payload.notes.trim()
+            ? payload.notes
+            : undefined,
+        due:
+          typeof payload.due === "string" && payload.due.trim()
+            ? payload.due
+            : undefined,
+      }),
+    }
+  );
+  const json = (await response.json()) as Record<string, unknown>;
+  if (!response.ok) {
+    throw new Error(
+      typeof json.error === "object" ? JSON.stringify(json.error) : "Failed to create Google Task"
+    );
+  }
+  return json;
+}
+
+async function executeGoogleSheetsList(identity: ActorIdentity) {
+  const token = await getDelegatedProviderAccessToken(identity, "google");
+  const params = new URLSearchParams({
+    q: "mimeType='application/vnd.google-apps.spreadsheet' and trashed=false",
+    orderBy: "modifiedTime desc",
+    pageSize: "10",
+    fields: "files(id,name,webViewLink,modifiedTime)",
+  });
+  const response = await fetch(`https://www.googleapis.com/drive/v3/files?${params.toString()}`, {
+    headers: {
+      authorization: `Bearer ${token}`,
+    },
+  });
+  const json = (await response.json()) as Record<string, unknown>;
+  if (!response.ok) {
+    throw new Error(
+      typeof json.error === "object" ? JSON.stringify(json.error) : "Failed to list Google Sheets"
+    );
+  }
+  return {
+    files: Array.isArray(json.files) ? json.files : [],
+  };
+}
+
+async function executeGoogleSheetCreate(identity: ActorIdentity, payload: Record<string, unknown>) {
+  const token = await getDelegatedProviderAccessToken(identity, "google");
+  const title = String(payload.title || "Untitled spreadsheet");
+  const headers = Array.isArray(payload.headers)
+    ? payload.headers.map((value) => String(value))
+    : [];
+
+  const createResponse = await fetch("https://sheets.googleapis.com/v4/spreadsheets", {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${token}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      properties: { title },
+    }),
+  });
+  const createJson = (await createResponse.json()) as Record<string, unknown>;
+  if (!createResponse.ok) {
+    throw new Error(
+      typeof createJson.error === "object"
+        ? JSON.stringify(createJson.error)
+        : "Failed to create Google Sheet"
+    );
+  }
+
+  const spreadsheetId = String(createJson.spreadsheetId || "");
+  if (spreadsheetId && headers.length > 0) {
+    const headerResponse = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(spreadsheetId)}/values/${encodeURIComponent("Sheet1!A1")}?valueInputOption=USER_ENTERED`,
+      {
+        method: "PUT",
+        headers: {
+          authorization: `Bearer ${token}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          range: "Sheet1!A1",
+          majorDimension: "ROWS",
+          values: [headers],
+        }),
+      }
+    );
+    const headerJson = (await headerResponse.json()) as Record<string, unknown>;
+    if (!headerResponse.ok) {
+      throw new Error(
+        typeof headerJson.error === "object"
+          ? JSON.stringify(headerJson.error)
+          : "Failed to write Google Sheet headers"
+      );
+    }
+  }
+
+  return {
+    spreadsheetId,
+    title: createJson.properties && typeof createJson.properties === "object"
+      ? (createJson.properties as Record<string, unknown>).title
+      : title,
+    spreadsheetUrl: createJson.spreadsheetUrl,
+  };
+}
+
+async function executeGoogleSheetAppend(identity: ActorIdentity, payload: Record<string, unknown>) {
+  const token = await getDelegatedProviderAccessToken(identity, "google");
+  const spreadsheetId = String(payload.spreadsheetId || "");
+  if (!spreadsheetId) {
+    throw new Error("spreadsheetId is required to append a Google Sheet row");
+  }
+
+  const sheetName = String(payload.sheetName || "Sheet1");
+  const values = Array.isArray(payload.values)
+    ? payload.values.map((value) => String(value))
+    : [];
+  const range = `${sheetName}!A:Z`;
+  const response = await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(spreadsheetId)}/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
+    {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${token}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        majorDimension: "ROWS",
+        values: [values],
+      }),
+    }
+  );
+  const json = (await response.json()) as Record<string, unknown>;
+  if (!response.ok) {
+    throw new Error(
+      typeof json.error === "object"
+        ? JSON.stringify(json.error)
+        : "Failed to append Google Sheet row"
+    );
+  }
+  return json;
+}
+
 async function executeSlackPrepare(_identity: ActorIdentity, payload: Record<string, unknown>) {
   return {
     preview: {
@@ -724,6 +917,16 @@ function buildSummary(type: ExternalActionType, payload: Record<string, unknown>
   switch (type) {
     case "calendar_read":
       return `Check calendar availability from ${payload.timeMin} to ${payload.timeMax}`;
+    case "google_task_list":
+      return "List Google Tasks";
+    case "google_task_create":
+      return `Create Google Task "${payload.title}"`;
+    case "google_sheet_list":
+      return "List Google Sheets";
+    case "google_sheet_create":
+      return `Create Google Sheet "${payload.title}"`;
+    case "google_sheet_append":
+      return "Append row to Google Sheet";
     case "gmail_draft":
       return `Draft email "${payload.subject}"`;
     case "gmail_send":
@@ -761,6 +964,9 @@ function requiresApproval(type: ExternalActionType): boolean {
   return (
     type === "gmail_send" ||
     type === "calendar_create" ||
+    type === "google_task_create" ||
+    type === "google_sheet_create" ||
+    type === "google_sheet_append" ||
     type === "google_doc_create" ||
     type === "github_issue_create" ||
     type === "linear_issue_create" ||
@@ -772,6 +978,16 @@ async function executeImmediate(type: ExternalActionType, identity: ActorIdentit
   switch (type) {
     case "calendar_read":
       return executeGoogleAvailability(identity, payload);
+    case "google_task_list":
+      return executeGoogleTasksList(identity, payload);
+    case "google_task_create":
+      return executeGoogleTaskCreate(identity, payload);
+    case "google_sheet_list":
+      return executeGoogleSheetsList(identity);
+    case "google_sheet_create":
+      return executeGoogleSheetCreate(identity, payload);
+    case "google_sheet_append":
+      return executeGoogleSheetAppend(identity, payload);
     case "google_doc_list":
       return executeGoogleDocsList(identity);
     case "google_doc_prepare":

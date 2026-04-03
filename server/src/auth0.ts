@@ -41,7 +41,7 @@ function sanitizeBindingMessage(input: string): string {
     .replace(/[^A-Za-z0-9\s+\-_,.:#]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
-  return (normalized || "Approval required").slice(0, 255);
+  return (normalized || "Approval required").slice(0, 64);
 }
 
 async function sha256Base64Url(value: string): Promise<string> {

@@ -242,6 +242,70 @@ export function getToolDeclarations(): LiveToolDeclaration[] {
         parameters: { type: "object", properties: {} },
       },
       {
+        name: "listGoogleTasks",
+        description: "List Google Tasks from the connected Google account. Defaults to the primary task list.",
+        parameters: {
+          type: "object",
+          properties: {
+            taskListId: { type: "string", description: "Optional Google Tasks list ID. Defaults to the primary list." },
+            showCompleted: { type: "boolean", description: "Whether to include completed tasks." },
+            maxResults: { type: "number", description: "Maximum number of tasks to return (default: 20)." },
+          },
+        },
+      },
+      {
+        name: "createGoogleTask",
+        description: "Create a Google Task. This is a state-changing action and always requires approval in the companion app.",
+        parameters: {
+          type: "object",
+          properties: {
+            title: { type: "string", description: "Task title" },
+            notes: { type: "string", description: "Optional task notes" },
+            due: { type: "string", description: "Optional due date/time in ISO-8601 format" },
+            taskListId: { type: "string", description: "Optional Google Tasks list ID. Defaults to the primary list." },
+          },
+          required: ["title"],
+        },
+      },
+      {
+        name: "listGoogleSheets",
+        description: "List recent Google Sheets using the connected Google account.",
+        parameters: { type: "object", properties: {} },
+      },
+      {
+        name: "createGoogleSheet",
+        description: "Create a Google Sheet. This is a state-changing action and always requires approval in the companion app.",
+        parameters: {
+          type: "object",
+          properties: {
+            title: { type: "string", description: "Spreadsheet title" },
+            headers: {
+              type: "array",
+              items: { type: "string" },
+              description: "Optional first-row column headers",
+            },
+          },
+          required: ["title"],
+        },
+      },
+      {
+        name: "appendGoogleSheetRow",
+        description: "Append a row to an existing Google Sheet. This is a state-changing action and always requires approval in the companion app.",
+        parameters: {
+          type: "object",
+          properties: {
+            spreadsheetId: { type: "string", description: "Target Google Sheets spreadsheet ID" },
+            sheetName: { type: "string", description: "Optional sheet tab name. Defaults to Sheet1." },
+            values: {
+              type: "array",
+              items: { type: "string" },
+              description: "Cell values to append as one row",
+            },
+          },
+          required: ["spreadsheetId", "values"],
+        },
+      },
+      {
         name: "prepareGoogleDoc",
         description: "Prepare a Google Doc draft without creating it yet.",
         parameters: {
@@ -973,6 +1037,11 @@ async function executeToolInternal(
 
     case "getCalendarAvailability":
     case "draftEmailFromContext":
+    case "listGoogleTasks":
+    case "createGoogleTask":
+    case "listGoogleSheets":
+    case "createGoogleSheet":
+    case "appendGoogleSheetRow":
     case "listGoogleDocs":
     case "prepareGoogleDoc":
     case "createGoogleDoc":
@@ -989,6 +1058,11 @@ async function executeToolInternal(
       const actionMap: Record<string, GatewayActionType> = {
         getCalendarAvailability: "calendar_read",
         draftEmailFromContext: "gmail_draft",
+        listGoogleTasks: "google_task_list",
+        createGoogleTask: "google_task_create",
+        listGoogleSheets: "google_sheet_list",
+        createGoogleSheet: "google_sheet_create",
+        appendGoogleSheetRow: "google_sheet_append",
         listGoogleDocs: "google_doc_list",
         prepareGoogleDoc: "google_doc_prepare",
         createGoogleDoc: "google_doc_create",

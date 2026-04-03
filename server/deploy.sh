@@ -21,5 +21,13 @@ gcloud run deploy "${SERVICE_NAME}" \
   --max-instances 10 \
   --timeout 3600
 
+SERVICE_URL="$(gcloud run services describe "${SERVICE_NAME}" --region "${REGION}" --format 'value(status.url)')"
+
+echo "Syncing PUBLIC_BASE_URL to ${SERVICE_URL}..."
+gcloud run services update "${SERVICE_NAME}" \
+  --region "${REGION}" \
+  --platform managed \
+  --update-env-vars "PUBLIC_BASE_URL=${SERVICE_URL}" >/dev/null
+
 echo "Done."
 gcloud run services describe "${SERVICE_NAME}" --region "${REGION}" --format 'value(status.url)'
