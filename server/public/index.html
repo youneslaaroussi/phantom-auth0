@@ -195,6 +195,60 @@
       color: #021117;
     }
 
+    .nav-links .install,
+    .button.install {
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+      border-color: rgba(114, 243, 192, 0.28);
+      background:
+        linear-gradient(135deg, rgba(114, 243, 192, 0.94), rgba(104, 229, 255, 0.92));
+      color: #031116;
+      font-weight: 700;
+      box-shadow:
+        0 14px 34px rgba(104, 229, 255, 0.16),
+        0 0 0 1px rgba(255,255,255,0.08) inset;
+    }
+
+    .nav-links .install::before,
+    .button.install::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(120deg,
+          transparent 0%,
+          rgba(255,255,255,0.06) 34%,
+          rgba(255,255,255,0.32) 50%,
+          rgba(255,255,255,0.06) 66%,
+          transparent 100%);
+      transform: translateX(-120%);
+      animation: sweep 3.6s linear infinite;
+      z-index: -1;
+    }
+
+    .nav-links .install::after,
+    .button.install::after {
+      content: "";
+      position: absolute;
+      inset: -24%;
+      background: radial-gradient(circle, rgba(114, 243, 192, 0.2), transparent 58%);
+      opacity: 0.85;
+      z-index: -2;
+      animation: pulseGlow 2.8s ease-in-out infinite;
+    }
+
+    .nav-links .install:hover,
+    .button.install:hover {
+      color: #021117;
+      border-color: rgba(114, 243, 192, 0.42);
+      background:
+        linear-gradient(135deg, #90ffd5, #89f2ff);
+      box-shadow:
+        0 18px 42px rgba(104, 229, 255, 0.22),
+        0 0 0 1px rgba(255,255,255,0.12) inset;
+    }
+
     .hero {
       position: relative;
       min-height: calc(100svh - 76px);
@@ -460,6 +514,16 @@
       50% { transform: translate3d(0, -10px, 0); }
     }
 
+    @keyframes sweep {
+      0% { transform: translateX(-130%); }
+      100% { transform: translateX(130%); }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(0.98); opacity: 0.7; }
+      50% { transform: scale(1.04); opacity: 1; }
+    }
+
     @media (max-width: 980px) {
       .hero-shell,
       .cta-band {
@@ -542,7 +606,10 @@
           <img src="/github-icon.svg" alt="">
           Source
         </a>
-        <a class="cta" href="/companion">Open Console</a>
+        <a class="install" href="https://chromewebstore.google.com/detail/aflfhfkamfeolcopkgdmbnobebaoohei" target="_blank" rel="noreferrer">
+          <i data-lucide="download" style="width:18px;height:18px"></i>
+          Install extension
+        </a>
       </div>
     </div>
   </nav>
@@ -554,13 +621,13 @@
         <h1>Local agent. <span>Visible authority.</span></h1>
         <p>The browser keeps execution and context. The companion makes identity, connected accounts, and approval state legible before the agent crosses a boundary.</p>
         <div class="hero-actions">
+          <a class="button install" href="https://chromewebstore.google.com/detail/aflfhfkamfeolcopkgdmbnobebaoohei" target="_blank" rel="noreferrer">
+            <i data-lucide="download" style="width:18px;height:18px"></i>
+            Install for Chrome
+          </a>
           <a class="button primary" href="/companion">
             <i data-lucide="arrow-up-right" style="width:18px;height:18px"></i>
             Open companion
-          </a>
-          <a class="button secondary" href="https://github.com/youneslaaroussi/phantom-auth0" target="_blank" rel="noreferrer">
-            <img src="/github-icon.svg" alt="">
-            Review source
           </a>
         </div>
       </div>
@@ -636,18 +703,18 @@
     <section>
       <div class="cta-band" data-reveal>
         <div>
-          <div class="section-kicker">Open the surface</div>
-          <h2>See the control plane directly.</h2>
-          <p>Open the companion and inspect the boundary itself instead of reading around it.</p>
+          <div class="section-kicker">Install path</div>
+          <h2>Install the extension, then inspect the boundary.</h2>
+          <p>Start with the Chrome extension, then open the companion to see connected accounts, approval state, and delegated action history.</p>
         </div>
         <div class="hero-actions">
-          <a class="button primary" href="/companion">
+          <a class="button install" href="https://chromewebstore.google.com/detail/aflfhfkamfeolcopkgdmbnobebaoohei" target="_blank" rel="noreferrer">
+            <i data-lucide="download" style="width:18px;height:18px"></i>
+            Install extension
+          </a>
+          <a class="button secondary" href="/companion">
             <i data-lucide="shield-ellipsis" style="width:18px;height:18px"></i>
             Open companion
-          </a>
-          <a class="button secondary" href="/blog">
-            <i data-lucide="file-text" style="width:18px;height:18px"></i>
-            Read narrative
           </a>
         </div>
       </div>
