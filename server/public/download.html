@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Download Phantom Auth0</title>
+  <meta name="description" content="Download the Phantom Auth0 Chrome extension build, watch the demo, and check the Chrome Web Store listing if it has been approved.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Download Phantom Auth0">
+  <meta property="og:description" content="Get the extension ZIP, watch the demo, and check the Chrome Web Store listing.">
+  <meta property="og:url" content="https://phantom-auth0-server-pio3n3nsna-uc.a.run.app/download">
+  <meta property="og:site_name" content="Phantom Auth0">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Download Phantom Auth0">
+  <meta name="twitter:description" content="Download the extension build and watch the setup demo.">
+  <link rel="icon" type="image/svg+xml" href="/brand-mark.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="canonical" href="https://phantom-auth0-server-pio3n3nsna-uc.a.run.app/download">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #071018;
+      --bg-deep: #040a10;
+      --surface: rgba(11, 20, 29, 0.78);
+      --surface-strong: rgba(13, 24, 35, 0.92);
+      --line: rgba(104, 229, 255, 0.14);
+      --line-strong: rgba(104, 229, 255, 0.22);
+      --text: #edf6fb;
+      --muted: #8ea3b1;
+      --muted-strong: #cbd8e0;
+      --accent: #68e5ff;
+      --accent-soft: rgba(104, 229, 255, 0.08);
+      --ok: #72f3c0;
+      --display: "Space Grotesk", sans-serif;
+      --body: "IBM Plex Sans", sans-serif;
+      --mono: "IBM Plex Mono", monospace;
+      --max: 1080px;
+      --ease: 560ms cubic-bezier(.2,.7,.2,1);
+      --shadow: 0 22px 60px rgba(0, 0, 0, 0.28);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--body);
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, rgba(104, 229, 255, 0.12), transparent 22%),
+        radial-gradient(circle at 0% 100%, rgba(114, 243, 192, 0.05), transparent 18%),
+        linear-gradient(180deg, var(--bg-deep) 0%, var(--bg) 100%);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(104, 229, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(104, 229, 255, 0.035) 1px, transparent 1px);
+      background-size: 72px 72px;
+      mask-image: linear-gradient(180deg, rgba(255,255,255,0.6), transparent 82%);
+      pointer-events: none;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(18px);
+      background: rgba(4, 10, 16, 0.68);
+      border-bottom: 1px solid rgba(104, 229, 255, 0.08);
+    }
+
+    .nav-inner,
+    .hero-shell,
+    .section-shell,
+    footer {
+      width: min(100%, var(--max));
+      margin: 0 auto;
+      padding-left: 28px;
+      padding-right: 28px;
+    }
+
+    .nav-inner {
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-mark {
+      width: 30px;
+      height: 30px;
+      display: block;
+      flex: 0 0 auto;
+      filter: drop-shadow(0 0 18px rgba(104, 229, 255, 0.18));
+    }
+
+    .brand-copy {
+      display: grid;
+      gap: 5px;
+    }
+
+    .brand-name {
+      font: 700 18px/1 var(--display);
+      letter-spacing: -0.04em;
+    }
+
+    .brand-tag,
+    .eyebrow,
+    .section-kicker,
+    .detail-label {
+      font-family: var(--mono);
+      color: var(--accent);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .brand-tag {
+      color: var(--muted);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a,
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 11px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(104, 229, 255, 0.12);
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--muted-strong);
+      transition: 180ms ease;
+    }
+
+    .nav-links a:hover,
+    .button:hover {
+      color: var(--text);
+      border-color: rgba(104, 229, 255, 0.24);
+      background: rgba(104, 229, 255, 0.07);
+    }
+
+    .button.primary {
+      background: var(--accent);
+      color: #021117;
+      border-color: transparent;
+      font-weight: 600;
+      box-shadow: 0 10px 24px rgba(104, 229, 255, 0.14);
+    }
+
+    .button.primary:hover {
+      background: #8bf0ff;
+      color: #021117;
+    }
+
+    .button.install {
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+      border-color: rgba(114, 243, 192, 0.28);
+      background:
+        linear-gradient(135deg, rgba(114, 243, 192, 0.94), rgba(104, 229, 255, 0.92));
+      color: #031116;
+      font-weight: 700;
+      box-shadow:
+        0 14px 34px rgba(104, 229, 255, 0.16),
+        0 0 0 1px rgba(255,255,255,0.08) inset;
+    }
+
+    .button.install::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(120deg,
+          transparent 0%,
+          rgba(255,255,255,0.06) 34%,
+          rgba(255,255,255,0.32) 50%,
+          rgba(255,255,255,0.06) 66%,
+          transparent 100%);
+      transform: translateX(-120%);
+      animation: sweep 3.6s linear infinite;
+      z-index: -1;
+    }
+
+    .button.install::after {
+      content: "";
+      position: absolute;
+      inset: -24%;
+      background: radial-gradient(circle, rgba(114, 243, 192, 0.2), transparent 58%);
+      opacity: 0.85;
+      z-index: -2;
+      animation: pulseGlow 2.8s ease-in-out infinite;
+    }
+
+    .button.install:hover {
+      color: #021117;
+      border-color: rgba(114, 243, 192, 0.42);
+      background:
+        linear-gradient(135deg, #90ffd5, #89f2ff);
+      box-shadow:
+        0 18px 42px rgba(104, 229, 255, 0.22),
+        0 0 0 1px rgba(255,255,255,0.12) inset;
+    }
+
+    .hero {
+      padding: 64px 0 32px;
+      border-bottom: 1px solid rgba(104, 229, 255, 0.08);
+    }
+
+    .hero-shell {
+      display: grid;
+      gap: 24px;
+      align-items: start;
+    }
+
+    h1,
+    h2 {
+      font-family: var(--display);
+      letter-spacing: -0.05em;
+      line-height: 0.94;
+    }
+
+    h1 {
+      font-size: clamp(46px, 10vw, 82px);
+      max-width: 10ch;
+    }
+
+    h1 span {
+      color: var(--accent);
+    }
+
+    h2 {
+      font-size: clamp(30px, 5vw, 46px);
+    }
+
+    .eyebrow,
+    .section-kicker {
+      margin-bottom: 16px;
+    }
+
+    .hero-copy p,
+    .intro,
+    .store-note,
+    footer {
+      color: var(--muted-strong);
+      line-height: 1.72;
+      font-size: 17px;
+      max-width: 720px;
+    }
+
+    .hero-actions,
+    .secondary-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    main {
+      padding: 36px 0 88px;
+    }
+
+    .section-shell {
+      display: grid;
+      gap: 24px;
+    }
+
+    .download-card,
+    .video-card,
+    .store-card {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)),
+        var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      overflow: clip;
+    }
+
+    .download-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.9fr);
+    }
+
+    .download-main,
+    .download-side,
+    .video-shell,
+    .store-shell {
+      padding: 28px;
+    }
+
+    .download-side {
+      border-left: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(104, 229, 255, 0.05), rgba(114, 243, 192, 0.03));
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+
+    .detail-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .detail-item {
+      display: grid;
+      gap: 6px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .detail-item strong {
+      font-size: 16px;
+      color: var(--text);
+    }
+
+    .detail-item span {
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .video-card {
+      display: grid;
+      gap: 22px;
+    }
+
+    .video-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 22px;
+      overflow: hidden;
+      border: 1px solid var(--line-strong);
+      background: #03090d;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+    }
+
+    .video-frame iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .store-card {
+      background:
+        radial-gradient(circle at top right, rgba(104, 229, 255, 0.08), transparent 28%),
+        var(--surface-strong);
+    }
+
+    .store-shell {
+      display: grid;
+      gap: 16px;
+    }
+
+    .store-note {
+      color: var(--muted);
+      max-width: none;
+    }
+
+    footer {
+      width: min(100%, var(--max));
+      margin: 0 auto;
+      padding: 0 28px 40px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    @keyframes sweep {
+      from { transform: translateX(-120%); }
+      to { transform: translateX(140%); }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(0.96); opacity: 0.65; }
+      50% { transform: scale(1.02); opacity: 1; }
+    }
+
+    @media (max-width: 820px) {
+      .download-card {
+        grid-template-columns: 1fr;
+      }
+
+      .download-side {
+        border-left: 0;
+        border-top: 1px solid var(--line);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .nav-inner,
+      .hero-shell,
+      .section-shell,
+      footer {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .nav-inner {
+        min-height: 70px;
+      }
+
+      h1 {
+        font-size: clamp(42px, 16vw, 62px);
+      }
+
+      .hero-copy p,
+      .intro,
+      .store-note,
+      footer {
+        font-size: 16px;
+      }
+
+      .download-main,
+      .download-side,
+      .video-shell,
+      .store-shell {
+        padding: 22px 18px;
+      }
+
+      .button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <a href="/" class="brand">
+        <img class="brand-mark" src="/brand-mark.svg" alt="Phantom Auth0 mark">
+        <span class="brand-copy">
+          <span class="brand-name">Phantom Auth0</span>
+          <span class="brand-tag">Authorization Surface</span>
+        </span>
+      </a>
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/companion">Companion</a>
+        <a href="https://github.com/youneslaaroussi/phantom-auth0" target="_blank" rel="noreferrer">Source</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-shell">
+      <div class="hero-copy">
+        <div class="eyebrow">Extension access</div>
+        <h1>Download the build. <span>Watch it run.</span></h1>
+        <p>Use the packaged Chrome extension ZIP below, then open the companion to pair the browser, connect accounts, and inspect the delegated action boundary.</p>
+        <div class="hero-actions">
+          <a class="button install" href="/downloads/phantom-auth0-chrome-mv3-prod.zip" download>
+            <i data-lucide="download" style="width:18px;height:18px"></i>
+            Download extension ZIP
+          </a>
+          <a class="button primary" href="/companion">
+            <i data-lucide="arrow-up-right" style="width:18px;height:18px"></i>
+            Open companion
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section-shell">
+      <div class="download-card">
+        <div class="download-main">
+          <div class="section-kicker">Direct build</div>
+          <h2>Get the current extension ZIP.</h2>
+          <p class="intro">This downloads the packaged build currently in the repo. If you are installing manually in Chrome, unzip it first, then load the extracted folder as an unpacked extension.</p>
+          <div class="secondary-actions">
+            <a class="button install" href="/downloads/phantom-auth0-chrome-mv3-prod.zip" download>
+              <i data-lucide="hard-drive-download" style="width:18px;height:18px"></i>
+              Download ZIP
+            </a>
+          </div>
+        </div>
+        <aside class="download-side">
+          <div class="detail-list">
+            <div class="detail-item">
+              <div class="detail-label">Package</div>
+              <strong>Chrome MV3 production build</strong>
+              <span>Served directly from the current repository build artifact.</span>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Install</div>
+              <strong>Manual Chrome load</strong>
+              <span>Unzip the archive, then load the extracted folder from Chrome’s extensions page.</span>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Next step</div>
+              <strong>Pair with the companion</strong>
+              <span>Use the hosted companion to sign in, connect providers, and review approval state.</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <div class="video-card">
+        <div class="video-shell">
+          <div class="section-kicker">Demo</div>
+          <h2>Watch the flow first.</h2>
+          <p class="intro">This walkthrough shows what the extension and companion experience look like before you install it locally.</p>
+        </div>
+        <div class="video-shell" style="padding-top:0;">
+          <div class="video-frame">
+            <iframe src="https://agenticvideo.studio/embed/0481a7e83d0c44c99a4627e051ae8aee" title="meta rec" width="960" height="540" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="store-card">
+        <div class="store-shell">
+          <div class="section-kicker">Chrome Web Store</div>
+          <h2>Store listing status may still be pending.</h2>
+          <p class="store-note">If the Chrome Web Store submission has already been accepted, the public listing should work. If not, it may still be unavailable.</p>
+          <div class="secondary-actions" style="margin-top:0;">
+            <a class="button" href="https://chromewebstore.google.com/detail/aflfhfkamfeolcopkgdmbnobebaoohei" target="_blank" rel="noreferrer">
+              <i data-lucide="external-link" style="width:18px;height:18px"></i>
+              Open Chrome Web Store listing
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Phantom Auth0 by <a href="https://youneslaaroussi.ca">youneslaaroussi.ca</a>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

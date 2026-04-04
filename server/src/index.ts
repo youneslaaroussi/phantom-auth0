@@ -17,6 +17,7 @@ import { completeConnectedAccountFlow, disconnectConnectedAccount, getActionForU
 const app = new Hono();
 const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
 const blogPageUrl = new URL("../public/blog.html", import.meta.url);
+const downloadPageUrl = new URL("../public/download.html", import.meta.url);
 
 setInterval(() => cleanupState(), 60_000).unref?.();
 
@@ -377,6 +378,16 @@ app.get("/blog", async (c) => {
 
 app.get("/blog.html", async (c) => {
   const html = await readFile(blogPageUrl, "utf8");
+  return c.html(html);
+});
+
+app.get("/download", async (c) => {
+  const html = await readFile(downloadPageUrl, "utf8");
+  return c.html(html);
+});
+
+app.get("/download.html", async (c) => {
+  const html = await readFile(downloadPageUrl, "utf8");
   return c.html(html);
 });
 

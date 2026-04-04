@@ -13,6 +13,10 @@ This repo is intentionally isolated from the original Phantom repo and deploymen
 
 ![Guardian QR Approval Lanes](docs/diagrams/ai-experiments/guardian-qr-approval-lanes.jpeg)
 
+## Download
+
+- [Download the extension build](https://phantom-auth0-server-pio3n3nsna-uc.a.run.app/download)
+
 ## Auth0 Setup
 
 For a full end-to-end tenant rebuild guide, use:
