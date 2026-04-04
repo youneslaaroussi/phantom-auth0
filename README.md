@@ -188,7 +188,7 @@ That separation is the primary significant update in this repo.
 ### Server
 
 ```bash
-cd /Users/mac/dev/phantom-auth0/server
+cd server
 npm install
 npm run dev
 ```
@@ -200,7 +200,7 @@ Companion app:
 ### Extension
 
 ```bash
-cd /Users/mac/dev/phantom-auth0/extension
+cd extension
 npm install
 npm run dev
 ```

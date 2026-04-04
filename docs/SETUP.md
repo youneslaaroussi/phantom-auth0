@@ -17,10 +17,10 @@ It covers:
 
 This guide is written against the current repo state in:
 
-- [server/src/config.ts](/Users/mac/dev/phantom-auth0/server/src/config.ts)
-- [server/src/auth0.ts](/Users/mac/dev/phantom-auth0/server/src/auth0.ts)
-- [server/src/action-gateway.ts](/Users/mac/dev/phantom-auth0/server/src/action-gateway.ts)
-- [server/src/index.ts](/Users/mac/dev/phantom-auth0/server/src/index.ts)
+- [server/src/config.ts](server/src/config.ts)
+- [server/src/auth0.ts](server/src/auth0.ts)
+- [server/src/action-gateway.ts](server/src/action-gateway.ts)
+- [server/src/index.ts](server/src/index.ts)
 
 ## 1. Create a New Auth0 Tenant
 
@@ -362,7 +362,7 @@ Then enable the Linear connection for:
 
 ## 11. Update `server/.env`
 
-Set your local env in [server/.env](/Users/mac/dev/phantom-auth0/server/.env):
+Set your local env in [server/.env](server/.env):
 
 ```bash
 PORT=8080
@@ -445,7 +445,7 @@ You can verify the patch by fetching the client document and checking that `refr
 Server:
 
 ```bash
-cd /Users/mac/dev/phantom-auth0/server
+cd server
 npm install
 npm run dev
 ```
@@ -453,7 +453,7 @@ npm run dev
 Extension:
 
 ```bash
-cd /Users/mac/dev/phantom-auth0/extension
+cd extension
 npm install
 npm run dev
 ```
@@ -461,7 +461,7 @@ npm run dev
 Load the unpacked extension from:
 
 ```text
-/Users/mac/dev/phantom-auth0/extension/build/chrome-mv3-dev
+extension/build/chrome-mv3-dev
 ```
 
 Open:
