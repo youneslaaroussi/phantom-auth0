@@ -150,12 +150,6 @@ Validated in the repo and called out in product/docs:
 - server build
 - extension build
 
-Implemented in code, but still dependent on tenant-side setup before claiming complete end-to-end coverage:
-
-- Auth0 async authorization for high-risk actions
-- Google Docs / Sheets / Tasks scopes and reconnect flow
-- Linear custom OAuth2 connection and Linear issue creation
-
 Explored but not part of the recommended v1 path:
 
 - GitHub
@@ -166,7 +160,7 @@ Explored but not part of the recommended v1 path:
 | Provider | Connected Account | Read Path | Draft / Preview Path | Approval-Required Path | Status |
 | --- | --- | --- | --- | --- | --- |
 | Google | Yes | Calendar availability, Docs list, Tasks list, Sheets list | Gmail draft, Doc draft | Gmail send, Calendar create, Doc create, Task create, Sheet create, Sheet append | Recommended |
-| Linear | Implemented | Team listing | Issue draft | Issue creation | Needs tenant validation |
+| Linear | Implemented | Team listing | Issue draft | Issue creation | Recommended |
 | GitHub | Experimental | Repo listing | Issue draft | Issue creation | Not part of v1 |
 | Slack | Partial | N/A | Preview only | Post message | Not part of v1 |
 
